@@ -1,0 +1,8 @@
+{
+  "profiles": {
+    "ucg": {
+      "commandName": "Project",
+      "commandLineArgs": "hello.xml"
+    }
+  }
+}
