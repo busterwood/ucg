@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using static System.StringComparison;
 
 namespace BusterWood.UniCodeGen
 {
@@ -46,13 +47,13 @@ namespace BusterWood.UniCodeGen
         private static Line CreateScriptLine(string line)
         {
             var firstWord = "." + FirstWord(line, 1);
-            if (OutputLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (OutputLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new OutputLine(line);
-            if (IncludeLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (IncludeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new IncludeLine(line);
-            if (ForEachLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (ForEachLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new ForEachLine(line);
-            if (EndForLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndForLine(line);
 
             throw new NotImplementedException();
@@ -115,7 +116,7 @@ namespace BusterWood.UniCodeGen
                 changeCase = false;
             }
 
-            var found = model.Attributes().FirstOrDefault(a => string.Equals(variable, a.Name.LocalName, StringComparison.OrdinalIgnoreCase));
+            var found = model.Attributes().FirstOrDefault(a => variable.Equals(a.Name.LocalName, OrdinalIgnoreCase));
             if (found == null)
                 throw new ScriptException($"Cannot find model attribute called '{variable}'");
             string value = found.Value;
@@ -229,7 +230,7 @@ namespace BusterWood.UniCodeGen
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
 
-            foreach (var child in model.Elements().Where(e => string.Equals(_path, e.Name.LocalName, StringComparison.OrdinalIgnoreCase)))
+            foreach (var child in model.Elements().Where(e => _path.Equals(e.Name.LocalName, OrdinalIgnoreCase)))
             {
                 foreach (var l in Body)
                 {
