@@ -6,9 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 
-namespace ucg
+namespace BusterWood.UniCodeGen
 {
-
     class Context
     {
         public TextWriter Output { get; set; }
@@ -49,14 +48,14 @@ namespace ucg
             var firstWord = "." + FirstWord(line, 1);
             if (OutputLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
                 return new OutputLine(line);
-            else if (IncludeLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (IncludeLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
                 return new IncludeLine(line);
-            else if (ForEachLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (ForEachLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
                 return new ForEachLine(line);
-            else if (EndForLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
+            if (EndForLine.Keyword.Equals(firstWord, StringComparison.OrdinalIgnoreCase))
                 return new EndForLine(line);
-            else
-                throw new NotImplementedException();
+
+            throw new NotImplementedException();
         }
 
         private static string FirstWord(string line, int index)
@@ -93,7 +92,7 @@ namespace ucg
                 var startIdx = text.IndexOf("$(", startOfText);
                 if (startIdx < 0)
                 {
-                    sb.Append(text.Substring(startOfText));
+                    sb.Append(text.Substring(startOfText)); // no more variable to substitute
                     break;
                 }
                 var endIdx = text.IndexOf(")", startIdx);
@@ -119,18 +118,20 @@ namespace ucg
             var found = model.Attributes().FirstOrDefault(a => string.Equals(variable, a.Name.LocalName, StringComparison.OrdinalIgnoreCase));
             if (found == null)
                 throw new ScriptException($"Cannot find model attribute called '{variable}'");
-
+            string value = found.Value;
             if (changeCase)
             {
                 if (variable.All(char.IsUpper))
-                    return found.Value.ToUpper();
+                    return value.ToUpper();
                 if (variable.All(char.IsLower))
-                    return found.Value.ToLower();
-                if (variable.Length > 2 && char.IsUpper(variable[0]) && variable.Skip(1).All(char.IsLower))
-                    return char.ToUpper(found.Value[0]) + found.Value.Substring(1).ToLower();
+                    return value.ToLower();
+                if (PascalCase(variable))
+                    return char.ToUpper(value[0]) + value.Substring(1).ToLower();
             }
-            return found.Value;
+            return value;
         }
+
+        private static bool PascalCase(string variable) => variable.Length > 2 && char.IsUpper(variable[0]) && variable.Skip(1).All(char.IsLower);
     }
 
     /// <summary>Line does not start with "." but may contain text substitutions</summary>
@@ -216,7 +217,7 @@ namespace ucg
             Text = line;
             var bits = line.Substring(1).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
             
-            //TODO: support multiple levels?
+            //support multiple levels?
             if (bits.Length != 2)
                 throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
 

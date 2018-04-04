@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Runtime.Serialization;
 
-namespace ucg
+namespace BusterWood.UniCodeGen
 {
     [Serializable]
     internal class ScriptException : Exception

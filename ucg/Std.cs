@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ucg
+namespace BusterWood.UniCodeGen
 {
     static class Std
     {
