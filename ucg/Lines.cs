@@ -56,7 +56,7 @@ namespace BusterWood.UniCodeGen
             if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndForLine(line);
 
-            throw new NotImplementedException();
+            throw new ScriptException($"{firstWord} is not a known script command on line '{line}'");
         }
 
         private static string FirstWord(string line, int index)
