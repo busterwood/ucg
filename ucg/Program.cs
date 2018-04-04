@@ -29,7 +29,7 @@ namespace ucg
                 }
 
                 XDocument model = XDocument.Load(modelPath);
-                Scripts.RunDocument(scriptPath, model, ctx);
+                Scripts.Run(scriptPath, model.Root, ctx);
                 return 0;
             }
             catch (Exception ex)

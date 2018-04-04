@@ -75,6 +75,7 @@ namespace ucg
         IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 
+    /// <summary>A line of a a script</summary>
     abstract class Line
     {
         public string Text { get; set; }
@@ -206,18 +207,20 @@ namespace ucg
     {
         public const string Keyword = ".foreach";
 
-        readonly string[] _path;
+        readonly string _path;
 
         public List<Line> Body;
 
         public ForEachLine(string line)
         {
             Text = line;
-            _path = line.Substring(Keyword.Length).Trim().Split('.', StringSplitOptions.RemoveEmptyEntries);
+            var bits = line.Substring(1).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
             
             //TODO: support multiple levels?
-            if (_path.Length != 1)
+            if (bits.Length != 2)
                 throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
+
+            _path = bits[1]; // skip the keyword at index 0
         }
 
         public override void Execute(XElement model, Context ctx)
@@ -225,7 +228,7 @@ namespace ucg
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
 
-            foreach (var child in model.Elements().Where(e => string.Equals(_path[0], e.Name.LocalName, StringComparison.OrdinalIgnoreCase)))
+            foreach (var child in model.Elements().Where(e => string.Equals(_path, e.Name.LocalName, StringComparison.OrdinalIgnoreCase)))
             {
                 foreach (var l in Body)
                 {

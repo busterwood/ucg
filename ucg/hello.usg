@@ -1,6 +1,8 @@
-﻿.output "$(title).html"
+﻿.foreach page
+.  output "$(title).html"
 <h1>$(title)</h1>
 <p>This is page $(Title)</p>
-.foreach section
+.  foreach section
 <h3>section $(Name)</h3>
+.  endfor
 .endfor

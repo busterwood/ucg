@@ -7,13 +7,10 @@ namespace ucg
 {
     static class Scripts
     {
-        public static void RunDocument(string scriptPath, XDocument model, Context ctx)
+        public static void Run(string scriptPath, XElement model, Context ctx)
         {
             string script = Load(scriptPath);
-            foreach (var child in model.Root.Elements())
-            {
-                RunScript(script, child, ctx);
-            }
+            RunScript(script, model, ctx);
             ctx.Output.Flush();
         }
 
@@ -22,15 +19,8 @@ namespace ucg
             Std.Info($"Running script '{scriptPath}'");
             if (!File.Exists(scriptPath))
                 throw new ScriptException($"Cannot file script '{scriptPath}'");
-            
-            return File.ReadAllText(scriptPath);
-        }
 
-        public static void Run(string scriptPath, XElement model, Context ctx)
-        {
-            string script = Load(scriptPath);
-            RunScript(script, model, ctx);
-            ctx.Output.Flush();
+            return File.ReadAllText(scriptPath);
         }
 
         private static void RunScript(string script, XElement model, Context ctx)
