@@ -1,0 +1,11 @@
+﻿.template on
+CREATE TABLE dbo.[$(NAME)] 
+(
+.foreach field
+	[$(NAME)] $(type:),
+.end
+.foreach primary
+	ADD CONSTRAINT PK_$(../NAME) PRIMARY KEY CLUSTERED ($(KEY))
+.end	
+)
+GO

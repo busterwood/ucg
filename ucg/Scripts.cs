@@ -25,7 +25,7 @@ namespace BusterWood.UniCodeGen
 
         private static void RunScript(string script, XElement model, Context ctx)
         {
-            var parsed = Parse(script);
+            var parsed = Parse(script, ctx);
             Execute(model, ctx, parsed);
         }
 
@@ -37,9 +37,9 @@ namespace BusterWood.UniCodeGen
             }
         }
 
-        private static List<Line> Parse(string script)
+        private static List<Line> Parse(string script, Context ctx)
         {
-            var lines = new LineReader(new StringReader(script)).GetEnumerator();
+            var lines = new LineReader(new StringReader(script), ctx).GetEnumerator();
 
             var body = new List<Line>();
             while (lines.MoveNext())

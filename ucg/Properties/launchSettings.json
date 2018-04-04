@@ -2,7 +2,8 @@
   "profiles": {
     "ucg": {
       "commandName": "Project",
-      "commandLineArgs": "--script hello.ucg hello.xml"
+      "commandLineArgs": "--script schema.ucg schema.xml",
+      "workingDirectory": "C:\\git\\BusterWood\\ucg\\ucg\\bin\\Debug\\netcoreapp2.0\\Db"
     }
   }
 }

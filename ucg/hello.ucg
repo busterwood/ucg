@@ -4,5 +4,5 @@
 <p>This is page $(Title)</p>
 .  foreach section
 <h3>section $(Name)</h3>
-.  endfor
-.endfor
+.  end
+.end

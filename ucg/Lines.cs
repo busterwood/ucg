@@ -12,56 +12,73 @@ namespace BusterWood.UniCodeGen
     class Context
     {
         public TextWriter Output { get; set; }
+        public bool TemplateMode { get; set; } = true;
+        public bool IsLast { get; set; }
     }
 
     class LineReader : IEnumerable<Line>
     {
-        readonly TextReader reader;
+        readonly TextReader _reader;
+        readonly Context _context;
 
-        public LineReader(TextReader reader)
+        public LineReader(TextReader reader, Context context)
         {
-            this.reader = reader;
+            _reader = reader;
+            _context = context;
         }
 
         public IEnumerator<Line> GetEnumerator()
         {
             for(;;)
             {
-                var line = reader.ReadLine();
+                var line = _reader.ReadLine();
                 if (line == null)
                     break;
                 yield return Create(line);
             }
         }
 
-        private static Line Create(string line)
+        private Line Create(string line)
         {
-            if (IsScript(line))
+            if (!_context.TemplateMode || IsScript(line))
                 return CreateScriptLine(line);
             else
                 return new TemplateLine { Text = line };
         }
 
-        private static bool IsScript(string line) => line.Length > 0 && line[0] == '.';
+        private bool IsScript(string line) => line.Length > 0 && line[0] == '.';
 
-        private static Line CreateScriptLine(string line)
+        private Line CreateScriptLine(string line)
         {
-            var firstWord = "." + FirstWord(line, 1);
+            var firstWord = "." + FirstWord(line);
+
             if (OutputLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new OutputLine(line);
+
             if (IncludeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new IncludeLine(line);
+
             if (ForEachLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new ForEachLine(line);
+
             if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndForLine(line);
+
+            if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+            {
+                var tm = new TemplateModeLine(line);
+                _context.TemplateMode = tm.On; // changes how lines parse
+                return tm;
+            }
 
             throw new ScriptException($"{firstWord} is not a known script command on line '{line}'");
         }
 
-        private static string FirstWord(string line, int index)
+        private static string FirstWord(string line)
         {
-            var start = index;
+            var start = 0;
+            while (start < line.Length && line[start] == '.')
+                start++;
             while (start < line.Length && char.IsWhiteSpace(line[start]))
                 start++;
 
@@ -84,7 +101,7 @@ namespace BusterWood.UniCodeGen
 
         public abstract void Execute(XElement model, Context ctx);
 
-        protected static string ExpandVars(string text, XElement model)
+        protected static string ExpandVars(string text, XElement model, Context ctx)
         {
             var sb = new StringBuilder();
             var startOfText = 0;
@@ -99,27 +116,20 @@ namespace BusterWood.UniCodeGen
                 var endIdx = text.IndexOf(")", startIdx);
                 sb.Append(text.Substring(startOfText, startIdx - startOfText));
                 var variable = text.Substring(startIdx + 2, endIdx - (startIdx + 2));
-                sb.Append(Evaluate(variable, model));
+                sb.Append(Evaluate(variable, model, ctx));
                 startOfText = endIdx + 1;
             }
             return sb.ToString();
         }
 
-        private static string Evaluate(string variable, XElement model)
+        private static string Evaluate(string variable, XElement model, Context ctx)
         {
             //TODO: evaluate dotted paths, e.g. page.title
             //TODO: change case of output via a format suffix?
-            bool changeCase = true;
-            if (variable.EndsWith(':'))
-            {
-                variable = variable.TrimEnd(':');
-                changeCase = false;
-            }
+            bool changeCase = CanChangeCase(ref variable);
 
-            var found = model.Attributes().FirstOrDefault(a => variable.Equals(a.Name.LocalName, OrdinalIgnoreCase));
-            if (found == null)
-                throw new ScriptException($"Cannot find model attribute called '{variable}'");
-            string value = found.Value;
+            string value = FindValue(ref variable, model, ctx);
+
             if (changeCase)
             {
                 if (variable.All(char.IsUpper))
@@ -132,6 +142,36 @@ namespace BusterWood.UniCodeGen
             return value;
         }
 
+        private static bool CanChangeCase(ref string variable)
+        {
+            bool changeCase = true;
+            if (variable.Length > 1 && variable.EndsWith(':'))
+            {
+                variable = variable.TrimEnd(':');
+                changeCase = false;
+            }
+
+            return changeCase;
+        }
+
+        private static string FindValue(ref string variable, XElement model, Context ctx)
+        {
+            while (variable.StartsWith("../"))
+            {
+                model = model.Parent;
+                variable = variable.Substring(3);
+            }
+            var copy = variable;
+            var found = model.Attributes().FirstOrDefault(a => copy.Equals(a.Name.LocalName, OrdinalIgnoreCase));
+            if (found != null)
+                return found.Value;
+
+            if (variable.Length == 1 && char.IsPunctuation(variable[0]))
+                return ctx.IsLast ? "" : variable;
+            
+            throw new ScriptException($"Cannot find model attribute called '{variable}'");
+        }
+
         private static bool PascalCase(string variable) => variable.Length > 2 && char.IsUpper(variable[0]) && variable.Skip(1).All(char.IsLower);
     }
 
@@ -140,7 +180,7 @@ namespace BusterWood.UniCodeGen
     {
         public override void Execute(XElement model, Context ctx)
         {
-            var txt = ExpandVars(Text, model);
+            var txt = ExpandVars(Text, model, ctx);
             ctx.Output.WriteLine(txt);
         }
     }
@@ -174,7 +214,7 @@ namespace BusterWood.UniCodeGen
 
         public override void Execute(XElement model, Context ctx)
         {
-            var newFilename = ExpandVars(_quoted, model);
+            var newFilename = ExpandVars(_quoted, model, ctx);
             Std.Info($"Output is '{newFilename}'");
             var old = ctx.Output;
             ctx.Output = new StreamWriter(newFilename);
@@ -199,7 +239,7 @@ namespace BusterWood.UniCodeGen
 
         public override void Execute(XElement model, Context ctx)
         {
-            var scriptPath = ExpandVars(_quoted, model);
+            var scriptPath = ExpandVars(_quoted, model, ctx);
             Scripts.Run(scriptPath, model, ctx);
         }
     }
@@ -216,7 +256,7 @@ namespace BusterWood.UniCodeGen
         public ForEachLine(string line)
         {
             Text = line;
-            var bits = line.Substring(1).Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var bits = line.TrimStart('.').Split(' ', StringSplitOptions.RemoveEmptyEntries);
             
             //support multiple levels?
             if (bits.Length != 2)
@@ -230,10 +270,13 @@ namespace BusterWood.UniCodeGen
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
 
-            foreach (var child in model.Elements().Where(e => _path.Equals(e.Name.LocalName, OrdinalIgnoreCase)))
+            var childern = model.Elements().Where(e => _path.Equals(e.Name.LocalName, OrdinalIgnoreCase)).ToList();
+            var last = childern.LastOrDefault();
+            foreach (var child in childern)
             {
                 foreach (var l in Body)
                 {
+                    ctx.IsLast = child == last;
                     l.Execute(child, ctx);
                 }
             }
@@ -243,11 +286,31 @@ namespace BusterWood.UniCodeGen
     /// <summary>end of <see cref="ForEachLine"/></summary>
     class EndForLine : ScriptLine
     {
-        public const string Keyword = ".endfor";
+        public const string Keyword = ".end";
 
         public EndForLine(string line)
         {
             Text = line;
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+        }
+    }
+    
+    /// <summary>Turns on or off <see cref="Context.TemplateMode"/></summary>
+    class TemplateModeLine : ScriptLine
+    {
+        public const string Keyword = ".template";
+        public readonly bool On;
+
+        public TemplateModeLine(string line)
+        {
+            Text = line;
+            var bits = line.TrimStart('.').Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (bits.Length != 2)
+                throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
+            On = "on".Equals(bits[1], OrdinalIgnoreCase) || "true".Equals(bits[1], OrdinalIgnoreCase);
         }
 
         public override void Execute(XElement model, Context ctx)
