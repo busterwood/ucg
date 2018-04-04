@@ -1,5 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<root script="hello.usg">
-  <page title="baskets"/>
-  <page title="orders"/>
+<root>
+  <page title="baskets">
+    <section name="hello"></section>
+    <section name="world"></section>
+  </page>
+  <page title="orders">
+    <section name="jones"></section>
+    <section name="smith"></section>
+  </page>
 </root>
