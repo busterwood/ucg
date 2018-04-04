@@ -6,12 +6,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="hello.usg" />
+    <None Remove="hello.ucg" />
     <None Remove="hello.xml" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="hello.usg">
+    <Content Include="hello.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="hello.xml">
