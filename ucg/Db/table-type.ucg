@@ -1,9 +1,10 @@
 ﻿.template on
-CREATE TYPE dbo.[$(@name:sql)_TABLE_TYPE] AS TABLE 
-(
-	[SEQ] int,
+IF TYPE_ID('dbo.$(@name:sql)_TABLE_TYPE') IS NULL
+	CREATE TYPE dbo.[$(@name:sql)_TABLE_TYPE] AS TABLE 
+	(
+		[SEQ] int,
 .foreach field
-	[$(@name:sql)] $(@db-type??@type:sql)$(@db-size) $(@nulls:u)$(",")
+		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size) $(@nulls:u)$(",")
 .end
-)
+	)
 GO
