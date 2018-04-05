@@ -65,6 +65,9 @@ namespace BusterWood.UniCodeGen
             if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndForLine(line);
 
+            if (CommentLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new CommentLine { Text=line };
+
             if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
                 var tm = new TemplateModeLine(line);
@@ -214,6 +217,14 @@ namespace BusterWood.UniCodeGen
             var end = text.IndexOf('"', start + 1);
             if (end < 0) return null;
             return text.Substring(start + 1, end - start - 1);
+        }
+    }
+
+    class CommentLine : ScriptLine
+    {
+        public const string Keyword = ".//";
+        public override void Execute(XElement model, Context ctx)
+        {
         }
     }
 
