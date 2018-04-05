@@ -14,7 +14,7 @@ SET
 	[$(@name:sql)] = @$(@name:sql)$(",")
 .end
 WHERE 
-.foreach field[@pk='true']
+.foreach field[@pk]
 	[$(@name:sql)] = @$(@name:sql)$(" AND")
 .end
 GO

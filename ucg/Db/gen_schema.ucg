@@ -5,7 +5,7 @@ foreach entity
 	include "insert.ucg"
 	include "update.ucg"
 	include "select.ucg"
-	foreach field[@fk='true']
+	foreach field[@fk]
 		include "select-fk.ucg"
 	end
 end

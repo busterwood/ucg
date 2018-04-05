@@ -4,7 +4,7 @@ IF OBJECT_ID('dbo.$(@name:sql)_Select') IS NULL
 GO
 
 ALTER PROC dbo.$(@name:sql)_Select
-.foreach field[@pk='true']
+.foreach field[@pk]
 	@$(@name:sql) $(@type)$(",")
 .end
 AS
@@ -14,7 +14,7 @@ SELECT
 .end
 FROM dbo.$(@name:sql)
 WHERE 
-.foreach field[@pk='true']
+.foreach field[@pk]
 	[$(@name:sql)] = @$(@name:sql)$(" AND")
 .end
 GO

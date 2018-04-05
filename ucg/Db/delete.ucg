@@ -4,13 +4,13 @@ IF OBJECT_ID('dbo.$(@name:sql)_DELETE') IS NULL
 GO
 
 ALTER PROC dbo.$(@name:sql)_DELETE
-.foreach field[@pk='true']
+.foreach field[@pk]
 	@$(@name:sql) $(@type)$(",")
 .end
 AS
 DELETE FROM dbo.$(@name:sql)
 WHERE 
-.foreach field[@pk='true']
+.foreach field[@pk]
 	[$(@name:sql)] = @$(@name:sql)$(" AND")
 .end
 GO

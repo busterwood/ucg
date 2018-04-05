@@ -1,47 +1,48 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <entities>
   <entity name="User">
-    <field name="User Id" type="int" pk="true"/>
-    <field name="Full Name" type="string"/>
-    <field name="Email" type="string"/>
+    <field name="User Id" nulls="not null" type="int" pk="true"/>
+    <field name="Full Name" nulls="not null" type="string"/>
+    <field name="Email" nulls="not null" type="string"/>
   </entity>
   <entity name="Fund">
-    <field name="Fund Id" type="int" pk="true"/>
-    <field  name="Name" type="string"/>
+    <field name="Fund Id" nulls="not null" type="int" pk="true"/>
+    <field  name="Name" nulls="not null" type="string"/>
   </entity>
   <entity name="Book">
-    <field name="Book Id" type="int" pk="true"/>
-    <field name="Name" type="string"/>
+    <field name="Book Id" nulls="not null" type="int" pk="true"/>
+    <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
+    <field name="Name" nulls="not null" type="string"/>
   </entity>
   <entity name="Strategy">
-    <field name="Strategy Id" type="int" pk="true"/>
-    <field  name="Name" type="string"/>
+    <field name="Strategy Id" nulls="not null" type="int" pk="true"/>
+    <field  name="Name" nulls="not null" type="string"/>
   </entity>
   <entity name="Security">
-    <field name="Security Id" type="int" pk="true"/>
-    <field name="Name" type="string"/>
-    <field name="BB Ticker" type="string"/>
+    <field name="Security Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string"/>
+    <field name="BB Ticker" nulls="not null" type="string"/>
   </entity>
 
   <entity name="Investment">
-    <field name="Investment Id" type="int" pk="true"/>
-    <field name="Decision Maker" type="int" fk="true"/>
-    <field name="Decision Date" type="datetime"/>
-    <field name="Inputter" type="int" fk="true"/>
+    <field name="Investment Id" nulls="not null" type="int" pk="true"/>
+    <field name="Decision Maker" nulls="not null" type="int" fk="User"/>
+    <field name="Decision Date" nulls="not null" type="datetime"/>
+    <field name="Inputter" nulls="not null" type="int" fk="User"/>
   </entity>
   
   <entity name="Order">
-    <field name="Order Id" type="int" pk="true"/>
-    <field name="Investment Id" type="int" fk="true"/>
-    <field name="Security Id" type="int" fk="true"/>
+    <field name="Order Id" nulls="not null" type="int" pk="true"/>
+    <field name="Investment Id" nulls="not null" type="int" fk="Investment"/>
+    <field name="Security Id" nulls="not null" type="int" fk="Security"/>
   </entity>
   
   <entity name="Order Line">
-    <field name="Order Line Id" type="int" pk="true"/>
-    <field name="Order Id" type="int" fk="true"/>
-    <field name="Fund Id" type="int" fk="true"/>
-    <field name="Book Id" type="int" fk="true"/>
-    <field name="Strategy Id" type="int" fk="true"/>
-    <field name="Quantity" type="int"/>
+    <field name="Order Line Id" nulls="not null" type="int" pk="true"/>
+    <field name="Order Id" nulls="not null" type="int" fk="Order"/>
+    <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
+    <field name="Book Id" nulls="not null" type="int" fk="Book"/>
+    <field name="Strategy Id" nulls="not null" type="int" fk="Strategy"/>
+    <field name="Quantity" nulls="not null" type="int"/>
   </entity>
 </entities>

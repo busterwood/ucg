@@ -2,12 +2,20 @@
 CREATE TABLE dbo.[$(@name:sql)] 
 (
 .foreach field
-	[$(@name:sql)] $(@type),
+	[$(@name:sql)] $(@type:sql) $(@nulls:u),
+.end
+.foreach field[@fk]
+	ADD CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY dbo.[$(@fk:sql)] ($(@name:sql)),
 .end
 	ADD CONSTRAINT PK_$(../@name:sql) PRIMARY KEY CLUSTERED (
-.foreach field[@pk='true']
+.foreach field[@pk]
 		$(@name:sql)$(",")
 .end	
 	)
 )
 GO
+
+.foreach field[@fk]
+CREATE INDEX IX_$(../@name:sql)_$(@name:sql) ON dbo.[$(../@name:sql)] ($(@name:sql))
+GO
+.end
