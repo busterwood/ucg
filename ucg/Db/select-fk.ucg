@@ -5,7 +5,7 @@ GO
 
 ALTER PROC dbo.$(../@name:sql)_SelectBy_$(@name:sql)
 .foreach ../field[@pk='true']
-	@$(@name:sql) $(@type)$(",")
+	@$(@name:sql) $(@db-type??@type)$(",")
 .end
 AS
 SELECT 

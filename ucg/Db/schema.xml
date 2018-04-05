@@ -1,33 +1,33 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<entities>
+<entities cs-namespace="BusterWood.Testing">
   <entity name="User">
     <field name="User Id" nulls="not null" type="int" pk="true"/>
-    <field name="Full Name" nulls="not null" type="string"/>
-    <field name="Email" nulls="not null" type="string"/>
+    <field name="Full Name" nulls="not null" type="string" db-type="varchar(50)"/>
+    <field name="Email" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
   <entity name="Fund">
     <field name="Fund Id" nulls="not null" type="int" pk="true"/>
-    <field  name="Name" nulls="not null" type="string"/>
+    <field  name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
   <entity name="Book">
     <field name="Book Id" nulls="not null" type="int" pk="true"/>
     <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
-    <field name="Name" nulls="not null" type="string"/>
+    <field name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
   <entity name="Strategy">
     <field name="Strategy Id" nulls="not null" type="int" pk="true"/>
-    <field  name="Name" nulls="not null" type="string"/>
+    <field  name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
   <entity name="Security">
     <field name="Security Id" nulls="not null" type="int" pk="true"/>
-    <field name="Name" nulls="not null" type="string"/>
-    <field name="BB Ticker" nulls="not null" type="string"/>
+    <field name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
+    <field name="BB Ticker" nulls="not null" type="string" db-type="varchar(10)"/>
   </entity>
 
   <entity name="Investment">
     <field name="Investment Id" nulls="not null" type="int" pk="true"/>
     <field name="Decision Maker" nulls="not null" type="int" fk="User" fk-field="User Id"/>
-    <field name="Decision Date" nulls="not null" type="datetime"/>
+    <field name="Decision Date" nulls="not null" type="DateTime"/>
     <field name="Inputter" nulls="not null" type="int" fk="User" fk-field="User Id"/>
   </entity>
   

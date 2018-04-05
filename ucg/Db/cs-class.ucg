@@ -1,0 +1,12 @@
+﻿.template on
+using System;
+
+namespace $(../@cs-namespace:p)
+{
+	public class $(@name:p)
+	{
+.foreach field
+		public $(@type) $(@name:p) { get; set; }
+.end
+	}
+}

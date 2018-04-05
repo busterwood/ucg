@@ -5,7 +5,7 @@ GO
 
 ALTER PROC dbo.$(@name:sql)_Update
 .foreach field
-	@$(@name:sql) $(@type)$(",")
+	@$(@name:sql) $(@db-type??@type)$(",")
 .end
 AS
 UPDATE dbo.$(@name:sql)
