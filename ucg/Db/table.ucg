@@ -2,7 +2,7 @@
 CREATE TABLE dbo.[$(@name:sql)] 
 (
 .foreach field
-	[$(@name:sql)] $(@db-type??@type:sql) $(@nulls:u),
+	[$(@name:sql)] $(@db-type??@type:sql)$(@db-size) $(@nulls:u),
 .end
 .foreach field[@fk]
 	CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY ($(@name:sql)) REFERENCES dbo.[$(@fk:sql)] ($(@fk-field??@name:sql)),

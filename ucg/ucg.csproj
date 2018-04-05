@@ -26,7 +26,7 @@
     <None Update="Db\delete-fk.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Db\insert-table.ucg">
+    <None Update="Db\gen_csharp.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\select-fk.ucg">
@@ -47,16 +47,13 @@
     <None Update="Db\merge-table.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Db\update.ucg">
+    <None Update="Db\merge.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Db\gen_schema.ucg">
+    <None Update="Db\gen_sql.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\schema.xml">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-    <None Update="Db\insert.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\table.ucg">

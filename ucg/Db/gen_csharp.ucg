@@ -1,0 +1,5 @@
+﻿.template off
+foreach entity
+	include "cs-class.ucg"
+	include "cs-repository.ucg"
+end

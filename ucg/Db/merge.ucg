@@ -1,13 +1,19 @@
 ﻿.template on
-IF OBJECT_ID('dbo.$(@name:sql)_MergeTable') IS NULL
-	EXEC('CREATE PROC dbo.$(@name:sql)_MergeTable AS RETURN 1')
+IF OBJECT_ID('dbo.$(@name:sql)_Merge') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:sql)_Merge AS RETURN 1')
 GO
 
-ALTER PROC dbo.$(@name:sql)_MergeTable
-	@items dbo.$(@name:sql)_TABLE_TYPE 
+ALTER PROC dbo.$(@name:sql)_Merge
+.foreach field
+	@$(@name:sql) $(@db-type??@type)$(",")
+.end
 AS
 MERGE dbo.$(@name:sql) as trg
-USING @items as src
+USING ( VALUES (
+.foreach field
+	@$(@name:sql) AS [$(@name:sql)]$(",")
+.end
+) ) as src
 ON 
 .foreach field[@pk]
 	src.[$(@name:sql)] = trg.[$(@name:sql)]$(" AND")
@@ -28,7 +34,6 @@ WHEN NOT MATCHED BY TARGET THEN
 .end
 	)
 OUTPUT
-	src.SEQ,
 .foreach field
 	inserted.[$(@name:sql)]$(",")
 .end

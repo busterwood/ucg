@@ -2,12 +2,22 @@
 using System;
 using System.Collections.Generic;
 using System.Data.Common;
+using System.Threading.Tasks;
 using BusterWood.Mapper;
 
-namespace $(../@cs-namespace:p)
+namespace $(../@cs-namespace)
 {
 	public class $(@name:p)Repository
 	{
+		readonly SqlTableType $(@name:p)TableType = new SqlTableType
+		(
+			"$(@name:sql)_TABLE_TYPE",
+			new SqlMetaData("SEQ", SqlDbType.Int),
+.foreach field
+			new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@cs-size))$(",")
+.end
+		);
+
 		readonly Func<DbConnection> _connectionFactory;
 
 		public $(@name:p)Repository(Func<DbConnection> connectionFactory) 
@@ -23,6 +33,14 @@ namespace $(../@cs-namespace:p)
 				return cnn.QueryProc("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
 			}
 		}
+
+		public async Task<$(../@name:p)> SelectBy$(@name:p)Async($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				return await cnn.QueryProcAsync("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefaultAsync<$(../@name:p)>();
+			}
+		}
 .end
 .foreach field[@fk-rel]
 
@@ -33,9 +51,17 @@ namespace $(../@cs-namespace:p)
 				return cnn.QueryProc("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToList<$(../@name:p)>();
 			}
 		}
+
+		public async Task<List<$(../@name:p)>> SelectBy$(@name:p)Async($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				return await cnn.QueryProcAsync("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToListAsync<$(../@name:p)>();
+			}
+		}
 .end
 
-		public $(@name:p) Insert($(@name:p) item)
+		public $(@name:p) Save($(@name:p) item)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
@@ -45,11 +71,11 @@ namespace $(../@cs-namespace:p)
 					$(@name:sql) = $(@name:c)$(",")
 .end
 				};
-				return cnn.QueryProc("dbo.$(@name:sql)_Insert", args).Single<$(@name:p)>();
+				return cnn.QueryProc("dbo.$(@name:sql)_Merge", args).Single<$(@name:p)>();
 			}
 		}
 
-		public $(@name:p) Update($(@name:p) item)
+		public async Task<$(@name:p)> SaveAsync($(@name:p) item)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
@@ -59,8 +85,35 @@ namespace $(../@cs-namespace:p)
 					$(@name:sql) = $(@name:c)$(",")
 .end
 				};
-				return cnn.QueryProc("dbo.$(@name:sql)_Update", args).SingleOrDefault<$(@name:p)>();
+				return await cnn.QueryProcAsync("dbo.$(@name:sql)_Merge", args).SingleAsync<$(@name:p)>();
 			}
+		}
+
+		public List<$(@name:p)> Save(IEnumerable<$(@name:p)> values)
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				var items = values.ToSqlTable($(@name:p)TableType, (rec, _, i) => rec.SetInt32(0, i));
+				var results = cnn.QueryProc("dbo.$(@name:sql)_MergeTable", new { items }).ToList<$(@name:p)WithSeq>();
+				results.Sort((l, r) => l.Seq.CompareTo(r.Seq));
+				return results.ToList<$(@name:p)>();
+			}
+		}
+
+		public async Task<List<$(@name:p)>> SaveAsync(IEnumerable<$(@name:p)> values)
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				var items = values.ToSqlTable($(@name:p)TableType, (rec, _, i) => rec.SetInt32(0, i));
+				var results = await cnn.QueryProcAsync("dbo.$(@name:sql)_MergeTable", new { items }).ToListAsync<$(@name:p)WithSeq>();
+				results.Sort((l, r) => l.Seq.CompareTo(r.Seq));
+				return results.ToList<$(@name:p)>();
+			}
+		}
+
+		internal class $(@name:p)WithSeq : $(@name:p) 
+		{
+			public int Seq { get; set; }
 		}
 
 .foreach field[@pk]
@@ -72,6 +125,14 @@ namespace $(../@cs-namespace:p)
 				cnn.ExecuteProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
 			}
 		}
+
+		public async Task DeleteBy$(@name:p)Async($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				await cnn.ExecuteProcAsync("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
+			}
+		}
 .end
 .foreach field[@fk-rel]
 
@@ -82,6 +143,15 @@ namespace $(../@cs-namespace:p)
 				cnn.ExecuteProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
 			}
 		}
+
+		public async Task DeleteBy$(@name:p)Async($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				await cnn.ExecuteProcAsync("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
+			}
+		}
 .end
+
 	}
 }
