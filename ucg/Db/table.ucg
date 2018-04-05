@@ -16,6 +16,7 @@ CREATE TABLE dbo.[$(@name:sql)]
 GO
 
 .foreach field[@fk]
-CREATE INDEX IX_$(../@name:sql)_$(@name:sql) ON dbo.[$(../@name:sql)] ($(@name:sql))
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='IX_$(../@name:sql)_$(@name:sql)' AND object_id = OBJECT_ID('dbo.[$(../@name:sql)]'))
+	CREATE INDEX IX_$(../@name:sql)_$(@name:sql) ON dbo.[$(../@name:sql)] ($(@name:sql))
 GO
 .end

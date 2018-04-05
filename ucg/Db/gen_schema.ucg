@@ -1,12 +1,12 @@
 ﻿.template off
 foreach entity
 	include "table.ucg"
-	// include "delete.ucg"
-	// include "insert.ucg"
-	// include "update.ucg"
-	// include "select.ucg"
-	// foreach field[@fk]
-	// 	include "select-fk.ucg"
-	// end
+	include "delete.ucg"
+	include "insert.ucg"
+	include "update.ucg"
+	include "select.ucg"
+	foreach field[@fk]
+		include "select-fk.ucg"
+	end
 	include "cs-class.ucg"
 end
