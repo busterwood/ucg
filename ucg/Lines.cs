@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Xml.Linq;
+using System.Xml.XPath;
 using static System.StringComparison;
 
 namespace BusterWood.UniCodeGen
@@ -124,47 +125,26 @@ namespace BusterWood.UniCodeGen
 
         private static string Evaluate(string variable, XElement model, Context ctx)
         {
-            //TODO: evaluate dotted paths, e.g. page.title
-            //TODO: change case of output via a format suffix?
-            bool changeCase = CanChangeCase(ref variable);
-
+            string changeCase = CaseSuffix(ref variable);
             string value = FindValue(ref variable, model, ctx);
-
-            if (changeCase)
-            {
-                if (variable.All(char.IsUpper))
-                    return value.ToUpper();
-                if (variable.All(char.IsLower))
-                    return value.ToLower();
-                if (PascalCase(variable))
-                    return char.ToUpper(value[0]) + value.Substring(1).ToLower();
-            }
-            return value;
+            return ChangeCase(changeCase, value);
         }
 
-        private static bool CanChangeCase(ref string variable)
+        private static string CaseSuffix(ref string variable)
         {
-            bool changeCase = true;
-            if (variable.Length > 1 && variable.EndsWith(':'))
-            {
-                variable = variable.TrimEnd(':');
-                changeCase = false;
-            }
-
-            return changeCase;
+            int colon = variable.LastIndexOf(':');
+            if (colon < 0)
+                return "";
+            var result = variable.Substring(colon + 1);
+            variable = variable.Substring(0, colon);
+            return result;
         }
 
         private static string FindValue(ref string variable, XElement model, Context ctx)
         {
-            while (variable.StartsWith("../"))
-            {
-                model = model.Parent;
-                variable = variable.Substring(3);
-            }
-            var copy = variable;
-            var found = model.Attributes().FirstOrDefault(a => copy.Equals(a.Name.LocalName, OrdinalIgnoreCase));
+            var found = model.XPathEvaluate("string(" + variable + ")");
             if (found != null)
-                return found.Value;
+                return found.ToString();
 
             if (variable.Length == 1 && char.IsPunctuation(variable[0]))
                 return ctx.IsLast ? "" : variable;
@@ -172,7 +152,20 @@ namespace BusterWood.UniCodeGen
             throw new ScriptException($"Cannot find model attribute called '{variable}'");
         }
 
-        private static bool PascalCase(string variable) => variable.Length > 2 && char.IsUpper(variable[0]) && variable.Skip(1).All(char.IsLower);
+        private static string ChangeCase(string changeCase, string value)
+        {
+            switch (changeCase.ToLower())
+            {
+                case "u":
+                    return value.ToUpper();
+                case "l":
+                    return value.ToLower();
+                case "p": // Pascal case
+                    return char.ToUpper(value[0]) + value.Substring(1).ToLower();
+                default:
+                    return value;
+            }
+        }
     }
 
     /// <summary>Line does not start with "." but may contain text substitutions</summary>
@@ -270,7 +263,7 @@ namespace BusterWood.UniCodeGen
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
 
-            var childern = model.Elements().Where(e => _path.Equals(e.Name.LocalName, OrdinalIgnoreCase)).ToList();
+            var childern = ((IEnumerable)model.XPathEvaluate(_path)).OfType<XElement>().ToList();
             var last = childern.LastOrDefault();
             foreach (var child in childern)
             {
