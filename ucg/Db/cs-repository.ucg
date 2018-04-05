@@ -39,13 +39,13 @@ namespace $(../@cs-namespace:p)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				var p = new 
+				var args = new 
 				{
 .foreach field
 					$(@name:sql) = $(@name:c)$(",")
 .end
 				};
-				return cnn.QueryProc("dbo.$(@name:sql)_Insert", p).Single<$(@name:p)>();
+				return cnn.QueryProc("dbo.$(@name:sql)_Insert", args).Single<$(@name:p)>();
 			}
 		}
 
@@ -53,33 +53,33 @@ namespace $(../@cs-namespace:p)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				var p = new 
+				var args = new 
 				{
 .foreach field
 					$(@name:sql) = $(@name:c)$(",")
 .end
 				};
-				return cnn.QueryProc("dbo.$(@name:sql)_Update", p).Single<$(@name:p)>();
+				return cnn.QueryProc("dbo.$(@name:sql)_Update", args).SingleOrDefault<$(@name:p)>();
 			}
 		}
 
 .foreach field[@pk]
 
-		public $(../@name:p) DeleteBy$(@name:p)($(@type) $(@name:c))
+		public void DeleteBy$(@name:p)($(@type) $(@name:c))
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				return cnn.QueryProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
+				cnn.ExecuteProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
 			}
 		}
 .end
 .foreach field[@fk-rel]
 
-		public List<$(../@name:p)> DeleteBy$(@name:p)($(@type) $(@name:c))
+		public void DeleteBy$(@name:p)($(@type) $(@name:c))
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				return cnn.QueryProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToList<$(../@name:p)>();
+				cnn.ExecuteProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
 			}
 		}
 .end
