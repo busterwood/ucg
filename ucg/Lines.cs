@@ -105,25 +105,44 @@ namespace BusterWood.UniCodeGen
 
         public abstract void Execute(XElement model, Context ctx);
 
+        // because we support embedded variable expansion we need to recursively expand
         protected static string ExpandVars(string text, XElement model, Context ctx)
         {
             var sb = new StringBuilder();
-            var startOfText = 0;
-            while (startOfText < text.Length)
+            var r = new StringReader(text);
+            for(;;)
             {
-                var startIdx = text.IndexOf("$(", startOfText);
-                if (startIdx < 0)
-                {
-                    sb.Append(text.Substring(startOfText)); // no more variable to substitute
+                var cur = r.Read();
+                if (cur < 0)
                     break;
-                }
-                var endIdx = text.IndexOf(")", startIdx);
-                sb.Append(text.Substring(startOfText, startIdx - startOfText));
-                var variable = text.Substring(startIdx + 2, endIdx - (startIdx + 2));
-                sb.Append(Evaluate(variable, model, ctx));
-                startOfText = endIdx + 1;
+                var ch = (char)cur;
+                if (ch == '$' && r.Peek() == '(')
+                    sb.Append(RecursivelyExpand(r, model, ctx));
+                else
+                    sb.Append(ch);
             }
             return sb.ToString();
+        }
+
+        /// <summary>We just read $( so the next part if the expression with a possible embedded expression</summary>
+        private static string RecursivelyExpand(StringReader r, XElement model, Context ctx)
+        {
+            var expression = new StringBuilder();
+            r.Read(); // consume the opening bracket that we peeked
+            for (;;)
+            {
+                var cur = r.Read();
+                if (cur < 0)
+                    break;
+                var ch = (char)cur;
+                if (ch == '$' && r.Peek() == '(')
+                    expression.Append(RecursivelyExpand(r, model, ctx));
+                else if (ch == ')')
+                    break;
+                else
+                    expression.Append(ch);
+            }
+            return Evaluate(expression.ToString(), model, ctx);
         }
 
         private static string Evaluate(string variable, XElement model, Context ctx)
@@ -155,19 +174,21 @@ namespace BusterWood.UniCodeGen
             {
                 var left = variable.Substring(0, idx);
                 var right = variable.Substring(idx + "??".Length);
-                found = (string)model.XPathEvaluate("string(" + left + ")");
+                found = XPathAttrValue(model, left);
                 if (string.IsNullOrEmpty(found))
-                    found = (string)model.XPathEvaluate("string(" + right + ")");
+                    found = XPathAttrValue(model, right);
             }
             else
             {
-                found = (string)model.XPathEvaluate("string(" + variable + ")");
+                found = XPathAttrValue(model, variable);
             }
             if (found != null)
                 return found.ToString();
 
             throw new ScriptException($"Cannot find model attribute called '{variable}'");
         }
+
+        private static string XPathAttrValue(XElement model, string xpath) => (string)model.XPathEvaluate("string(" + xpath + ")");
 
         private static string ChangeCase(string changeCase, string value)
         {
@@ -289,8 +310,8 @@ namespace BusterWood.UniCodeGen
         {
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
-
-            var childern = ((IEnumerable)model.XPathEvaluate(_path)).OfType<XElement>().ToList();
+            var expanded = ExpandVars(_path, model, ctx);
+            var childern = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
             var last = childern.LastOrDefault();
             foreach (var child in childern)
             {

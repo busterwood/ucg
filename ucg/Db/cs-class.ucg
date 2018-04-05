@@ -1,5 +1,6 @@
 ﻿.template on
 using System;
+using System.Collections.Generic;
 
 namespace $(../@cs-namespace:p)
 {
@@ -7,6 +8,9 @@ namespace $(../@cs-namespace:p)
 	{
 .foreach field
 		public $(@type) $(@name:p) { get; set; }
+.end
+.foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
+		public List<$(../@name:p)> $(../@name:p)s { get; set; }
 .end
 	}
 }
