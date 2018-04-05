@@ -1,0 +1,8 @@
+﻿.template off
+foreach entity
+	include "table.ucg"
+	include "delete.ucg"
+	include "insert.ucg"
+	include "update.ucg"
+	include "select.ucg"
+end

@@ -1,45 +1,47 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <entities>
   <entity name="User">
-    <field name="UserId" type="int"/>
-    <field name="FullName" type="string"/>
+    <field name="User Id" type="int" pk="true"/>
+    <field name="Full Name" type="string"/>
     <field name="Email" type="string"/>
-    <primary key="UserId"/>
-  </entity>
-  <entity name="Investment">
-    <field name="InvestmentId" type="int"/>
-    <field name="DecisionMaker" type="User"/>
-    <field name="DecisionDate" type="datetime"/>
-    <primary key="InvestmentId"/>
-  </entity>
-  <entity name="Order">
-    <field name="OrderId" type="int"/>
-    <field name="Investment" type="Investment"/>
   </entity>
   <entity name="Fund">
-    <field name="FundId" type="int"/>
+    <field name="Fund Id" type="int" pk="true"/>
     <field  name="Name" type="string"/>
   </entity>
   <entity name="Book">
-    <field name="BookId" type="int"/>
-    <field  name="Name" type="string"/>
+    <field name="Book Id" type="int" pk="true"/>
+    <field name="Name" type="string"/>
   </entity>
   <entity name="Strategy">
-    <field name="StrategyId" type="int"/>
+    <field name="Strategy Id" type="int" pk="true"/>
     <field  name="Name" type="string"/>
-  </entity>  
-  <entity name="Security">
-    <field name="SecurityId" type="int"/>
-    <field  name="Name" type="string"/>
-    <field  name="BB Ticker" type="string"/>
   </entity>
-  <entity name="OrderLine">
-    <field name="OrderLineId" type="int"/>
-    <field name="Order" type="Order"/>
+  <entity name="Security">
+    <field name="Security Id" type="int" pk="true"/>
+    <field name="Name" type="string"/>
+    <field name="BB Ticker" type="string"/>
+  </entity>
+
+  <entity name="Investment">
+    <field name="Investment Id" type="int" pk="true"/>
+    <field name="Decision Maker" type="int" fk="true"/>
+    <field name="Decision Date" type="datetime"/>
+    <field name="Inputter" type="int" fk="true"/>
+  </entity>
+  
+  <entity name="Order">
+    <field name="Order Id" type="int" pk="true"/>
+    <field name="Investment Id" type="int" fk="true"/>
+    <field name="Security Id" type="int" fk="true"/>
+  </entity>
+  
+  <entity name="Order Line">
+    <field name="Order Line Id" type="int" pk="true"/>
+    <field name="Order Id" type="int" fk="true"/>
+    <field name="Fund Id" type="int" fk="true"/>
+    <field name="Book Id" type="int" fk="true"/>
+    <field name="Strategy Id" type="int" fk="true"/>
     <field name="Quantity" type="int"/>
-    <field name="Fund" type="Fund"/>
-    <field name="Book" type="Book"/>
-    <field name="Strategy" type="Strategy"/>
-    <field name="Security" type="Security"/>
   </entity>
 </entities>

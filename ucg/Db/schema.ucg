@@ -1,4 +1,0 @@
-﻿.template off
-foreach entity
-	include "table.ucg"
-end

@@ -1,0 +1,16 @@
+﻿.template on
+IF OBJECT_ID('dbo.$(@name:sql)_DELETE') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:sql)_DELETE AS RETURN 1')
+GO
+
+ALTER PROC dbo.$(@name:sql)_DELETE
+.foreach field[@pk='true']
+	@$(@name:sql) $(@type)$(",")
+.end
+AS
+DELETE FROM dbo.$(@name:sql)
+WHERE 
+.foreach field[@pk='true']
+	[$(@name:sql)] = @$(@name:sql)$(" AND")
+.end
+GO

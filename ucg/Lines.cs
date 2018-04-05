@@ -142,13 +142,14 @@ namespace BusterWood.UniCodeGen
 
         private static string FindValue(ref string variable, XElement model, Context ctx)
         {
+            // allow for lists that need delimiters between, e.g. 1,2,3
+            if (variable.StartsWith('"') && variable.EndsWith('"'))
+                return ctx.IsLast ? "" : variable.Trim('"');
+
             var found = model.XPathEvaluate("string(" + variable + ")");
             if (found != null)
                 return found.ToString();
 
-            if (variable.Length == 1 && char.IsPunctuation(variable[0]))
-                return ctx.IsLast ? "" : variable;
-            
             throw new ScriptException($"Cannot find model attribute called '{variable}'");
         }
 
@@ -156,15 +157,40 @@ namespace BusterWood.UniCodeGen
         {
             switch (changeCase.ToLower())
             {
-                case "u":
+                case "u": // UPPER CASE
                     return value.ToUpper();
-                case "l":
+                case "l": // lower case
                     return value.ToLower();
-                case "p": // Pascal case
-                    return char.ToUpper(value[0]) + value.Substring(1).ToLower();
+                case "p": // PascalCase
+                    return Strings.PascalCase(value);
+                case "c": // camelCase
+                    return Strings.CamelCase(value);
+                case "sql": // SQL_CASE
+                    return Strings.SqlCase(value);
                 default:
                     return value;
             }
+        }
+    }
+
+    static class Strings
+    {
+        public static string PascalCase(string value)
+        {
+            return string.Join("", value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(PascalCaseWord));
+        }
+
+        static string PascalCaseWord(string word) => word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower();
+
+        public static string CamelCase(string value)
+        {
+            var temp = PascalCase(value);
+            return temp.Substring(0, 1).ToLower() + temp.Substring(1);
+        }
+
+        public static string SqlCase(string value)
+        {
+            return string.Join("_", value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(wd => wd.ToUpper()));
         }
     }
 

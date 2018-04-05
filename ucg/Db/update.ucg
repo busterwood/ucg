@@ -1,0 +1,20 @@
+﻿.template on
+IF OBJECT_ID('dbo.$(@name:sql)_Update') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:sql)_Update AS RETURN 1')
+GO
+
+ALTER PROC dbo.$(@name:sql)_Update
+.foreach field
+	@$(@name:sql) $(@type)$(",")
+.end
+AS
+UPDATE dbo.$(@name:sql)
+SET 
+.foreach field[not(@pk)]
+	[$(@name:sql)] = @$(@name:sql)$(",")
+.end
+WHERE 
+.foreach field[@pk='true']
+	[$(@name:sql)] = @$(@name:sql)$(" AND")
+.end
+GO
