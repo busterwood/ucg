@@ -5,19 +5,23 @@
     <field name="Full Name" nulls="not null" type="string" db-type="varchar(50)"/>
     <field name="Email" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
+  
   <entity name="Fund">
     <field name="Fund Id" nulls="not null" type="int" pk="true"/>
     <field  name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
+  
   <entity name="Book">
     <field name="Book Id" nulls="not null" type="int" pk="true"/>
     <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
     <field name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
+  
   <entity name="Strategy">
     <field name="Strategy Id" nulls="not null" type="int" pk="true"/>
     <field  name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
   </entity>
+  
   <entity name="Security">
     <field name="Security Id" nulls="not null" type="int" pk="true"/>
     <field name="Name" nulls="not null" type="string" db-type="varchar(50)"/>
@@ -33,13 +37,13 @@
   
   <entity name="Order">
     <field name="Order Id" nulls="not null" type="int" pk="true"/>
-    <field name="Investment Id" nulls="not null" type="int" fk="Investment"/>
+    <field name="Investment Id" nulls="not null" type="int" fk="Investment" fk-rel="owner"/>
     <field name="Security Id" nulls="not null" type="int" fk="Security"/>
   </entity>
   
   <entity name="Order Line">
     <field name="Order Line Id" nulls="not null" type="int" pk="true"/>
-    <field name="Order Id" nulls="not null" type="int" fk="Order"/>
+    <field name="Order Id" nulls="not null" type="int" fk="Order" fk-rel="owner"/>
     <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
     <field name="Book Id" nulls="not null" type="int" fk="Book"/>
     <field name="Strategy Id" nulls="not null" type="int" fk="Strategy"/>

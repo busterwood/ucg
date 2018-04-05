@@ -1,0 +1,12 @@
+﻿.template on
+IF OBJECT_ID('dbo.$(../@name:sql)_DeleteBy_$(@name:sql)') IS NULL
+	EXEC('CREATE PROC dbo.$(../@name:sql)_DeleteBy_$(@name:sql) AS RETURN 1')
+GO
+
+ALTER PROC dbo.$(../@name:sql)_DeleteBy_$(@name:sql)
+	@$(@name:sql) $(@db-type??@type)
+AS
+DELETE FROM dbo.$(../@name:sql)
+WHERE 
+	[$(@name:sql)] = @$(@name:sql)
+GO

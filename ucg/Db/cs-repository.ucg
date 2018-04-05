@@ -24,7 +24,7 @@ namespace $(../@cs-namespace:p)
 			}
 		}
 .end
-.foreach field[@fk]
+.foreach field[@fk-rel]
 
 		public List<$(../@name:p)> SelectBy$(@name:p)($(@type) $(@name:c))
 		{
@@ -73,7 +73,7 @@ namespace $(../@cs-namespace:p)
 			}
 		}
 .end
-.foreach field[@fk]
+.foreach field[@fk-rel]
 
 		public List<$(../@name:p)> DeleteBy$(@name:p)($(@type) $(@name:c))
 		{

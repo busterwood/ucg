@@ -15,7 +15,7 @@ ON
 WHEN MATCHED THEN
 	UPDATE SET
 .foreach field[not(@pk)]
-		[$(@name:sql)] = src.$(@name:sql)$(",")
+		[$(@name:sql)] = src.[$(@name:sql)]$(",")
 .end
 WHEN NOT MATCHED BY TARGET THEN
 	INSERT (
@@ -24,7 +24,7 @@ WHEN NOT MATCHED BY TARGET THEN
 .end
 	) VALUES (
 .foreach field
-		src.$(@name:sql)$(",")
+		src.[$(@name:sql)]$(",")
 .end
 	)
 GO

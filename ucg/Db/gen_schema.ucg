@@ -8,8 +8,9 @@ foreach entity
 	include "update.ucg"
 	include "merge-table.ucg"
 	include "select.ucg"
-	foreach field[@fk]
+	foreach field[@fk-rel]
 		include "select-fk.ucg"
+		include "delete-fk.ucg"
 	end
 	include "cs-class.ucg"
 	include "cs-repository.ucg"
