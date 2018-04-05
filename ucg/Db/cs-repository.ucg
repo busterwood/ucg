@@ -1,0 +1,87 @@
+﻿.template on
+using System;
+using System.Collections.Generic;
+using System.Data.Common;
+using BusterWood.Mapper;
+
+namespace $(../@cs-namespace:p)
+{
+	public class $(@name:p)Repository
+	{
+		readonly Func<DbConnection> _connectionFactory;
+
+		public $(@name:p)Repository(Func<DbConnection> connectionFactory) 
+		{
+			_connectionFactory = connectionFactory;
+		}
+.foreach field[@pk]
+
+		public $(../@name:p) SelectBy$(@name:p)($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				return cnn.QueryProc("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
+			}
+		}
+.end
+.foreach field[@fk]
+
+		public List<$(../@name:p)> SelectBy$(@name:p)($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				return cnn.QueryProc("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToList<$(../@name:p)>();
+			}
+		}
+.end
+
+		public $(@name:p) Insert($(@name:p) item)
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				var p = new 
+				{
+.foreach field
+					$(@name:sql) = $(@name:c)$(",")
+.end
+				};
+				return cnn.QueryProc("dbo.$(@name:sql)_Insert", p).Single<$(@name:p)>();
+			}
+		}
+
+		public $(@name:p) Update($(@name:p) item)
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				var p = new 
+				{
+.foreach field
+					$(@name:sql) = $(@name:c)$(",")
+.end
+				};
+				return cnn.QueryProc("dbo.$(@name:sql)_Update", p).Single<$(@name:p)>();
+			}
+		}
+
+.foreach field[@pk]
+
+		public $(../@name:p) DeleteBy$(@name:p)($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				return cnn.QueryProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
+			}
+		}
+.end
+.foreach field[@fk]
+
+		public List<$(../@name:p)> DeleteBy$(@name:p)($(@type) $(@name:c))
+		{
+			using (var cnn = _connectionFactory()) 
+			{
+				return cnn.QueryProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToList<$(../@name:p)>();
+			}
+		}
+.end
+	}
+}

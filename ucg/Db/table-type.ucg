@@ -1,0 +1,8 @@
+﻿.template on
+CREATE TYPE dbo.[$(@name:sql)_TABLE_TYPE] AS TABLE 
+(
+.foreach field
+	[$(@name:sql)] $(@db-type??@type:sql) $(@nulls:u)$(",")
+.end
+)
+GO

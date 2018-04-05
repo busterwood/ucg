@@ -1,0 +1,30 @@
+﻿.template on
+IF OBJECT_ID('dbo.$(@name:sql)_MergeTable') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:sql)_MergeTable AS RETURN 1')
+GO
+
+ALTER PROC dbo.$(@name:sql)_MergeTable
+	@items dbo.$(@name:sql)_TABLE_TYPE 
+AS
+MERGE dbo.$(@name:sql) as trg
+USING @items as src
+ON 
+.foreach field[@pk]
+	src.[$(@name:sql)] = trg.[$(@name:sql)]$(" AND")
+.end
+WHEN MATCHED THEN
+	UPDATE SET
+.foreach field[not(@pk)]
+		[$(@name:sql)] = src.$(@name:sql)$(",")
+.end
+WHEN NOT MATCHED BY TARGET THEN
+	INSERT (
+.foreach field
+		[$(@name:sql)]$(",")
+.end
+	) VALUES (
+.foreach field
+		src.$(@name:sql)$(",")
+.end
+	)
+GO
