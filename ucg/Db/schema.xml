@@ -26,9 +26,9 @@
 
   <entity name="Investment">
     <field name="Investment Id" nulls="not null" type="int" pk="true"/>
-    <field name="Decision Maker" nulls="not null" type="int" fk="User"/>
+    <field name="Decision Maker" nulls="not null" type="int" fk="User" fk-field="User Id"/>
     <field name="Decision Date" nulls="not null" type="datetime"/>
-    <field name="Inputter" nulls="not null" type="int" fk="User"/>
+    <field name="Inputter" nulls="not null" type="int" fk="User" fk-field="User Id"/>
   </entity>
   
   <entity name="Order">

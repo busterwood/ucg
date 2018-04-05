@@ -5,9 +5,9 @@ CREATE TABLE dbo.[$(@name:sql)]
 	[$(@name:sql)] $(@type:sql) $(@nulls:u),
 .end
 .foreach field[@fk]
-	ADD CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY dbo.[$(@fk:sql)] ($(@name:sql)),
+	CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY ($(@name:sql)) REFERENCES dbo.[$(@fk:sql)] ($(@fk-field??@name:sql)),
 .end
-	ADD CONSTRAINT PK_$(../@name:sql) PRIMARY KEY CLUSTERED (
+	CONSTRAINT PK_$(../@name:sql) PRIMARY KEY CLUSTERED (
 .foreach field[@pk]
 		$(@name:sql)$(",")
 .end	

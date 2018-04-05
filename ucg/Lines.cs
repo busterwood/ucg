@@ -129,7 +129,7 @@ namespace BusterWood.UniCodeGen
         private static string Evaluate(string variable, XElement model, Context ctx)
         {
             string changeCase = CaseSuffix(ref variable);
-            string value = FindValue(ref variable, model, ctx);
+            string value = FindValue(variable, model, ctx);
             return ChangeCase(changeCase, value);
         }
 
@@ -143,13 +143,26 @@ namespace BusterWood.UniCodeGen
             return result;
         }
 
-        private static string FindValue(ref string variable, XElement model, Context ctx)
+        private static string FindValue(string variable, XElement model, Context ctx)
         {
             // allow for lists that need delimiters between, e.g. 1,2,3
             if (variable.StartsWith('"') && variable.EndsWith('"'))
                 return ctx.IsLast ? "" : variable.Trim('"');
 
-            var found = model.XPathEvaluate("string(" + variable + ")");
+            int idx = variable.IndexOf("??");
+            string found;
+            if (idx > 0)
+            {
+                var left = variable.Substring(0, idx);
+                var right = variable.Substring(idx + "??".Length);
+                found = (string)model.XPathEvaluate("string(" + left + ")");
+                if (string.IsNullOrEmpty(found))
+                    found = (string)model.XPathEvaluate("string(" + right + ")");
+            }
+            else
+            {
+                found = (string)model.XPathEvaluate("string(" + variable + ")");
+            }
             if (found != null)
                 return found.ToString();
 
@@ -173,27 +186,6 @@ namespace BusterWood.UniCodeGen
                 default:
                     return value;
             }
-        }
-    }
-
-    static class Strings
-    {
-        public static string PascalCase(string value)
-        {
-            return string.Join("", value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(PascalCaseWord));
-        }
-
-        static string PascalCaseWord(string word) => word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower();
-
-        public static string CamelCase(string value)
-        {
-            var temp = PascalCase(value);
-            return temp.Substring(0, 1).ToLower() + temp.Substring(1);
-        }
-
-        public static string SqlCase(string value)
-        {
-            return string.Join("_", value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(wd => wd.ToUpper()));
         }
     }
 
@@ -286,13 +278,11 @@ namespace BusterWood.UniCodeGen
         public ForEachLine(string line)
         {
             Text = line;
-            var bits = line.TrimStart('.').Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            
+            var idx = line.IndexOf("foreach", 0);
+            _path = line.Substring(idx + "foreach".Length).Trim();
             //support multiple levels?
-            if (bits.Length != 2)
+            if (string.IsNullOrEmpty(_path))
                 throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
-
-            _path = bits[1]; // skip the keyword at index 0
         }
 
         public override void Execute(XElement model, Context ctx)
