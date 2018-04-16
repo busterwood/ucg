@@ -1,0 +1,60 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<oms>
+  <script name="Enter the market">
+    <state name="check compliance">
+      <event on="success" next="create execution orders">
+        <do name="create execution orders"/>
+        <do name="send execution orders to EMS"/>
+      </event>
+      <event on="success with stock locations" next="locate stock"/>
+      <event on="failure"/>
+    </state>
+    <state name="locate stock">
+      <event on="stock located" next="check compliance"/>
+      <event on="order cancelled" next="check compliance" />      
+    </state>
+    <state name="execution order creation failure">
+      <event on="order cancelled" next="check compliance" />
+    </state>    
+  </script>
+
+  <script name="end of day">
+    <state name ="withdraw execution orders">
+      <event on="withdrawn from EMS">
+        <do name="cancel position reservation"/>
+      </event>
+    </state>
+  </script>
+
+  <script name="book broker order">    
+    <state name="booking">
+      <event name="new broker order" next="booking requested">
+        <do name="save broker order"/>
+        <do name="fairly allocate"/>
+        <do name="save booking allocations"/>
+        <do name="request booking"/>
+      </event>
+    </state>
+    <state name="booking requested">
+      <event name="accepted"/>
+      <event name="complete" next="complete"/>
+      <event name="failed" next="failed"/>      
+    </state>
+    <state name="complete">
+      <event name="cancel" next="cancelling">
+        <do name="request booking cancellation"/>
+      </event>
+    </state>
+    <state name="failed">
+      <event name="cancel" next="cancelled"/>
+      <event name="retry" next="booking requested">
+        <do name="request booking"/>
+      </event>
+    </state>
+    <state name="cancelling" next="cancelled">
+      <event name="booking cancelled">        
+      </event>
+    </state>
+    <state name="cancelled"/>
+  </script>
+</oms>
