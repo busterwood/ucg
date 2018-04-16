@@ -49,4 +49,92 @@
     <field name="Strategy Id" nulls="not null" type="int" fk="Strategy"/>
     <field name="Quantity" nulls="not null" type="int"/>
   </entity>
+
+  <entity name="Broker Capacity">
+    <field name="Capacity Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data CapacityId="1" Name="Agent"/>
+      <data CapacityId="2" Name="Principle"/>
+    </static>
+  </entity>
+
+  <entity name="Commission Type">
+    <field name="Commission Type Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data CommissionTypeId="1" Name="Per share"/>
+      <data CommissionTypeId="2" Name="Basis points"/>
+      <data CommissionTypeId="3" Name="Percentage"/>
+      <data CommissionTypeId="4" Name="Fixed"/>
+    </static>
+  </entity>
+
+  <entity name="Fill Status">
+    <field name="Fill Status Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data FillStatusId="1" Name="Cancelled"/>
+      <data FillStatusId="1" Name="Done for day"/>
+      <data FillStatusId="1" Name="Expired"/>
+      <data FillStatusId="1" Name="Filled"/>
+      <data FillStatusId="1" Name="New"/>
+      <data FillStatusId="1" Name="Partially filled"/>
+      <data FillStatusId="1" Name="Pending cancel"/>
+      <data FillStatusId="1" Name="Pending replace"/>
+      <data FillStatusId="1" Name="Rejected"/>
+      <data FillStatusId="1" Name="Replaced"/>
+      <data FillStatusId="1" Name="Restated"/>
+      <data FillStatusId="1" Name="Stopped"/>
+      <data FillStatusId="1" Name="Suspended"/>
+    </static>
+  </entity>
+
+  <entity name="Execution Medium">
+    <field name="Execution Medium Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data ExecutionMediumId="1" Name="Electronic"/>
+      <data ExecutionMediumId="1" Name="Paper"/>
+    </static>
+  </entity>
+
+  <entity name="Order Type">
+    <field name="Order Type Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data OrderTypeId="1" Name="Market"/>
+      <data OrderTypeId="1" Name="Limit"/>
+    </static>
+  </entity>
+
+  <entity name="Fill Booking Type">
+    <field name="Fill Booking Type Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data FillBookingTypeId="1" Name="Average price"/>
+      <data FillBookingTypeId="1" Name="By Price"/>
+    </static>
+  </entity>
+
+  <entity name="Instrument Class">
+    <field name="Instrument Class Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data InstrumentClassId="1" Name="Vanilla"/>
+      <data InstrumentClassId="1" Name="CFD"/>
+      <data InstrumentClassId="1" Name="TRS"/>
+    </static>
+  </entity>
+
+  <entity name="Market Type">
+    <field name="Market Type Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data MarketTypeId="1" Name="Normal"/>
+      <data MarketTypeId="1" Name="IPO"/>
+      <data MarketTypeId="1" Name="Secondary Issue"/>
+    </static>
+  </entity>
+
 </entities>
