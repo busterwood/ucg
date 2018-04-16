@@ -31,9 +31,17 @@
       <event name="new broker order" next="booking requested">
         <do name="save broker order"/>
         <do name="fairly allocate"/>
-        <do name="save booking allocations"/>
+        <do name="check details"/> 
         <do name="request booking"/>
       </event>
+    </state>
+    <state name="fair allocation failed">
+      <event name="retry" next="booking requested">
+        <do name="fairly allocate"/>
+        <do name="check details"/> 
+        <do name="request booking"/>
+      </event>
+      <event name="cancel" next="cancelled"/>
     </state>
     <state name="booking requested">
       <event name="accepted"/>
