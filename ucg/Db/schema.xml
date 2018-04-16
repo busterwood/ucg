@@ -41,7 +41,8 @@
     <field name="Investment Id" nulls="not null" type="int" fk="Investment" fk-rel="owner"/>
     <field name="Security Id" nulls="not null" type="int" fk="Security"/>
     <field name="Limit Price" nulls="null" type="decimal"/>  
-    <field name="Order Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Order Type"/>  
+    <field name="Order Price Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Order Price Type"/>  
+    <field name="Investment Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Investment Type"/>  
     <field name="Market Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Market Type"/>  
     <field name="Currency Code" nulls="not null" type="string" db-type="char" db-size="(3)" cs-size=",3" fk="Currency"/>  
   </entity>
@@ -124,15 +125,14 @@
     <static>
       <data ExecutionMediumId="1" Name="Electronic"/>
       <data ExecutionMediumId="1" Name="Paper"/>
-    </static>
-  </entity>
+    </static>  </entity>
 
-  <entity name="Order Type">
-    <field name="Order Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
+  <entity name="Order Price Type">
+    <field name="Order Price Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
     <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
     <static>
-      <data OrderTypeId="1" Name="Market"/>
-      <data OrderTypeId="1" Name="Limit"/>
+      <data OrderPriceTypeId="1" Name="Market"/>
+      <data OrderPriceTypeId="1" Name="Limit"/>
     </static>
   </entity>
 
@@ -162,6 +162,15 @@
       <data MarketTypeId="1" Name="Normal"/>
       <data MarketTypeId="1" Name="IPO"/>
       <data MarketTypeId="1" Name="Secondary Issue"/>
+    </static>
+  </entity>
+
+  <entity name="Investment Type">
+    <field name="Investment Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
+    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="(20)" cs-size=",20"/>
+    <static>
+      <data InvestmentTypeId="1" Name="Open"/>
+      <data InvestmentTypeId="2" Name="Close"/>
     </static>
   </entity>
 
