@@ -5,6 +5,6 @@ IF TYPE_ID('dbo.$(@name:sql)_TABLE_TYPE') IS NULL
 		[SEQ] int,
 .foreach field
 		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size) $(@nulls:u)$(",")
-.end
+.endfor
 	)
 GO

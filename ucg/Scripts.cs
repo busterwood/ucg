@@ -10,7 +10,7 @@ namespace BusterWood.UniCodeGen
         public static void Run(string scriptPath, XElement model, Context ctx)
         {
             string script = Load(scriptPath);
-            RunScript(script, model, ctx);
+            RunScript(scriptPath, script, model, ctx);
             ctx.Output.Flush();
         }
 
@@ -23,9 +23,9 @@ namespace BusterWood.UniCodeGen
             return File.ReadAllText(scriptPath);
         }
 
-        private static void RunScript(string script, XElement model, Context ctx)
+        private static void RunScript(string scriptPath, string script, XElement model, Context ctx)
         {
-            var parsed = Parse(script, ctx);
+            var parsed = Parse(scriptPath, script, ctx);
             Execute(model, ctx, parsed);
         }
 
@@ -37,9 +37,9 @@ namespace BusterWood.UniCodeGen
             }
         }
 
-        private static List<Line> Parse(string script, Context ctx)
+        private static List<Line> Parse(string scriptPath, string script, Context ctx)
         {
-            var lines = new LineReader(new StringReader(script), ctx).GetEnumerator();
+            var lines = new LineReader(scriptPath, new StringReader(script), ctx).GetEnumerator();
 
             var body = new List<Line>();
             while (lines.MoveNext())

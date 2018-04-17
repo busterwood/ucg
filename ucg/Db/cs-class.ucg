@@ -8,9 +8,9 @@ namespace $(../@cs-namespace)
 	{
 .foreach field
 		public $(@type) $(@name:p) { get; set; }
-.end
+.endfor
 .foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
 		public List<$(../@name:p)> $(../@name:p)s { get; set; }
-.end
+.endfor
 	}
 }

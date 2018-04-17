@@ -14,7 +14,7 @@ namespace $(../@cs-namespace)
 			{
 .foreach state
 				await $(@name:p)Async();
-.end			
+.endfor			
 			}
 		}
 
@@ -27,7 +27,7 @@ namespace $(../@cs-namespace)
 .foreach state[@terminal]
 					case $(@name:p):
 						return true;
-.end				
+.endfor				
 					default:
 						return false;
 				}
@@ -46,17 +46,17 @@ namespace $(../@cs-namespace)
 					case Event.$(@on:p):
 .			foreach do
 						await $(text():p)Async();
-.			end
+.			endfor
 						Current = State.$(@next??../@name:p);
 						break;
-.		end
+.		endfor
 					default:
 						await InvalidEventAsync(evt);
 						break;
 				}
 			}
 		}
-.end
+.endfor
 
 		internal abstract Task<Event> NextEventAsync();
 
@@ -64,20 +64,20 @@ namespace $(../@cs-namespace)
 .foreach distinct-values(.//do)
 
 		internal abstract Task $(text():p)Async();
-.end
+.endfor
 
 		public enum State : byte
 		{
 .foreach state
 			$(@name:p),
-.end
+.endfor
 		}
 
 		public enum Event : byte
 		{
 .foreach distinct-values(.//event)
 			$(@on:p),
-.end
+.endfor
 		}
 	}
 }

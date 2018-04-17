@@ -6,11 +6,11 @@ GO
 ALTER PROC dbo.$(@name:sql)_DELETE
 .foreach field[@pk]
 	@$(@name:sql) $(@db-type??@type)$(",")
-.end
+.endfor
 AS
 DELETE FROM dbo.$(@name:sql)
 WHERE 
 .foreach field[@pk]
 	[$(@name:sql)] = @$(@name:sql)$(" AND")
-.end
+.endfor
 GO

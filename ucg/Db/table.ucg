@@ -4,14 +4,14 @@ IF OBJECT_ID('dbo.$(@name:sql)', 'U') IS NULL
 	(
 .foreach field
 		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size) $(@nulls:u),
-.end
+.endfor
 .foreach field[@fk]
 		CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY ($(@name:sql)) REFERENCES dbo.[$(@fk:sql)] ($(@fk-field??@name:sql)),
-.end
+.endfor
 		CONSTRAINT PK_$(../@name:sql) PRIMARY KEY CLUSTERED (
 .foreach field[@pk]
 			$(@name:sql)$(",")
-.end	
+.endfor	
 		)
 	)
 GO
@@ -20,4 +20,4 @@ GO
 IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='IX_$(../@name:sql)_$(@name:sql)' AND object_id = OBJECT_ID('dbo.[$(../@name:sql)]'))
 	CREATE INDEX IX_$(../@name:sql)_$(@name:sql) ON dbo.[$(../@name:sql)] ($(@name:sql))
 GO
-.end
+.endfor

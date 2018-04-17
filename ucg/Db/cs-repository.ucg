@@ -15,7 +15,7 @@ namespace $(../@cs-namespace)
 			new SqlMetaData("SEQ", SqlDbType.Int),
 .foreach field
 			new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@cs-size))$(",")
-.end
+.endfor
 		);
 
 		readonly Func<DbConnection> _connectionFactory;
@@ -41,7 +41,7 @@ namespace $(../@cs-namespace)
 				return await cnn.QueryProcAsync("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefaultAsync<$(../@name:p)>();
 			}
 		}
-.end
+.endfor
 .foreach field[@fk-rel]
 
 		public List<$(../@name:p)> SelectBy$(@name:p)($(@type) $(@name:c))
@@ -59,7 +59,7 @@ namespace $(../@cs-namespace)
 				return await cnn.QueryProcAsync("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToListAsync<$(../@name:p)>();
 			}
 		}
-.end
+.endfor
 
 		public $(@name:p) Save($(@name:p) item)
 		{
@@ -69,7 +69,7 @@ namespace $(../@cs-namespace)
 				{
 .foreach field
 					$(@name:sql) = $(@name:c)$(",")
-.end
+.endfor
 				};
 				return cnn.QueryProc("dbo.$(@name:sql)_Merge", args).Single<$(@name:p)>();
 			}
@@ -83,7 +83,7 @@ namespace $(../@cs-namespace)
 				{
 .foreach field
 					$(@name:sql) = $(@name:c)$(",")
-.end
+.endfor
 				};
 				return await cnn.QueryProcAsync("dbo.$(@name:sql)_Merge", args).SingleAsync<$(@name:p)>();
 			}
@@ -133,7 +133,7 @@ namespace $(../@cs-namespace)
 				await cnn.ExecuteProcAsync("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
 			}
 		}
-.end
+.endfor
 .foreach field[@fk-rel]
 
 		public void DeleteBy$(@name:p)($(@type) $(@name:c))
@@ -151,7 +151,7 @@ namespace $(../@cs-namespace)
 				await cnn.ExecuteProcAsync("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
 			}
 		}
-.end
+.endfor
 
 	}
 }

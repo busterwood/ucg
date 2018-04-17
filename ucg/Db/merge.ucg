@@ -6,36 +6,36 @@ GO
 ALTER PROC dbo.$(@name:sql)_Merge
 .foreach field
 	@$(@name:sql) $(@db-type??@type)$(",")
-.end
+.endfor
 AS
 MERGE dbo.$(@name:sql) as trg
 USING ( VALUES (
 .foreach field
 	@$(@name:sql) AS [$(@name:sql)]$(",")
-.end
+.endfor
 ) ) as src
 ON 
 .foreach field[@pk]
 	src.[$(@name:sql)] = trg.[$(@name:sql)]$(" AND")
-.end
+.endfor
 WHEN MATCHED THEN
 	UPDATE SET
 .foreach field[not(@pk)]
 		[$(@name:sql)] = src.[$(@name:sql)]$(",")
-.end
+.endfor
 WHEN NOT MATCHED BY TARGET THEN
 	INSERT (
 .foreach field
 		[$(@name:sql)]$(",")
-.end
+.endfor
 	) VALUES (
 .foreach field
 		src.[$(@name:sql)]$(",")
-.end
+.endfor
 	)
 OUTPUT
 .foreach field
 	inserted.[$(@name:sql)]$(",")
-.end
+.endfor
 ;
 GO

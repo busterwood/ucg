@@ -22,61 +22,65 @@ namespace BusterWood.UniCodeGen
         const string Tab = "    ";
         readonly TextReader _reader;
         readonly Context _context;
+        private readonly string _scriptName;
 
-        public LineReader(TextReader reader, Context context)
+        public LineReader(string scriptName, TextReader reader, Context context)
         {
             _reader = reader;
             _context = context;
+            _scriptName = scriptName;
         }
 
         public IEnumerator<Line> GetEnumerator()
         {
+            int lineNumber = 0;
             for(;;)
             {
                 var line = _reader.ReadLine();
                 if (line == null)
                     break;
-                yield return Create(line.Replace("\t", Tab));
+                lineNumber++;
+                yield return Create(line.Replace("\t", Tab), lineNumber);
             }
         }
 
-        private Line Create(string line)
+        private Line Create(string line, int number)
         {
             if (!_context.TemplateMode || IsScript(line))
-                return CreateScriptLine(line);
+                return CreateScriptLine(line, number);
             else
-                return new TemplateLine { Text = line };
+                return new TemplateLine(line, number);
         }
 
         private bool IsScript(string line) => line.Length > 0 && line[0] == '.';
 
-        private Line CreateScriptLine(string line)
+        private Line CreateScriptLine(string line, int number)
         {
             var firstWord = "." + FirstWord(line);
 
             if (OutputLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new OutputLine(line);
+                return new OutputLine(line, number);
 
             if (IncludeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new IncludeLine(line);
+                return new IncludeLine(line, number);
 
             if (ForEachLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new ForEachLine(line);
+                return new ForEachLine(line, number);
 
             if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new EndForLine(line);
+                return new EndForLine(line, number);
 
             if (CommentLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new CommentLine { Text=line };
+                return new CommentLine(line, number);
 
             if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
-                var tm = new TemplateModeLine(line);
+                var tm = new TemplateModeLine(line, number);
                 _context.TemplateMode = tm.On; // changes how lines parse
                 return tm;
             }
 
-            throw new ScriptException($"{firstWord} is not a known script command on line '{line}'");
+            throw new ScriptException($"{firstWord} is not a known script command on line {number} of {_scriptName}: '{line}'");
         }
 
         private static string FirstWord(string line)
@@ -101,6 +105,13 @@ namespace BusterWood.UniCodeGen
     abstract class Line
     {
         public string Text { get; set; }
+        public int Number { get; set; }
+
+        protected Line(string line, int number)
+        {
+            Text = line;
+            Number = number;
+        }
 
         public override string ToString() => Text;
 
@@ -226,6 +237,10 @@ namespace BusterWood.UniCodeGen
     /// <summary>Line does not start with "." but may contain text substitutions</summary>
     class TemplateLine : Line
     {
+        public TemplateLine(string line, int number) : base(line, number)
+        {
+        }
+
         public override void Execute(XElement model, Context ctx)
         {
             var txt = ExpandVars(Text, model, ctx);
@@ -236,6 +251,10 @@ namespace BusterWood.UniCodeGen
     /// <summary>A line of script starting with "."</summary>
     abstract class ScriptLine : Line
     {
+        public ScriptLine(string line, int number) : base(line, number)
+        {
+        }
+
         protected static string Quoted(string text)
         {
             var start = text.IndexOf('"');
@@ -249,6 +268,11 @@ namespace BusterWood.UniCodeGen
     class CommentLine : ScriptLine
     {
         public const string Keyword = ".//";
+
+        public CommentLine(string text, int number) : base(text, number)
+        {
+        }
+
         public override void Execute(XElement model, Context ctx)
         {
         }
@@ -260,9 +284,8 @@ namespace BusterWood.UniCodeGen
         public const string Keyword = ".output";
         readonly string _quoted;
 
-        public OutputLine(string line)
+        public OutputLine(string line, int number) : base(line, number)
         {
-            Text = line;
             _quoted = Quoted(line);
             if (_quoted == null)
                 throw new ScriptException($"{Keyword} must be followed by a double quoted string: '{line}'");
@@ -285,9 +308,8 @@ namespace BusterWood.UniCodeGen
         public const string Keyword = ".include";
         readonly string _quoted;
 
-        public IncludeLine(string line)
+        public IncludeLine(string line, int number) : base(line, number)
         {
-            Text = line;
             _quoted = Quoted(line);
             if (_quoted == null)
                 throw new ScriptException($"{Keyword} must be followed by a double quoted string: '{line}'");
@@ -300,7 +322,7 @@ namespace BusterWood.UniCodeGen
         }
     }
     
-    /// <summary>Repeat part of the script for eacg child element of the model</summary>
+    /// <summary>Repeat part of the script for each child element of the model</summary>
     class ForEachLine : ScriptLine
     {
         public const string Keyword = ".foreach";
@@ -309,9 +331,8 @@ namespace BusterWood.UniCodeGen
 
         public List<Line> Body;
 
-        public ForEachLine(string line)
+        public ForEachLine(string line, int number) : base(line, number)
         {
-            Text = line;
             var idx = line.IndexOf("foreach", 0);
             _path = line.Substring(idx + "foreach".Length).Trim();
             //support multiple levels?
@@ -351,11 +372,10 @@ namespace BusterWood.UniCodeGen
     /// <summary>end of <see cref="ForEachLine"/></summary>
     class EndForLine : ScriptLine
     {
-        public const string Keyword = ".end";
+        public const string Keyword = ".endfor";
 
-        public EndForLine(string line)
+        public EndForLine(string line, int number) : base(line, number)
         {
-            Text = line;
         }
 
         public override void Execute(XElement model, Context ctx)
@@ -369,9 +389,8 @@ namespace BusterWood.UniCodeGen
         public const string Keyword = ".template";
         public readonly bool On;
 
-        public TemplateModeLine(string line)
+        public TemplateModeLine(string line, int number) : base(line, number)
         {
-            Text = line;
             var bits = line.TrimStart('.').Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (bits.Length != 2)
                 throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");

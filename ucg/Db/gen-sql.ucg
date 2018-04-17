@@ -9,5 +9,5 @@ foreach entity
 	foreach field[@fk-rel]
 		include "select-fk.ucg"
 		include "delete-fk.ucg"
-	end
-end
+	endfor
+endfor
