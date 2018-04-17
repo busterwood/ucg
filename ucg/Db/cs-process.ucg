@@ -51,9 +51,9 @@ namespace $(../@cs-namespace)
 						{
 .		foreach do
 .			if @async
-							await $(text():p)Async();
+							await $(text():p)Async(evt);
 .			else
-							$(text():p)();
+							$(text():p)(evt);
 .			endif
 .		endfor
 .		if string(@next)
@@ -64,9 +64,9 @@ namespace $(../@cs-namespace)
 .	else
 .		foreach do
 .			if @async
-						await $(text():p)Async();
+						await $(text():p)Async(evt);
 .			else
-						$(text():p)();
+						$(text():p)(evt);
 .			endif
 .		endfor
 .		if string(@next)
@@ -91,12 +91,30 @@ namespace $(../@cs-namespace)
 		}
 
 		internal abstract Task InvalidEventAsync(Event evt);
+
+		protected virtual void Before(Event evt, Actions act) {}
+		
+		protected virtual void After(Event evt, Actions act) {}
 .foreach distinct-values(.//do)
 
 .	if @async
-		internal abstract Task $(text():p)Async();
+		private async Task $(text():p)Async(Event evt)
+		{
+			Before(evt, Actions.$(text():p));
+			await $(text():p)CoreAsync();
+			After(evt, Actions.$(text():p));
+		}
+
+		internal abstract Task $(text():p)CoreAsync()
 .	else
-		internal abstract void $(text():p)();
+		private void $(text():p)(Event evt)
+		{
+			Before(evt, Actions.$(text():p));
+			$(text():p)Core();
+			After(evt, Actions.$(text():p));
+		}
+
+		internal abstract void $(text():p)Core();
 .	endif
 .endfor
 
@@ -111,6 +129,13 @@ namespace $(../@cs-namespace)
 		{
 .foreach distinct-values(.//event)
 			$(@on:p),
+.endfor
+		}
+
+		public enum Actions : byte
+		{
+.foreach distinct-values(.//do)
+			$(text():p),
 .endfor
 		}
 	}

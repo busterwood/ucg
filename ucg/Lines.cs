@@ -344,7 +344,6 @@ namespace BusterWood.UniCodeGen
         {
             var idx = line.IndexOf("foreach", 0);
             _path = line.Substring(idx + "foreach".Length).Trim();
-            //support multiple levels?
             if (string.IsNullOrEmpty(_path))
                 throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
         }
@@ -364,7 +363,7 @@ namespace BusterWood.UniCodeGen
             }
             var childern = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
             if (distinct)
-                childern = childern.Distinct(new SameAttrbutesComparer()).ToList();
+                childern = childern.Distinct(new TextAndFirstAttributeEquality()).ToList();
 
             var last = childern.LastOrDefault();
             foreach (var child in childern)
@@ -414,43 +413,24 @@ namespace BusterWood.UniCodeGen
         {
             if (True == null)
                 throw new ScriptException("Empty body of " + Keyword);
+            bool result = Evaluate(model, ctx);
+            ctx.IsLast = false;
+            foreach (var l in result ? True : False)
+            {
+                l.Execute(model, ctx);
+            }
+        }
+
+        private bool Evaluate(XElement model, Context ctx)
+        {
             var expanded = ExpandVars(_path, model, ctx);
             var selected = model.XPathEvaluate(expanded);
             if (selected is string s)
-            {
-                if (!string.IsNullOrEmpty(s))
-                    IfBody(model, ctx);
-                else
-                    ElseBody(model, ctx);
-            }
+                return !string.IsNullOrEmpty(s);
             else if (selected is IEnumerable e)
-            {
-                var ele = e.OfType<XElement>().SingleOrDefault();
-                if (ele != null)
-                    IfBody(model, ctx);
-                else
-                    ElseBody(model, ctx);
-            }
+                return e.OfType<XElement>().SingleOrDefault() != null;
             else
                 throw new ScriptException($"{Keyword} expression value is not a string or IEnumerable on line {Number}: '{Text}'");
-        }
-
-        private void IfBody(XElement model, Context ctx)
-        {
-            ctx.IsLast = false;
-            foreach (var l in True)
-            {
-                l.Execute(model, ctx);
-            }
-        }
-
-        private void ElseBody(XElement model, Context ctx)
-        {
-            ctx.IsLast = false;
-            foreach (var l in False)
-            {
-                l.Execute(model, ctx);
-            }
         }
     }
 
@@ -501,7 +481,7 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    class SameAttrbutesComparer : IEqualityComparer<XElement>
+    class TextAndFirstAttributeEquality : IEqualityComparer<XElement>
     {
         public bool Equals(XElement x, XElement y)
         {
