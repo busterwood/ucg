@@ -70,6 +70,15 @@ namespace BusterWood.UniCodeGen
             if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndForLine(line, number);
 
+            if (IfLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new IfLine(line, number);
+
+            if (ElseLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new ElseLine(line, number);
+
+            if (EndIfLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new EndIfLine(line, number);
+
             if (CommentLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new CommentLine(line, number);
 
@@ -382,7 +391,97 @@ namespace BusterWood.UniCodeGen
         {
         }
     }
-    
+
+    class IfLine : ScriptLine
+    {
+        public const string Keyword = ".if";
+
+        readonly string _path;
+
+        public List<Line> True;
+        public List<Line> False;
+
+        public IfLine(string line, int number) : base(line, number)
+        {
+            var idx = line.IndexOf("if", 0);
+            _path = line.Substring(idx + "if".Length).Trim();
+            //support multiple levels?
+            if (string.IsNullOrEmpty(_path))
+                throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            if (True == null)
+                throw new ScriptException("Empty body of " + Keyword);
+            var expanded = ExpandVars(_path, model, ctx);
+            var selected = model.XPathEvaluate(expanded);
+            if (selected is string s)
+            {
+                if (!string.IsNullOrEmpty(s))
+                    IfBody(model, ctx);
+                else
+                    ElseBody(model, ctx);
+            }
+            else if (selected is IEnumerable e)
+            {
+                var ele = e.OfType<XElement>().SingleOrDefault();
+                if (ele != null)
+                    IfBody(model, ctx);
+                else
+                    ElseBody(model, ctx);
+            }
+            else
+                throw new ScriptException($"{Keyword} expression value is not a string or IEnumerable on line {Number}: '{Text}'");
+        }
+
+        private void IfBody(XElement model, Context ctx)
+        {
+            ctx.IsLast = false;
+            foreach (var l in True)
+            {
+                l.Execute(model, ctx);
+            }
+        }
+
+        private void ElseBody(XElement model, Context ctx)
+        {
+            ctx.IsLast = false;
+            foreach (var l in False)
+            {
+                l.Execute(model, ctx);
+            }
+        }
+    }
+
+    /// <summary>end of <see cref="ForEachLine"/></summary>
+    class ElseLine : ScriptLine
+    {
+        public const string Keyword = ".else";
+
+        public ElseLine(string line, int number) : base(line, number)
+        {
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+        }
+    }
+
+    /// <summary>end of <see cref="ForEachLine"/></summary>
+    class EndIfLine : ScriptLine
+    {
+        public const string Keyword = ".endif";
+
+        public EndIfLine(string line, int number) : base(line, number)
+        {
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+        }
+    }
+
     /// <summary>Turns on or off <see cref="Context.TemplateMode"/></summary>
     class TemplateModeLine : ScriptLine
     {

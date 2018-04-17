@@ -42,14 +42,18 @@ namespace $(../@cs-namespace)
 				Event evt = await NextEventAsync();
 				switch (evt)
 				{
-.		foreach event 
+.	foreach event 
 					case Event.$(@on:p):
-.			foreach do
+.		foreach do
+.			if @async
 						await $(text():p)Async();
-.			endfor
-						Current = State.$(@next??../@name:p);
-						break;
+.			else
+						$(text():p)();
+.			endif
 .		endfor
+						Current = State.$(@next ?? ../@name:p);
+						break;
+.	endfor
 					default:
 						await InvalidEventAsync(evt);
 						break;
@@ -63,7 +67,11 @@ namespace $(../@cs-namespace)
 		internal abstract Task InvalidEventAsync(Event evt);
 .foreach distinct-values(.//do)
 
+.	if @async
 		internal abstract Task $(text():p)Async();
+.	else
+		internal abstract void $(text():p)();
+.	endif
 .endfor
 
 		public enum State : byte
