@@ -27,7 +27,7 @@
     </state>
   </script>
 
-  <script name="broker order booking">    
+  <script name="broker order booking" transaction="true">    
     <state name="booking">
       <event on="new broker order" next="booking requested">
         <do>save broker order</do>

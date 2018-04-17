@@ -1,6 +1,8 @@
 ﻿.template on
 using System;
-using System.Collections.Generic;
+.if string(@transaction)
+using System.Transactions;
+.endif
 
 namespace $(../@cs-namespace)
 {
@@ -44,6 +46,22 @@ namespace $(../@cs-namespace)
 				{
 .	foreach event 
 					case Event.$(@on:p):
+.	if string(../../@transaction)
+						using (var txn = new TransactionScope())
+						{
+.		foreach do
+.			if @async
+							await $(text():p)Async();
+.			else
+							$(text():p)();
+.			endif
+.		endfor
+.		if string(@next)
+							ChangeState(State.$(@next:p));
+.		endif
+							txn.SetComplete();
+						}				
+.	else
 .		foreach do
 .			if @async
 						await $(text():p)Async();
@@ -51,7 +69,10 @@ namespace $(../@cs-namespace)
 						$(text():p)();
 .			endif
 .		endfor
-						Current = State.$(@next ?? ../@name:p);
+.		if string(@next)
+						ChangeState(State.$(@next:p));
+.		endif
+.	endif
 						break;
 .	endfor
 					default:
@@ -60,9 +81,14 @@ namespace $(../@cs-namespace)
 				}
 			}
 		}
-.endfor
+.endfor		
 
 		internal abstract Task<Event> NextEventAsync();
+
+		internal virtual Task ChangeState(State newState)
+		{
+			Current = newState;
+		}
 
 		internal abstract Task InvalidEventAsync(Event evt);
 .foreach distinct-values(.//do)
