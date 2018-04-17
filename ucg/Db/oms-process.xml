@@ -1,10 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<oms>
+<oms cs-namespace="ucg">
+  
   <script name="Enter the market">
     <state name="check compliance">
       <event on="success" next="create execution orders">
-        <do name="create execution orders"/>
-        <do name="send execution orders to EMS"/>
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
       <event on="success with stock locations" next="locate stock"/>
       <event on="failure"/>
@@ -21,46 +22,46 @@
   <script name="end of day">
     <state name ="withdraw execution orders">
       <event on="withdrawn from EMS">
-        <do name="cancel position reservation"/>
+        <do>cancel position reservation</do>
       </event>
     </state>
   </script>
 
-  <script name="book broker order">    
+  <script name="broker order booking">    
     <state name="booking">
-      <event name="new broker order" next="booking requested">
-        <do name="save broker order"/>
-        <do name="fairly allocate"/>
-        <do name="check details"/> 
-        <do name="request booking"/>
+      <event on="new broker order" next="booking requested">
+        <do>save broker order</do>
+        <do>fairly allocate</do>
+        <do>check details</do> 
+        <do>request booking</do>
       </event>
     </state>
     <state name="fair allocation failed">
-      <event name="retry" next="booking requested">
-        <do name="fairly allocate"/>
-        <do name="check details"/> 
-        <do name="request booking"/>
+      <event on="retry" next="booking requested">
+        <do>fairly allocate</do>
+        <do>check details</do> 
+        <do>request booking</do>
       </event>
-      <event name="cancel" next="cancelled"/>
+      <event on="cancel" next="cancelled"/>
     </state>
     <state name="booking requested">
-      <event name="accepted"/>
-      <event name="complete" next="complete"/>
-      <event name="failed" next="failed"/>      
+      <event on="accepted"/>
+      <event on="complete" next="complete"/>
+      <event on="failed" next="failed"/>      
     </state>
     <state name="complete">
-      <event name="cancel" next="cancelling">
-        <do name="request booking cancellation"/>
+      <event on="cancel" next="cancelling">
+        <do>request booking cancellation</do>
       </event>
     </state>
     <state name="failed">
-      <event name="cancel" next="cancelled"/>
-      <event name="retry" next="booking requested">
-        <do name="request booking"/>
+      <event on="cancel" next="cancelled"/>
+      <event on="retry" next="booking requested">
+        <do>request booking</do>
       </event>
     </state>
-    <state name="cancelling" next="cancelled">
-      <event name="booking cancelled">        
+    <state name="cancelling">
+      <event on="booking cancelled" next="cancelled">
       </event>
     </state>
     <state name="cancelled"/>

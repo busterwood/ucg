@@ -20,13 +20,22 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Update="Db\cs-process.ucg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Db\cs-repository.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\delete-fk.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Db\gen_csharp.ucg">
+    <None Update="Db\gen-csharp-process.ucg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Db\gen-csharp-db.ucg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Db\oms-process.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\select-fk.ucg">
@@ -50,7 +59,7 @@
     <None Update="Db\merge.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Db\gen_sql.ucg">
+    <None Update="Db\gen-sql.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\schema.xml">

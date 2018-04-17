@@ -19,6 +19,7 @@ namespace BusterWood.UniCodeGen
 
     class LineReader : IEnumerable<Line>
     {
+        const string Tab = "    ";
         readonly TextReader _reader;
         readonly Context _context;
 
@@ -35,7 +36,7 @@ namespace BusterWood.UniCodeGen
                 var line = _reader.ReadLine();
                 if (line == null)
                     break;
-                yield return Create(line);
+                yield return Create(line.Replace("\t", Tab));
             }
         }
 
@@ -129,16 +130,28 @@ namespace BusterWood.UniCodeGen
         {
             var expression = new StringBuilder();
             r.Read(); // consume the opening bracket that we peeked
-            for (;;)
+            int openBrackets = 1;
+            while (openBrackets > 0)
             {
                 var cur = r.Read();
                 if (cur < 0)
                     break;
                 var ch = (char)cur;
                 if (ch == '$' && r.Peek() == '(')
+                {
                     expression.Append(RecursivelyExpand(r, model, ctx));
+                }
+                else if (ch == '(')
+                {
+                    openBrackets++;
+                    expression.Append(ch);
+                }
                 else if (ch == ')')
-                    break;
+                {
+                    openBrackets--;
+                    if (openBrackets > 0)
+                        expression.Append(ch);
+                }
                 else
                     expression.Append(ch);
             }
@@ -311,7 +324,18 @@ namespace BusterWood.UniCodeGen
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
             var expanded = ExpandVars(_path, model, ctx);
+            // using XPATH 1.0 but we want to support "distinct-values()" XPATH 2.0 function
+            bool distinct = false;
+            if (expanded.StartsWith("distinct-values("))
+            {
+                expanded = expanded.Substring("distinct-values(".Length);
+                expanded = expanded.Substring(0, expanded.Length - 1); // last closing bracket
+                distinct = true;
+            }
             var childern = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
+            if (distinct)
+                childern = childern.Distinct(new SameAttrbutesComparer()).ToList();
+
             var last = childern.LastOrDefault();
             foreach (var child in childern)
             {
@@ -359,4 +383,33 @@ namespace BusterWood.UniCodeGen
         }
     }
 
+    class SameAttrbutesComparer : IEqualityComparer<XElement>
+    {
+        public bool Equals(XElement x, XElement y)
+        {
+            // check the inner text
+            string xtxt = ((string)x.XPathEvaluate("string(text())")).Trim();
+            string ytxt = ((string)y.XPathEvaluate("string(text())")).Trim();
+            if (!xtxt.Equals(ytxt))
+                return false;
+
+            // if first attribute differs then not the same - IGNORES other attributes
+            var xa = x.Attributes().FirstOrDefault();
+            var ya = y.Attributes().FirstOrDefault();
+            return string.Equals(xa?.Name, ya?.Name) && string.Equals(xa?.Value, ya?.Value);
+        }
+
+        public int GetHashCode(XElement ele)
+        {
+            string txt = ((string)ele.XPathEvaluate("string(text())")).Trim();
+            int hc = txt.GetHashCode();
+            var a = ele.Attributes().FirstOrDefault();
+            if (a != null)
+            {
+                hc ^= a.Name.GetHashCode();
+                hc ^= a.Value.GetHashCode();
+            }
+            return hc;
+        }
+    }
 }

@@ -1,0 +1,4 @@
+﻿.template off
+foreach script
+	include "cs-process.ucg"
+end

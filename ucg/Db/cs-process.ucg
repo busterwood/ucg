@@ -1,0 +1,64 @@
+﻿.template on
+using System;
+using System.Collections.Generic;
+
+namespace $(../@cs-namespace)
+{
+	public abstract class $(@name:p)	
+	{
+		public State Current { get; private set; }
+
+		public async Task RunAsync()
+		{
+.foreach state
+			await $(@name:p)Async();
+.end
+		}
+.foreach state
+
+		public async Task $(@name:p)Async()
+		{
+			while (Current == State.$(@name:p))
+			{
+				Event evt = await NextEventAsync();
+				switch (evt)
+				{
+.		foreach event 
+					case Event.$(@on:p):
+.			foreach do
+						await $(text():p)Async();
+.			end
+						Current = State.$(@next??../@name:p);
+						break;
+.		end
+					default:
+						await InvalidEventAsync(evt);
+						break;
+				}
+			}
+		}
+.end
+
+		internal abstract Task<Event> NextEventAsync();
+
+		internal abstract Task InvalidEventAsync(Event evt);
+.foreach distinct-values(.//do)
+
+		internal abstract Task $(text():p)Async();
+.end
+
+		public enum State
+		{
+.foreach state
+			$(@name:p),
+.end
+		}
+
+		public enum Event
+		{
+.foreach distinct-values(.//event)
+			$(@on:p),
+.end
+		}
+	}
+}
