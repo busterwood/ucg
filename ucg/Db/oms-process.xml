@@ -1,33 +1,91 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <oms cs-namespace="ucg">
   
-  <script name="Enter the market">
-    <state name="check compliance">
-      <event on="success" next="create execution orders">
+  <script name="investments">
+    <state name="initial">
+      <event on="enter market" next="compliance requested">
+        <do>request compliance check</do>        
+      </event>
+      <event on="cancel" next="cancelled"/>
+    </state>
+    
+    <state name="compliance requested">
+      <event on="compliance success" next="live">
         <do>create execution orders</do>
         <do>send execution orders to EMS</do>
       </event>
-      <event on="success with stock locations" next="locate stock"/>
-      <event on="failure"/>
+      <event on="stock locate needed" next="locate stock"/>
+      <event on="compliance failure" next="compliance failed"/>
     </state>
+    
+    <state name="compliance failed">
+      <event on="order cancelled" next="compliance requested">
+        <do>request compliance check</do>
+      </event>
+    </state>
+    
     <state name="locate stock">
-      <event on="stock located" next="check compliance"/>
-      <event on="order cancelled" next="check compliance" />      
+      <event on="stock located" next="compliance requested">
+        <do>request compliance check</do>
+      </event>
+      <event on="order cancelled" next="compliance requested">
+        <do>request compliance check</do>
+      </event>
+      <event on="end of day" next="trading day ended"/>
     </state>
+    
     <state name="execution order creation failure">
-      <event on="order cancelled" next="check compliance" />
-    </state>    
-  </script>
-
-  <script name="end of day">
-    <state name ="withdraw execution orders">
-      <event on="withdrawn from EMS">
+      <event on="order cancelled" next="compliance requested">
+        <do>request compliance check</do>
+      </event>
+      <event on="retry" next="compliance requested">
+        <do>request compliance check</do>
+      </event>
+      <event on="end of day" next="trading day ended">
         <do>cancel position reservation</do>
       </event>
     </state>
+    
+    <state name="live">
+      <event on="end of day" next="trading day ended">
+        <do>withdraw from EMS</do>
+        <do>cancel position reservation</do>
+      </event>      
+      <event on="withdraw" next="not trading">
+        <do>withdraw from EMS</do>
+      </event>
+      <event on="cancel" next="cancelled">
+        <do>withdraw from EMS</do>
+        <do>cancel position reservation</do>        
+      </event>
+      <event on="fully booked" next="complete"/>
+    </state>
+
+    <state name="not trading">
+      <event on="start trading" next="live">
+        <do>send execution orders to EMS</do>
+      </event>
+      <event on="cancel" next="cancelled">
+        <do>cancel position reservation</do>
+      </event>
+      <event on="fully booked" next="complete"/>
+    </state>
+
+    <state name="trading day ended">
+      <event on="start of day" next="compliance requested">
+        <do>request compliance check</do>        
+      </event>
+      <event on="fully booked" next="complete"/>
+      <event on="cancel" next="cancelled"/>
+    </state>
+    
+    <state name="complete" terminal="true"/>
+    <state name="cancelled" terminal="true"/>
   </script>
 
-  <script name="broker order booking" transaction="true">    
+
+  
+  <script name="broker orders" transaction="true">
     <state name="booking">
       <event on="new broker order" next="booking requested">
         <do>save broker order</do>
@@ -36,6 +94,7 @@
         <do>request booking</do>
       </event>
     </state>
+    
     <state name="fair allocation failed">
       <event on="retry" next="booking requested">
         <do>fairly allocate</do>
@@ -44,26 +103,31 @@
       </event>
       <event on="cancel" next="cancelled"/>
     </state>
+    
     <state name="booking requested">
       <event on="accepted"/>
       <event on="complete" next="complete"/>
       <event on="failed" next="failed"/>      
     </state>
+    
     <state name="complete">
       <event on="cancel" next="cancelling">
         <do>request booking cancellation</do>
       </event>
     </state>
+    
     <state name="failed">
       <event on="cancel" next="cancelled"/>
       <event on="retry" next="booking requested">
         <do>request booking</do>
       </event>
     </state>
+    
     <state name="cancelling">
       <event on="booking cancelled" next="cancelled">
       </event>
     </state>
+    
     <state name="cancelled" terminal="true"/>
   </script>
 </oms>

@@ -14,9 +14,21 @@ namespace $(../@cs-namespace)
 		{
 			while (!IsTerminal)
 			{
-.foreach state
-				await $(@name:p)Async();
-.endfor			
+				switch (Current) 
+				{
+.foreach state[not(@terminal)]
+					case $(@name:p):
+						await $(@name:p)Async();
+						break;
+.endfor				
+.foreach state[@terminal]
+					case $(@name:p):
+						break;
+.endfor				
+					default:
+						InvalidState();
+						break;
+				}
 			}
 		}
 
@@ -35,10 +47,11 @@ namespace $(../@cs-namespace)
 				}
 			}
 		}
-.foreach state
+.foreach state[not(@terminal)]
 
 		public async Task $(@name:p)Async()
 		{
+			Enter(State.$(@name:p));
 			while (Current == State.$(@name:p))
 			{
 				Event evt = await NextEventAsync();
@@ -51,22 +64,22 @@ namespace $(../@cs-namespace)
 						{
 .		foreach do
 .			if @async
-							await $(text():p)Async(evt);
+							await Do$(text():p)Async(evt);
 .			else
-							$(text():p)(evt);
+							Do$(text():p)(evt);
 .			endif
 .		endfor
 .		if string(@next)
 							ChangeState(State.$(@next:p));
 .		endif
-							txn.SetComplete();
+							txn.Complete();
 						}				
 .	else
 .		foreach do
 .			if @async
-						await $(text():p)Async(evt);
+						await Do$(text():p)Async(evt);
 .			else
-						$(text():p)(evt);
+						Do$(text():p)(evt);
 .			endif
 .		endfor
 .		if string(@next)
@@ -80,6 +93,7 @@ namespace $(../@cs-namespace)
 						break;
 				}
 			}
+			Exit(State.$(@name:p));
 		}
 .endfor		
 
@@ -90,7 +104,16 @@ namespace $(../@cs-namespace)
 			Current = newState;
 		}
 
+		internal virtual Task InvalidState() 
+		{
+			throw new InvalidOperationException($"Invalid state {Current}");
+		}
+
 		internal abstract Task InvalidEventAsync(Event evt);
+		
+		protected virtual void Enter(State st) {}
+		
+		protected virtual void Exit(State st) {}
 
 		protected virtual void Before(Event evt, Actions act) {}
 		
@@ -98,23 +121,23 @@ namespace $(../@cs-namespace)
 .foreach distinct-values(.//do)
 
 .	if @async
-		private async Task $(text():p)Async(Event evt)
+		private async Task Do$(text():p)Async(Event evt)
 		{
 			Before(evt, Actions.$(text():p));
-			await $(text():p)CoreAsync();
+			await $(text():p)Async();
 			After(evt, Actions.$(text():p));
 		}
 
-		internal abstract Task $(text():p)CoreAsync()
+		internal abstract Task $(text():p)Async()
 .	else
-		private void $(text():p)(Event evt)
+		private void Do$(text():p)(Event evt)
 		{
 			Before(evt, Actions.$(text():p));
-			$(text():p)Core();
+			$(text():p)();
 			After(evt, Actions.$(text():p));
 		}
 
-		internal abstract void $(text():p)Core();
+		internal abstract void $(text():p)();
 .	endif
 .endfor
 
