@@ -10,9 +10,28 @@ namespace $(../@cs-namespace)
 
 		public async Task RunAsync()
 		{
+			while (!IsTerminal)
+			{
 .foreach state
-			await $(@name:p)Async();
-.end
+				await $(@name:p)Async();
+.end			
+			}
+		}
+
+		public IsTerminal 
+		{ 
+			get 
+			{
+				switch (Current) 
+				{
+.foreach state[@terminal]
+					case $(@name:p):
+						return true;
+.end				
+					default:
+						return false;
+				}
+			}
 		}
 .foreach state
 
@@ -47,14 +66,14 @@ namespace $(../@cs-namespace)
 		internal abstract Task $(text():p)Async();
 .end
 
-		public enum State
+		public enum State : byte
 		{
 .foreach state
 			$(@name:p),
 .end
 		}
 
-		public enum Event
+		public enum Event : byte
 		{
 .foreach distinct-values(.//event)
 			$(@on:p),

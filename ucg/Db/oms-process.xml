@@ -64,6 +64,6 @@
       <event on="booking cancelled" next="cancelled">
       </event>
     </state>
-    <state name="cancelled"/>
+    <state name="cancelled" terminal="true"/>
   </script>
 </oms>
