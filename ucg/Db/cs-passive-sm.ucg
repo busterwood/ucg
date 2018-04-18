@@ -1,5 +1,6 @@
 ﻿.template on
 using System;
+using System.Diagnostics;
 .if string(@transaction)
 using System.Transactions;
 .endif
@@ -11,6 +12,8 @@ namespace $(../@cs-namespace)
 	/// <remarks>GENERATED CODE - any change to this code will be lost when the code is regenerated.</remarks>
 	public abstract class $(@name:p)StateMachine	
 	{
+	    private readonly Stopwatch clock = new Stopwatch();
+
 		public State Current { get; private set; }
 
 		public Exception Exception { get; private set; }
@@ -31,13 +34,17 @@ namespace $(../@cs-namespace)
 			}
 		}
 		
+		/// <summary>Raised after entering a new state. Passed the "new" state.</summary>
 		public event Action<State> EnterState;
 		
+		/// <summary>Raised after just before changing the current state. Passed the "old" state.</summary>
 		public event Action<State> ExitState;
 
-		public event Action<Event, Actions> BeforeEvent;
+		/// <summary>Raised before performing an action in response to an event</summary>
+		public event Action<Event, Actions> BeforeAction;
 		
-		public event Action<Event, Actions> AfterEvent;
+		/// <summary>Raised after performing an action in response to an event</summary>
+		public event Action<Event, Actions, TimeSpan> AfterAction;
 
 		public void HandleEvent(Event evt)
 		{
@@ -131,20 +138,21 @@ namespace $(../@cs-namespace)
 
 		protected virtual void OnBefore(Event evt, Actions act)
 		{
-			BeforeEvent?.Invoke(evt, act);
+			BeforeAction?.Invoke(evt, act);
 		}
 		
-		protected virtual void OnAfter(Event evt, Actions act)
+		protected virtual void OnAfter(Event evt, Actions act, TimeSpan elasped)
 		{
-			AfterEvent?.Invoke(evt, act);
+			AfterAction?.Invoke(evt, act, elasped);
 		}
 .foreach distinct-values(.//do)
 
 		private void Do$(text():p)(Event evt)
 		{
+			clock.Restart();
 			OnBefore(evt, Actions.$(text():p));
 			$(text():p)();
-			OnAfter(evt, Actions.$(text():p));
+			OnAfter(evt, Actions.$(text():p), clock.Elapsed);
 		}
 
 		internal abstract void $(text():p)();
