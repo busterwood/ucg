@@ -1,5 +1,7 @@
 ﻿.template off
 foreach entity
+	output "$(@name:p).cs"	
 	include "cs-class.ucg"
+	output "$(@name:p)Repository.cs"	
 	include "cs-repository.ucg"
 endfor

@@ -106,7 +106,7 @@ namespace $(../@cs-namespace)
 		}
 .endfor		
 
-		private void DoChangeState(State newState)
+		protected void DoChangeState(State newState)
 		{
 			if (Current == newState) return;
 			OnExit(Current);

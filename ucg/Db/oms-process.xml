@@ -3,43 +3,55 @@
   
   <script name="investments" transaction="true">
     <state name="initial">
-      <event on="enter market" next="compliance requested">
-        <do>request compliance check</do>        
-      </event>
-      <event on="cancel" next="cancelled"/>
-    </state>
-    
-    <state name="compliance requested">
-      <event on="compliance success" next="live">
+      <event on="enter market" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
         <do>create execution orders</do>
         <do>send execution orders to EMS</do>
       </event>
-      <event on="stock locate needed" next="locate stock"/>
-      <event on="compliance failure" next="compliance failed"/>
+      <event on="cancel" next="cancelled"/>
     </state>
-    
+
+    <!-- reached via the exception event -->
     <state name="compliance failed">
-      <event on="order cancelled" next="compliance requested">
-        <do>request compliance check</do>
+      <event on="order cancelled" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
     </state>
     
+    <!-- reached via the exception event -->
     <state name="locate stock">
-      <event on="stock located" next="compliance requested">
-        <do>request compliance check</do>
+      <event on="stock located" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
-      <event on="order cancelled" next="compliance requested">
-        <do>request compliance check</do>
+      <event on="order cancelled" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
       <event on="end of day" next="trading day ended"/>
     </state>
     
+    <!-- reached via the exception event -->
     <state name="execution order creation failure">
-      <event on="order cancelled" next="compliance requested">
-        <do>request compliance check</do>
+      <event on="order cancelled" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
-      <event on="retry" next="compliance requested">
-        <do>request compliance check</do>
+      <event on="retry" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
       <event on="end of day" next="trading day ended">
         <do>cancel position reservation</do>
@@ -72,8 +84,11 @@
     </state>
 
     <state name="trading day ended">
-      <event on="start of day" next="compliance requested">
-        <do>request compliance check</do>        
+      <event on="start of day" next="live">
+        <do>check restrictions</do>        
+        <do>reserve position</do>        
+        <do>create execution orders</do>
+        <do>send execution orders to EMS</do>
       </event>
       <event on="fully booked" next="complete"/>
       <event on="cancel" next="cancelled"/>
