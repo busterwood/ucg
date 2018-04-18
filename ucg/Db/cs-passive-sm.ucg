@@ -6,29 +6,22 @@ using System.Transactions;
 
 namespace $(../@cs-namespace)
 {
-	public abstract class $(@name:p)	
+	public abstract class $(@name:p)StateMachine	
 	{
 		public State Current { get; private set; }
 
-		public async Task RunAsync()
+		public void HandleEvent(Event evt)
 		{
-			while (!IsTerminal)
+			switch (Current) 
 			{
-				switch (Current) 
-				{
-.foreach state[not(@terminal)]
-					case $(@name:p):
-						await $(@name:p)Async();
-						break;
+.foreach state
+				case State.$(@name:p):
+					$(@name:p)(evt);
+					break;
 .endfor				
-.foreach state[@terminal]
-					case $(@name:p):
-						break;
-.endfor				
-					default:
-						InvalidState();
-						break;
-				}
+				default:
+					InvalidState();
+					break;
 			}
 		}
 
@@ -49,59 +42,47 @@ namespace $(../@cs-namespace)
 		}
 .foreach state[not(@terminal)]
 
-		public async Task $(@name:p)Async()
+		/// <summary>State $(@name)</summary>
+		private void $(@name:p)(Event evt)
 		{
-			Enter(State.$(@name:p));
-			while (Current == State.$(@name:p))
+			switch (evt)
 			{
-				Event evt = await NextEventAsync();
-				switch (evt)
-				{
 .	foreach event 
-					case Event.$(@on:p):
+				case Event.$(@on:p):
 .	if string(../../@transaction)
-						using (var txn = new TransactionScope())
-						{
+					using (var txn = new TransactionScope())
+					{
 .		foreach do
-.			if @async
-							await Do$(text():p)Async(evt);
-.			else
-							Do$(text():p)(evt);
-.			endif
-.		endfor
-.		if string(@next)
-							ChangeState(State.$(@next:p));
-.		endif
-							txn.Complete();
-						}				
-.	else
-.		foreach do
-.			if @async
-						await Do$(text():p)Async(evt);
-.			else
 						Do$(text():p)(evt);
-.			endif
 .		endfor
 .		if string(@next)
 						ChangeState(State.$(@next:p));
 .		endif
+						txn.Complete();
+					}				
+.	else
+.		foreach do
+					Do$(text():p)(evt);
+.		endfor
+.		if string(@next)
+					ChangeState(State.$(@next:p));
+.		endif
 .	endif
-						break;
+					break;
 .	endfor
-					default:
-						await InvalidEventAsync(evt);
-						break;
-				}
+				default:
+					await InvalidEventAsync(evt);
+					break;
 			}
-			Exit(State.$(@name:p));
 		}
 .endfor		
 
-		internal abstract Task<Event> NextEventAsync();
-
 		internal virtual Task ChangeState(State newState)
 		{
+			if (Current == newState) return;
+			Exit(Current);
 			Current = newState;
+			Enter(Current);
 		}
 
 		internal virtual Task InvalidState() 
@@ -120,16 +101,6 @@ namespace $(../@cs-namespace)
 		protected virtual void After(Event evt, Actions act) {}
 .foreach distinct-values(.//do)
 
-.	if @async
-		private async Task Do$(text():p)Async(Event evt)
-		{
-			Before(evt, Actions.$(text():p));
-			await $(text():p)Async();
-			After(evt, Actions.$(text():p));
-		}
-
-		internal abstract Task $(text():p)Async()
-.	else
 		private void Do$(text():p)(Event evt)
 		{
 			Before(evt, Actions.$(text():p));
@@ -138,7 +109,6 @@ namespace $(../@cs-namespace)
 		}
 
 		internal abstract void $(text():p)();
-.	endif
 .endfor
 
 		public enum State : byte
