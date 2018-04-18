@@ -12,6 +12,7 @@ namespace $(../@cs-namespace)
 	public abstract class $(@name:p)StateMachine	
 	{
 		public State Current { get; private set; }
+
 		public Exception Exception { get; private set; }
 		
 		public IsTerminal 
@@ -29,6 +30,14 @@ namespace $(../@cs-namespace)
 				}
 			}
 		}
+		
+		public event Action<State> EnterState;
+		
+		public event Action<State> ExitState;
+
+		public event Action<Event, Actions> BeforeEvent;
+		
+		public event Action<Event, Actions> AfterEvent;
 
 		public void HandleEvent(Event evt)
 		{
@@ -93,9 +102,9 @@ namespace $(../@cs-namespace)
 		private void DoChangeState(State newState)
 		{
 			if (Current == newState) return;
-			Exit(Current);
+			OnExit(Current);
 			ChangeState(newState);
-			Enter(Current);
+			OnEnter(Current);
 		}
 
 		internal virtual void ChangeState(State newState)
@@ -110,20 +119,32 @@ namespace $(../@cs-namespace)
 
 		internal abstract void InvalidEvent(Event evt);
 		
-		protected virtual void Enter(State st) {}
+		protected virtual void OnEnter(State st) 
+		{
+			EnterState?.Invoke(st);
+		}
 		
-		protected virtual void Exit(State st) {}
+		protected virtual void OnExit(State st) 
+		{
+			ExitState?.Invoke(st);
+		}
 
-		protected virtual void Before(Event evt, Actions act) {}
+		protected virtual void OnBefore(Event evt, Actions act)
+		{
+			BeforeEvent?.Invoke(evt, act);
+		}
 		
-		protected virtual void After(Event evt, Actions act) {}
+		protected virtual void OnAfter(Event evt, Actions act)
+		{
+			AfterEvent?.Invoke(evt, act);
+		}
 .foreach distinct-values(.//do)
 
 		private void Do$(text():p)(Event evt)
 		{
-			Before(evt, Actions.$(text():p));
+			OnBefore(evt, Actions.$(text():p));
 			$(text():p)();
-			After(evt, Actions.$(text():p));
+			OnAfter(evt, Actions.$(text():p));
 		}
 
 		internal abstract void $(text():p)();
