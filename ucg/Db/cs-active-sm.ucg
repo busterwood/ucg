@@ -3,34 +3,15 @@ using System;
 .if string(@transaction)
 using System.Transactions;
 .endif
+using System.Threading.Tasks;
 
 namespace $(../@cs-namespace)
 {
+	/// <summary>State machine implementation of $(@name)</summary>
+	/// <remarks>GENERATED CODE - any change to this code will be lost when the code is regenerated.</remarks>
 	public abstract class $(@name:p)StateMachine	
 	{
 		public State Current { get; private set; }
-
-		public async Task RunAsync()
-		{
-			while (!IsTerminal)
-			{
-				switch (Current) 
-				{
-.foreach state[not(@terminal)]
-					case State.$(@name:p):
-						await $(@name:p)Async();
-						break;
-.endfor				
-.foreach state[@terminal]
-					case State.$(@name:p):
-						break;
-.endfor				
-					default:
-						InvalidState();
-						break;
-				}
-			}
-		}
 
 		public IsTerminal 
 		{ 
@@ -47,10 +28,31 @@ namespace $(../@cs-namespace)
 				}
 			}
 		}
+
+		public async Task RunAsync()
+		{
+			while (!IsTerminal)
+			{
+				switch (Current) 
+				{
+.foreach state[not(@terminal)]
+					case State.$(@name:p):
+						await $(@name:p)StateAsync();
+						break;
+.endfor				
+.foreach state[@terminal]
+					case State.$(@name:p):
+						break;
+.endfor				
+					default:
+						InvalidState();
+						break;
+				}
+			}
+		}
 .foreach state[not(@terminal)]
 
-		/// <summary>State $(name)</summary>
-		internal async Task $(@name:p)Async()
+		internal async Task $(@name:p)StateAsync()
 		{
 			while (Current == State.$(@name:p))
 			{

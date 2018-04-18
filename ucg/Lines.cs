@@ -82,6 +82,9 @@ namespace BusterWood.UniCodeGen
             if (CommentLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new CommentLine(line, number);
 
+            if (InsertXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new InsertXmlLine(line, number);
+
             if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
                 var tm = new TemplateModeLine(line, number);
@@ -434,7 +437,7 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>end of <see cref="ForEachLine"/></summary>
+    /// <summary>Else part of a <see cref="IfLine"/></summary>
     class ElseLine : ScriptLine
     {
         public const string Keyword = ".else";
@@ -448,7 +451,7 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>end of <see cref="ForEachLine"/></summary>
+    /// <summary>end of <see cref="IfLine"/></summary>
     class EndIfLine : ScriptLine
     {
         public const string Keyword = ".endif";
@@ -459,6 +462,21 @@ namespace BusterWood.UniCodeGen
 
         public override void Execute(XElement model, Context ctx)
         {
+        }
+    }    
+    
+    /// <summary>insert source XML</summary>
+    class InsertXmlLine : ScriptLine
+    {
+        public const string Keyword = ".insertxml";
+
+        public InsertXmlLine(string line, int number) : base(line, number)
+        {
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            ctx.Output.WriteLine(model);
         }
     }
 

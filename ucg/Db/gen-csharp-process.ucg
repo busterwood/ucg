@@ -1,4 +1,4 @@
 ﻿.template off
 foreach script
-	include "cs-active-sm.ucg"
+	include "cs-passive-sm.ucg"
 endfor

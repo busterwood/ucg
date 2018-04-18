@@ -4,27 +4,16 @@ using System;
 using System.Transactions;
 .endif
 
+
 namespace $(../@cs-namespace)
 {
+	/// <summary>State machine implementation of $(@name)</summary>
+	/// <remarks>GENERATED CODE - any change to this code will be lost when the code is regenerated.</remarks>
 	public abstract class $(@name:p)StateMachine	
 	{
 		public State Current { get; private set; }
-
-		public void HandleEvent(Event evt)
-		{
-			switch (Current) 
-			{
-.foreach state
-				case State.$(@name:p):
-					$(@name:p)(evt);
-					break;
-.endfor				
-				default:
-					InvalidState();
-					break;
-			}
-		}
-
+		public Exception Exception { get; private set; }
+		
 		public IsTerminal 
 		{ 
 			get 
@@ -40,14 +29,39 @@ namespace $(../@cs-namespace)
 				}
 			}
 		}
+
+		public void HandleEvent(Event evt)
+		{
+			bool handled;
+			switch (Current) 
+			{
+.foreach state[not(@terminal) and not(@default)]
+				case State.$(@name:p):
+					handled = $(@name:p)State(evt);
+					break;
+.endfor				
+				default:
+					if (IsTerminal) 
+						InvalidEvent(evt); 
+					else
+						InvalidState();
+					return;
+			}
+.foreach state[@default]
+			if (!handled) 
+				handled = $(@name:p)State(evt);
+			
+.endfor
+			if (!handled) 
+				InvalidEvent(evt); 
+		}
 .foreach state[not(@terminal)]
 
-		/// <summary>State $(@name)</summary>
-		private void $(@name:p)(Event evt)
+		private bool $(@name:p)State(Event evt)
 		{
 			switch (evt)
 			{
-.	foreach event 
+.	foreach event
 				case Event.$(@on:p):
 .	if string(../../@transaction)
 					using (var txn = new TransactionScope())
@@ -56,7 +70,7 @@ namespace $(../@cs-namespace)
 						Do$(text():p)(evt);
 .		endfor
 .		if string(@next)
-						ChangeState(State.$(@next:p));
+						DoChangeState(State.$(@next:p));
 .		endif
 						txn.Complete();
 					}				
@@ -65,32 +79,36 @@ namespace $(../@cs-namespace)
 					Do$(text():p)(evt);
 .		endfor
 .		if string(@next)
-					ChangeState(State.$(@next:p));
+					DoChangeState(State.$(@next:p));
 .		endif
 .	endif
-					break;
+					return true;
 .	endfor
 				default:
-					await InvalidEventAsync(evt);
-					break;
+					return false;
 			}
 		}
 .endfor		
 
-		internal virtual Task ChangeState(State newState)
+		private void DoChangeState(State newState)
 		{
 			if (Current == newState) return;
 			Exit(Current);
-			Current = newState;
+			ChangeState(newState);
 			Enter(Current);
 		}
 
-		internal virtual Task InvalidState() 
+		internal virtual void ChangeState(State newState)
+		{
+			Current = newState;
+		}
+
+		internal virtual void InvalidState() 
 		{
 			throw new InvalidOperationException($"Invalid state {Current}");
 		}
 
-		internal abstract Task InvalidEventAsync(Event evt);
+		internal abstract void InvalidEvent(Event evt);
 		
 		protected virtual void Enter(State st) {}
 		
@@ -116,6 +134,7 @@ namespace $(../@cs-namespace)
 .foreach state
 			$(@name:p),
 .endfor
+			Exception, // special error state
 		}
 
 		public enum Event : byte
@@ -123,6 +142,7 @@ namespace $(../@cs-namespace)
 .foreach distinct-values(.//event)
 			$(@on:p),
 .endfor
+			Exception, // special error event
 		}
 
 		public enum Actions : byte

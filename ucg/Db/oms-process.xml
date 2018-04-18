@@ -77,6 +77,9 @@
       </event>
       <event on="fully booked" next="complete"/>
       <event on="cancel" next="cancelled"/>
+      <event on="exception" next="cancelled">
+        <do>try to recover</do>
+      </event>
     </state>
     
     <state name="complete" terminal="true"/>
@@ -129,5 +132,14 @@
     </state>
     
     <state name="cancelled" terminal="true"/>
+    
+    <state name="default" default="true">
+      <event on="archvie">
+        <do>archive</do>
+      </event>
+      <event on="exception">
+        <do>try to recover</do>
+      </event>
+    </state>
   </script>
 </oms>
