@@ -18,14 +18,14 @@ namespace $(../@cs-namespace)
 
 		public Exception Exception { get; private set; }
 		
-		public IsTerminal 
+		public bool IsTerminal 
 		{ 
 			get 
 			{
 				switch (Current) 
 				{
 .foreach state[@terminal]
-					case $(@name:p):
+					case State.$(@name:p):
 						return true;
 .endfor				
 					default:
@@ -163,7 +163,6 @@ namespace $(../@cs-namespace)
 .foreach state
 			$(@name:p),
 .endfor
-			Exception, // special error state
 		}
 
 		public enum Event : byte
@@ -171,7 +170,6 @@ namespace $(../@cs-namespace)
 .foreach distinct-values(.//event)
 			$(@on:p),
 .endfor
-			Exception, // special error event
 		}
 
 		public enum Actions : byte

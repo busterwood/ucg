@@ -14,7 +14,7 @@ namespace BusterWood.UniCodeGen
             ctx.Output.Flush();
         }
 
-        private static string Load(string scriptPath)
+        public static string Load(string scriptPath)
         {
             Std.Info($"Running script '{scriptPath}'");
             if (!File.Exists(scriptPath))

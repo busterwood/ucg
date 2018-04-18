@@ -276,7 +276,11 @@ namespace BusterWood.UniCodeGen
             return text.Substring(start + 1, end - start - 1);
         }
     }
-
+    /// <summary>
+    /// .//
+    /// 
+    /// ignore the rest of this line
+    /// </summary>
     class CommentLine : ScriptLine
     {
         public const string Keyword = ".//";
@@ -290,7 +294,11 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>Set the output file</summary>
+    /// <summary>
+    /// .output "file path"
+    /// 
+    /// Set the output file
+    /// </summary>
     class OutputLine : ScriptLine
     {
         public const string Keyword = ".output";
@@ -314,7 +322,11 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>Include another script for this model</summary>
+    /// <summary>
+    /// .include "file path"
+    /// 
+    /// Include another script for this model
+    /// </summary>
     class IncludeLine : ScriptLine
     {
         public const string Keyword = ".include";
@@ -334,7 +346,11 @@ namespace BusterWood.UniCodeGen
         }
     }
     
-    /// <summary>Repeat part of the script for each child element of the model</summary>
+    /// <summary>
+    /// .foreach xpath-expression
+    /// 
+    /// Repeat part of the script for each child element of the model
+    /// </summary>
     class ForEachLine : ScriptLine
     {
         public const string Keyword = ".foreach";
@@ -394,6 +410,11 @@ namespace BusterWood.UniCodeGen
         }
     }
 
+    /// <summary>
+    /// .if xpath-expression
+    /// 
+    /// evaluates the xpath expression to see if it return either a non-empty string or a single element
+    /// </summary>
     class IfLine : ScriptLine
     {
         public const string Keyword = ".if";
@@ -463,9 +484,13 @@ namespace BusterWood.UniCodeGen
         public override void Execute(XElement model, Context ctx)
         {
         }
-    }    
-    
-    /// <summary>insert source XML</summary>
+    }
+
+    /// <summary>
+    /// .insertxml
+    /// 
+    /// insert the model source XML
+    /// </summary>
     class InsertXmlLine : ScriptLine
     {
         public const string Keyword = ".insertxml";
@@ -479,8 +504,44 @@ namespace BusterWood.UniCodeGen
             ctx.Output.WriteLine(model);
         }
     }
+    
+    /// <summary>
+    /// .loadxml "filepath" xpath-expression
+    /// 
+    /// Adds the selected elements from the file to the current model element
+    /// </summary>
+    class LoadXmlLine : ScriptLine
+    {
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "loadxml";
+        string filePath;
+        string xpathExpression;
 
-    /// <summary>Turns on or off <see cref="Context.TemplateMode"/></summary>
+        public LoadXmlLine(string line, int number) : base(line, number)
+        {
+            var idx = line.IndexOf(keywordNoDot, 0);
+            var rest = line.Substring(idx + keywordNoDot.Length).Trim();
+            filePath = Quoted(rest);
+            int xpathIdx = rest.IndexOf(filePath) + filePath.Length + 1;
+            xpathExpression = rest.Substring(xpathIdx).Trim();
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            var doc = XDocument.Load(filePath);
+            var expanded = ExpandVars(xpathExpression, doc.Root, ctx);
+            foreach(var ele in ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>())
+            {
+                model.Add(ele); // automatic deep clone
+            }            
+        }
+    }
+
+    /// <summary>
+    /// .template [on|true]
+    /// 
+    /// Turns on or off <see cref="Context.TemplateMode"/>
+    /// </summary>
     class TemplateModeLine : ScriptLine
     {
         public const string Keyword = ".template";
@@ -511,7 +572,7 @@ namespace BusterWood.UniCodeGen
 
             // if first attribute differs then not the same - IGNORES other attributes
             var xa = x.Attributes().FirstOrDefault();
-            var ya = y.Attributes().FirstOrDefault();
+            XAttribute ya = y.Attributes().FirstOrDefault();
             return string.Equals(xa?.Name, ya?.Name) && string.Equals(xa?.Value, ya?.Value);
         }
 

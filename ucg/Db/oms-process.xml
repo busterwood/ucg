@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<oms cs-namespace="ucg">
+<oms cs-namespace="BusterWood.OpenOms">
   
-  <script name="investments">
+  <script name="investments" transaction="true">
     <state name="initial">
       <event on="enter market" next="compliance requested">
         <do>request compliance check</do>        
@@ -77,11 +77,17 @@
       </event>
       <event on="fully booked" next="complete"/>
       <event on="cancel" next="cancelled"/>
-      <event on="exception" next="cancelled">
+    </state>
+
+    <state name="default" default="true">
+      <event on="archvie">
+        <do>archive</do>
+      </event>
+      <event on="exception">
         <do>try to recover</do>
       </event>
     </state>
-    
+
     <state name="complete" terminal="true"/>
     <state name="cancelled" terminal="true"/>
   </script>
