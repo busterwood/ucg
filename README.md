@@ -77,7 +77,7 @@ Turns _template_ mode on or off, for example:
 
 The `output` keyword changes the file that the script to writes to.  If the file exists then it is __overwritten__.
 ```
-output "$(name).cs"
+output "$(@name).cs"
 ```
 
 ### foreach/endfor
