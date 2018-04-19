@@ -22,6 +22,25 @@ dotnet ucg --script my-script.ucg my-model.xml
 
 The script is then interpreted and output is sent to `StdOut` which can be changed via the `output` keyword (see below).
 
+## Models
+
+Models are XML files that you define.  An example would be a a list of entities (tables) that you wish to generate code for:
+
+```xml
+<?xml version="1.0" encoding="utf-8" ?>
+<entities cs-namespace="BusterWood.Ucg">
+  <entity name="User">
+    <field name="User Id" nulls="not null" type="int" pk="true"/>
+    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="(50)" cs-size=",50"/>
+    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="(50)" cs-size=",50"/>
+  </entity>
+</entities>
+```
+
+Models are freeform XML, there is no "special" tags,  but we recommend using:
+* _attributes_ for properties with at most one value
+* _elements_ for lists of things
+
 ## Templates
 
 When a script is in _template_ mode then input scripts are written to the output.  All expressions in the for `$(...)` expanded (see below) before the line is output.
