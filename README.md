@@ -43,7 +43,7 @@ Expressions are evaluated on the _current model element_, which is initally the 
 
 Expressions can be either:
 * an XPATH expression on the current model, e.g. `$(@name)` to get the value of the name attribute.
-* a double quoted expression, which is used without `foreach` and `forfiles` loops for delimiting lists, e.g. `$(", ")` adds a comma _except when the current element is the last element in the loop_.
+* a double quoted expression, which is used within `foreach` and `forfiles` loops for delimiting lists, e.g. `$(", ")` adds a comma _except when the current element is the last element in the loop_.
 
 The value returned by an expression can be used as-is, for modified via one of the following format specifications:
 * `:u` for `UPPER CASE`, e.g. `$(@name:u)`
