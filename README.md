@@ -26,6 +26,8 @@ When a script is in _template_ mode then input scripts are written to the output
 
 Any line with a first character of `.` is interpreted as script language, for example:
 ```
+.template on
+
 	public class $(@name:p)
 	{
 . foreach field
