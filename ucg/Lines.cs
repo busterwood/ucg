@@ -451,7 +451,7 @@ namespace BusterWood.UniCodeGen
                 foreach (var l in Body)
                 {
                     ctx.IsLast = fp == last;
-                    l.Execute(fileEle, ctx);
+                    l.Execute(model, ctx);
                 }
                 fileEle.Remove();
             }
