@@ -79,6 +79,8 @@ Turns _template_ mode on or off, for example:
 ### output
 
 The `output` keyword changes the file that the script to writes to.  If the file exists then it is __overwritten__.
+
+For example, the following sets the output file to be the value of the `name` attribute of the current model element:
 ```
 output "$(@name).cs"
 ```
