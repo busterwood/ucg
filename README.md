@@ -49,6 +49,11 @@ The value returned by an expression can be used as-is, for modified via one of t
 * `:c` for `camelCase`, e.g. `$(@name:c)`
 * `:sql` for `SQL_CASE`, e.g. `$(@name:sql)`
 
+Expressions can contain `??` which is interpreted as the left hand side, if that has value, otherwise the right hand side.  For example:
+```
+new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@cs-size))$(",")
+```
+
 ## Script language
 
 ### comments
