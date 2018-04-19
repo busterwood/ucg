@@ -31,8 +31,8 @@ Models are XML files that you define.  An example would be a a list of entities 
 <entities cs-namespace="BusterWood.Ucg">
   <entity name="User">
     <field name="User Id" nulls="not null" type="int" pk="true"/>
-    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="(50)" cs-size=",50"/>
-    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="(50)" cs-size=",50"/>
+    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="(50)"/>
+    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="(50)"/>
   </entity>
 </entities>
 ```
