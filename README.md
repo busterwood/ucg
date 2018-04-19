@@ -39,6 +39,7 @@ Any line with a first character of `.` is interpreted as script language, for ex
 ## Expressions
 
 Expressions like `$(...)` are _recurively_ expanded in the script language and as well as in templates.  
+Expressions are evaluated on the _current model element_, which is initally the root element of the XML, but this is changed by `foreach` blocks (see below).
 
 Expressions can be either:
 * an XPATH expression on the current model, e.g. `$(@name)` to get the value of the name attribute.
