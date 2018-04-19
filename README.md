@@ -158,7 +158,7 @@ WARNING: This file is generated for the following model:
 ## Notes
 
 XPATH 1.0 expressions are supported with the addition on the `distinct-values()` function.  
-The `distinct-values()` function works a bit differently in that it __only__ compares the _first_ attribute name and value and the _text_ of the currnet element.
+The `distinct-values()` function works a bit differently in that it __only__ compares the _first_ attribute name and value and the _text_ of the current element.
 
 ### XPath examples
 
