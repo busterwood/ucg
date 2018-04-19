@@ -6,7 +6,7 @@ The script language (see below) uses XPATH 1.0 expressions for iteration, condit
 
 Use can use `ucg` for [Model Oriented Programming](https://github.com/imatix/gsl#model-oriented-programming), working with higher-level abstractions than general purpose languages.  `ucg` will typically be used to generate one or more [patterns](https://en.wikipedia.org/wiki/Software_design_pattern) from a source XML model.
 
-`ucg` is insprired by [GSL](https://github.com/imatix/gsl).  I tried and failed to get GSL to work on Winx64, so I thought I could write something similar for .NET Core.
+`ucg` is insprired by [iMatrix's GSL](https://github.com/imatix/gsl).  I tried and failed to get GSL to work on Winx64, so I thought I could write something similar for .NET Core.
 
 ## Running
 
