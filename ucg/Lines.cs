@@ -411,6 +411,68 @@ namespace BusterWood.UniCodeGen
     }
 
     /// <summary>
+    /// .forfiles "dir/*.ext"
+    /// 
+    /// Repeat part of the script for each file found.  Each file has 4 attributes:  path, name (excluding extension), extension, folder
+    /// </summary>
+    class ForFilesLine : ScriptLine
+    {
+        public const string Keyword = "." + keyword;
+        const string keyword = "forfiles";
+
+        readonly string _path;
+
+        public List<Line> Body;
+
+        public ForFilesLine(string line, int number) : base(line, number)
+        {
+            _path = Quoted(line);
+            if (_path == null)
+                throw new ScriptException($"{Keyword} must be followed by a double quoted string: '{line}'");
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            if (Body == null)
+                throw new ScriptException("Empty body of " + Keyword);
+
+            var expanded = ExpandVars(_path, model, ctx);
+            var files = Directory.GetFiles(_path);
+            var last = files.Last();
+            foreach (var fp in files)
+            {
+                XElement fileEle = new XElement("file", 
+                    new XAttribute("name", Path.GetFileNameWithoutExtension(fp)),
+                    new XAttribute("path", fp),
+                    new XAttribute("extension", Path.GetExtension(fp)),
+                    new XAttribute("folder", Path.GetDirectoryName(fp))
+                );
+                model.Add(fileEle);
+                foreach (var l in Body)
+                {
+                    ctx.IsLast = fp == last;
+                    l.Execute(fileEle, ctx);
+                }
+                fileEle.Remove();
+            }
+        }
+    }
+
+    /// <summary>end of <see cref="ForFilesLine"/></summary>
+    class EndFilesLine : ScriptLine
+    {
+        public const string Keyword = ".endfiles";
+
+        public EndFilesLine(string line, int number) : base(line, number)
+        {
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+        }
+    }
+
+    /// <summary>
     /// .if xpath-expression
     /// 
     /// evaluates the xpath expression to see if it return either a non-empty string or a single element
@@ -428,7 +490,6 @@ namespace BusterWood.UniCodeGen
         {
             var idx = line.IndexOf("if", 0);
             _path = line.Substring(idx + "if".Length).Trim();
-            //support multiple levels?
             if (string.IsNullOrEmpty(_path))
                 throw new ScriptException($"{Keyword} must be followed by child element name: '{line}'");
         }

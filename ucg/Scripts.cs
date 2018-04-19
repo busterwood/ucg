@@ -53,6 +53,8 @@ namespace BusterWood.UniCodeGen
                     ParseForEachBody(fe, lines);
                 else if (lines.Current is IfLine il)
                     ParseIfBody(il, lines);
+                else if (lines.Current is ForFilesLine ff)
+                    ParseForFilesBody(ff, lines);
             }
             return body;
         }
@@ -65,6 +67,16 @@ namespace BusterWood.UniCodeGen
                 fe.Body = body;
             else
                 throw new ScriptException($"{ForEachLine.Keyword} on line {fe.Number} without matching {EndForLine.Keyword}");
+        }
+
+        private static void ParseForFilesBody(ForFilesLine ff, IEnumerator<Line> lines)
+        {
+            Func<Line, bool> end = line => line is EndFilesLine;
+            var body = ParseRecursive(lines, end);
+            if (end(lines.Current))
+                ff.Body = body;
+            else
+                throw new ScriptException($"{ForFilesLine.Keyword} on line {ff.Number} without matching {ForFilesLine.Keyword}");
         }
 
         private static void ParseIfBody(IfLine il, IEnumerator<Line> lines)
