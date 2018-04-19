@@ -147,3 +147,10 @@ WARNING: This file is generated for the following model:
 XPATH 1.0 expressions are supported with the addition on the `distinct-values()` function.  
 The `distinct-values()` function works a bit differently in that it __only__ compares the _first_ attribute name and value and the _text_ of the currnet element.
 
+### XPath examples
+
+* `@name` returns the value of the `name` attribute.
+* `../@name` returns the value of the `name` attribute _of the parent element_.
+* `state[@terminal]` returns child `state` elements that have a `terminal` attribute.
+* `state[not(@terminal)]` returns child `state` elements that _do not_ have a `terminal` attribute.
+* `distinct-values(.//do)` returns a set of _decendent_ `do` elements that have unique _text_ and _first_ attribute.
