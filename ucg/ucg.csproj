@@ -11,10 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="hello.ucg">
+    <Content Include="Samples\hello.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="hello.xml">
+    <Content Include="Samples\hello.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>

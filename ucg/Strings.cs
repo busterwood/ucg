@@ -5,23 +5,30 @@ namespace BusterWood.UniCodeGen
 {
     static class Strings
     {
-        public static string PascalCase(string value)
+        public static string TitleCase(string value)
         {
-            return string.Join("", value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(PascalCaseWord));
+            string[] words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return string.Join(" ", words.Select(TitleCaseWord));
         }
 
-        static string PascalCaseWord(string word) => word.Substring(0, 1).ToUpper() + word.Substring(1).ToLower();
+        public static string PascalCase(string value)
+        {
+            string[] words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return string.Join("", words.Select(TitleCaseWord));
+        }
 
         public static string CamelCase(string value)
         {
-            var temp = PascalCase(value);
-            return temp.Substring(0, 1).ToLower() + temp.Substring(1);
+            string[] words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return words.FirstOrDefault()?.ToLower() + string.Join("", words.Skip(1).Select(TitleCaseWord));
         }
 
         public static string SqlCase(string value)
         {
-            return string.Join("_", value.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(wd => wd.ToUpper()));
+            string[] words = value.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            return string.Join("_", words.Select(wd => wd.ToUpper()));
         }
-    }
 
+        static string TitleCaseWord(string word) => char.ToUpper(word[0]) + word.Substring(1).ToLower();
+    }
 }

@@ -1,0 +1,8 @@
+﻿.foreach page
+.  output "$(@title).html"
+<h1>$(@title:t)</h1>
+<p>This is page $(@title)</p>
+.  foreach section
+<h3>section $(@name:t)</h3>
+.  endfor
+.endfor

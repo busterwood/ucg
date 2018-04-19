@@ -234,6 +234,8 @@ namespace BusterWood.UniCodeGen
                     return value.ToUpper();
                 case "l": // lower case
                     return value.ToLower();
+                case "t": // Title Case
+                    return Strings.TitleCase(value);
                 case "p": // PascalCase
                     return Strings.PascalCase(value);
                 case "c": // camelCase

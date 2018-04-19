@@ -48,6 +48,7 @@ Expressions can be either:
 The value returned by an expression can be used as-is, for modified via one of the following format specifications:
 * `:u` for `UPPER CASE`, e.g. `$(@name:u)`
 * `:l` for `lower case`, e.g. `$(@name:l)`
+* `:t` for `Title Case`, e.g. `$(@name:t)`
 * `:p` for `PascalCase`, e.g. `$(@name:p)`
 * `:c` for `camelCase`, e.g. `$(@name:c)`
 * `:sql` for `SQL_CASE`, e.g. `$(@name:sql)`
