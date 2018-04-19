@@ -99,7 +99,7 @@ A `forfiles` block repeats the code inside the block for each file found. Each f
 * `extension` which is the file extension
 * `folder` which is the name of the directory which contains the file
 
-Inside the block then the current node has a `file` node added.
+Inside the block then the current node has a `file` child element added.
 
 For example, the following code runs each script found in the current directory with the extension `.ucg`:
 ```
