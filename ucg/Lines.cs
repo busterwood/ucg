@@ -183,26 +183,17 @@ namespace BusterWood.UniCodeGen
 
         private static string Evaluate(string variable, XElement model, Context ctx)
         {
-            string changeCase = CaseSuffix(ref variable);
-            string value = FindValue(variable, model, ctx);
-            return ChangeCase(changeCase, value);
-        }
-
-        private static string CaseSuffix(ref string variable)
-        {
-            int colon = variable.LastIndexOf(':');
-            if (colon < 0)
-                return "";
-            var result = variable.Substring(colon + 1);
-            variable = variable.Substring(0, colon);
-            return result;
+            var bits = variable.SplitOnLast(':');
+            string modifier = bits[1];
+            string value = FindValue(bits[0], model, ctx);
+            return Strings.ApplyFormatModifier(value, modifier, ctx.IsLast);
         }
 
         private static string FindValue(string variable, XElement model, Context ctx)
         {
-            // allow for lists that need delimiters between, e.g. 1,2,3
+            // return double quoted strings with quotes removed
             if (variable.StartsWith('"') && variable.EndsWith('"'))
-                return ctx.IsLast ? "" : variable.Trim('"');
+                return variable.Trim('"');
 
             int idx = variable.IndexOf("??");
             string found;
@@ -226,26 +217,6 @@ namespace BusterWood.UniCodeGen
 
         private static string XPathAttrValue(XElement model, string xpath) => (string)model.XPathEvaluate("string(" + xpath + ")");
 
-        private static string ChangeCase(string changeCase, string value)
-        {
-            switch (changeCase.ToLower())
-            {
-                case "u": // UPPER CASE
-                    return value.ToUpper();
-                case "l": // lower case
-                    return value.ToLower();
-                case "t": // Title Case
-                    return Strings.TitleCase(value);
-                case "p": // PascalCase
-                    return Strings.PascalCase(value);
-                case "c": // camelCase
-                    return Strings.CamelCase(value);
-                case "sql": // SQL_CASE
-                    return Strings.SqlCase(value);
-                default:
-                    return value;
-            }
-        }
     }
 
     /// <summary>Line does not start with "." but may contain text substitutions</summary>

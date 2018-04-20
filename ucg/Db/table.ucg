@@ -3,14 +3,14 @@ IF OBJECT_ID('dbo.$(@name:sql)', 'U') IS NULL
 	CREATE TABLE dbo.[$(@name:sql)] 
 	(
 .foreach field
-		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size) $(@nulls:u),
+		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size:b) $(@nulls:u),
 .endfor
 .foreach field[@fk]
 		CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY ($(@name:sql)) REFERENCES dbo.[$(@fk:sql)] ($(@fk-field??@name:sql)),
 .endfor
 		CONSTRAINT PK_$(../@name:sql) PRIMARY KEY CLUSTERED (
 .foreach field[@pk]
-			$(@name:sql)$(",")
+			$(@name:sql)$(",":~)
 .endfor	
 		)
 	)

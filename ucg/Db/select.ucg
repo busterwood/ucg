@@ -5,16 +5,16 @@ GO
 
 ALTER PROC dbo.$(@name:sql)_Select
 .foreach field[@pk]
-	@$(@name:sql) $(@db-type??@type)$(",")
+	@$(@name:sql) $(@db-type??@type)$(",":~)
 .endfor
 AS
 SELECT 
 .foreach field
-	[$(@name:sql)]$(",")
+	[$(@name:sql)]$(",":~)
 .endfor
 FROM dbo.$(@name:sql)
 WHERE 
 .foreach field[@pk]
-	[$(@name:sql)] = @$(@name:sql)$(" AND")
+	[$(@name:sql)] = @$(@name:sql)$(" AND":~)
 .endfor
 GO

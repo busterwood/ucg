@@ -31,8 +31,8 @@ Models are XML files that you define.  An example would be a a list of entities 
 <entities cs-namespace="BusterWood.Ucg">
   <entity name="User">
     <field name="User Id" nulls="not null" type="int" pk="true"/>
-    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="(50)"/>
-    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="(50)"/>
+    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
+    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
   </entity>
 </entities>
 ```
@@ -64,7 +64,7 @@ Expressions are evaluated on the _current model element_, which is initally the 
 
 Expressions can be either:
 * an XPATH expression on the current model, e.g. `$(@name)` to get the value of the name attribute.
-* a double quoted expression, which is used within `foreach` and `forfiles` loops for delimiting lists, e.g. `$(", ")` adds a comma _except when the current element is the last element in the loop_.
+* double quoted text, typically used with the `:b`, `:,` and `:~` modifiers (see below), for example `$(" AND":~)`
 
 The value returned by an expression can be used as-is, for modified via one of the following format specifications:
 * `:u` for `UPPER CASE`, e.g. `$(@name:u)`
@@ -73,10 +73,15 @@ The value returned by an expression can be used as-is, for modified via one of t
 * `:p` for `PascalCase`, e.g. `$(@name:p)`
 * `:c` for `camelCase`, e.g. `$(@name:c)`
 * `:sql` for `SQL_CASE`, e.g. `$(@name:sql)`
+* `:b` for `(surround with brackets)` empty string when empty, otherwise add brackets round the text
+* `:,` for `,prefixed with comma` empty string when empty, otherwise the value with a comma added at the beginning
+* `:~` means don't output the value for the last item in a `foreach` or `forfiles` loop.
+
+The `b`, `,` and `~` modifiers can be combined with other modifiers, for example `$(@db-size:b,)`
 
 Expressions can contain `??` which is interpreted as the left hand side, if that has value, otherwise the right hand side.  For example:
 ```
-new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@cs-size))$(",")
+new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@db-size:b,))$(",":~)
 ```
 
 ## Script language

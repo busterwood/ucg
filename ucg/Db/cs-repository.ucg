@@ -14,7 +14,7 @@ namespace $(../@cs-namespace)
 			"$(@name:sql)_TABLE_TYPE",
 			new SqlMetaData("SEQ", SqlDbType.Int),
 .foreach field
-			new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@cs-size))$(",")
+			new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@db-size:,)$(",":~)
 .endfor
 		);
 
@@ -68,7 +68,7 @@ namespace $(../@cs-namespace)
 				var args = new 
 				{
 .foreach field
-					$(@name:sql) = $(@name:c)$(",")
+					$(@name:sql) = $(@name:c)$(",":~)
 .endfor
 				};
 				return cnn.QueryProc("dbo.$(@name:sql)_Merge", args).Single<$(@name:p)>();
@@ -82,7 +82,7 @@ namespace $(../@cs-namespace)
 				var args = new 
 				{
 .foreach field
-					$(@name:sql) = $(@name:c)$(",")
+					$(@name:sql) = $(@name:c)$(",":~)
 .endfor
 				};
 				return await cnn.QueryProcAsync("dbo.$(@name:sql)_Merge", args).SingleAsync<$(@name:p)>();

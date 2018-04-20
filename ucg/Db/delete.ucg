@@ -5,12 +5,12 @@ GO
 
 ALTER PROC dbo.$(@name:sql)_DELETE
 .foreach field[@pk]
-	@$(@name:sql) $(@db-type??@type)$(",")
+	@$(@name:sql) $(@db-type??@type)$(",":~)
 .endfor
 AS
 DELETE FROM dbo.$(@name:sql)
 WHERE 
 .foreach field[@pk]
-	[$(@name:sql)] = @$(@name:sql)$(" AND")
+	[$(@name:sql)] = @$(@name:sql)$(" AND":~)
 .endfor
 GO

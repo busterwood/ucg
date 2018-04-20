@@ -10,27 +10,27 @@ MERGE dbo.$(@name:sql) as trg
 USING @items as src
 ON 
 .foreach field[@pk]
-	src.[$(@name:sql)] = trg.[$(@name:sql)]$(" AND")
+	src.[$(@name:sql)] = trg.[$(@name:sql)]$(" AND":~)
 .endfor
 WHEN MATCHED THEN
 	UPDATE SET
 .foreach field[not(@pk)]
-		[$(@name:sql)] = src.[$(@name:sql)]$(",")
+		[$(@name:sql)] = src.[$(@name:sql)]$(",":~)
 .endfor
 WHEN NOT MATCHED BY TARGET THEN
 	INSERT (
 .foreach field
-		[$(@name:sql)]$(",")
+		[$(@name:sql)]$(",":~)
 .endfor
 	) VALUES (
 .foreach field
-		src.[$(@name:sql)]$(",")
+		src.[$(@name:sql)]$(",":~)
 .endfor
 	)
 OUTPUT
 	src.SEQ,
 .foreach field
-	inserted.[$(@name:sql)]$(",")
+	inserted.[$(@name:sql)]$(",":~)
 .endfor
 ;
 GO

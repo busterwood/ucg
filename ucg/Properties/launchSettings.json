@@ -2,8 +2,8 @@
   "profiles": {
     "ucg": {
       "commandName": "Project",
-      "commandLineArgs": "--script gen-csharp-process.ucg oms-process.xml",
-      "workingDirectory": "C:\\git\\BusterWood\\ucg\\ucg\\bin\\Debug\\netcoreapp2.0\\Db"
+      "commandLineArgs": "--script gen-sql.ucg schema.xml",
+      "workingDirectory": "C:\\dev\\ucg\\ucg\\bin\\Debug\\netcoreapp2.0\\Db"
     }
   }
 }
