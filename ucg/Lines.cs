@@ -85,8 +85,8 @@ namespace BusterWood.UniCodeGen
             if (Echo.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Echo(line, number);
 
-            if (OutputModel.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new OutputModel(line, number);
+            if (WriteModel.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new WriteModel(line, number);
 
             if (Load.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Load(line, number);
@@ -303,7 +303,7 @@ namespace BusterWood.UniCodeGen
             var newFilename = ExpandVars(_quoted, model, ctx);
             Std.Info($"Output is '{newFilename}'");
             var old = ctx.Output;
-            ctx.Output = new StreamWriter(newFilename);
+            ctx.Output = new StreamWriter(newFilename, append: false);
             old.Flush();
             old.Close();
         }
@@ -570,17 +570,17 @@ namespace BusterWood.UniCodeGen
     }
 
     /// <summary>
-    /// .outputmodel [xpath]
+    /// .writemodel [xpath]
     /// 
     /// outputs the model source XML, or the XML returned by the optional xpath expression
     /// </summary>
-    class OutputModel : ScriptLine
+    class WriteModel : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
-        const string keywordNoDot = "outputmodel";
+        const string keywordNoDot = "writemodel";
         string xpath;
 
-        public OutputModel(string line, int number) : base(line, number)
+        public WriteModel(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
             xpath = line.Substring(idx + keywordNoDot.Length).Trim();

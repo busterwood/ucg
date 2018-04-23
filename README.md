@@ -6,7 +6,7 @@ The script language (see below) uses XPATH 1.0 expressions for iteration, condit
 
 Use can use `ucg` for [Model Oriented Programming](https://github.com/imatix/gsl#model-oriented-programming), working with higher-level abstractions than general purpose languages.  `ucg` will typically be used to generate one or more [patterns](https://en.wikipedia.org/wiki/Software_design_pattern) from a source XML model.
 
-`ucg` is insprired by [iMatrix's GSL](https://github.com/imatix/gsl).  I tried and failed to get GSL to work on Win x64, so I thought I could write something similar for .NET Core.  `ucg` is pretty simple and comes in at less than 800 LOC.
+`ucg` is insprired by [iMatrix's GSL](https://github.com/imatix/gsl).  I tried and failed to get GSL to work on Win x64, so I thought I could write something similar for .NET Core.  `ucg` is pretty simple and comes in at less than 1000 LOC.
 
 ## Running
 
@@ -183,9 +183,9 @@ For example, the following merges the `type` element with a `typename` attribute
 merge //type[@typename='$(@typename)']
 ```
 
-### outputmodel
+### writemodel
 
-The `outputmodel` keyword writes some elements of the model XML to the output.
+The `writemodel` keyword writes some elements of the model XML to the output.
 * if no paramter is supplied then the current model element is written.
 * if an xpath expression is suppplied then elements matching that expression are written to the output.
 
@@ -194,7 +194,7 @@ For example:
 /* 
 WARNING: This file is generated for the following model:
 
-.outputmodel
+.writemodel
 
 */
 ```
