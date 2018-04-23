@@ -3,7 +3,7 @@
 foreach script
 	foreach state
 		foreach event
-			merge ../../steps[@ref='$(@ref)']
+			merge ../../steps[@run='$(@run)']
 		endfor
 	endfor
 endfor

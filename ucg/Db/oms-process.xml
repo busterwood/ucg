@@ -2,7 +2,8 @@
 <oms cs-namespace="BusterWood.OpenOms">
   
   <script name="investments" transaction="true">
-    <steps ref="normal flow">
+    <!-- steps common to multiple states and events -->
+    <steps run="normal flow">
       <do>check restrictions</do>
       <do>reserve position</do>
       <do>create execution orders</do>
@@ -10,26 +11,26 @@
     </steps>
     
     <state name="initial">
-      <event on="enter market" next="live" ref="normal flow"/>
+      <event on="enter market" next="live" run="normal flow"/>
       <event on="cancel" next="cancelled"/>
     </state>
 
     <!-- reached via the exception event -->
     <state name="compliance failed">
-      <event on="order cancelled" next="live" ref="normal flow"/>
+      <event on="order cancelled" next="live" run="normal flow"/>
     </state>
     
     <!-- reached via the exception event -->
     <state name="locate stock">
-      <event on="stock located" next="live" ref="normal flow"/>
-      <event on="order cancelled" next="live" ref="normal flow"/>
+      <event on="stock located" next="live" run="normal flow"/>
+      <event on="order cancelled" next="live" run="normal flow"/>
       <event on="end of day" next="trading day ended"/>
     </state>
     
     <!-- reached via the exception event -->
     <state name="execution order creation failure">
-      <event on="order cancelled" next="live" ref="normal flow"/>
-      <event on="retry" next="live" ref="normal flow"/>
+      <event on="order cancelled" next="live" run="normal flow"/>
+      <event on="retry" next="live" run="normal flow"/>
       <event on="end of day" next="trading day ended">
         <do>cancel position reservation</do>
       </event>
@@ -61,7 +62,7 @@
     </state>
 
     <state name="trading day ended">
-      <event on="start of day" next="live" ref="normal flow"/>
+      <event on="start of day" next="live" run="normal flow"/>
       <event on="fully booked" next="complete"/>
       <event on="cancel" next="cancelled"/>
     </state>
@@ -76,6 +77,7 @@
     </state>
 
     <state name="complete" terminal="true"/>
+
     <state name="cancelled" terminal="true"/>
   </script>
 
