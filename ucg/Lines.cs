@@ -58,41 +58,37 @@ namespace BusterWood.UniCodeGen
         {
             var firstWord = "." + FirstWord(line);
 
+            if (firstWord.StartsWith(Comment.Keyword, OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(line))
+                return new Comment(line, number);
             if (Output.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Output(line, number);
-
             if (Include.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Include(line, number);
+            if (Echo.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Echo(line, number);
+            if (WriteModel.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new WriteModel(line, number);
+            if (Load.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Load(line, number);
+            if (Merge.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Merge(line, number);
 
             if (ForEach.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new ForEach(line, number);
-
             if (EndFor.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndFor(line, number);
 
+            if (ForFiles.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new ForFiles(line, number);
+            if (EndFiles.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new EndFiles(line, number);
+
             if (If.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new If(line, number);
-
             if (Else.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Else(line, number);
-
             if (EndIf.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndIf(line, number);
-
-            if (firstWord.StartsWith(Comment.Keyword, OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(line))
-                return new Comment(line, number);
-
-            if (Echo.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new Echo(line, number);
-
-            if (WriteModel.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new WriteModel(line, number);
-
-            if (Load.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new Load(line, number);
-
-            if (Merge.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new Merge(line, number);
 
             if (Template.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
