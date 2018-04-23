@@ -28,7 +28,6 @@ dotnet ucg --script my-script.ucg my-model.xml --cs-namespace BusterWood.Samples
 ```
 
 ## Models
-
 Models are XML files that you define.  An example would be a a list of entities (tables) that you wish to generate code for:
 
 ```xml
@@ -229,7 +228,7 @@ The `distinct-values()` function works a bit differently in that it __only__ com
 ### XPath examples
 
 * `@name` returns the value of the `name` attribute.
-* `@text()` returns the text of the current element.
+* `text()` returns the text of the current element.
 * `../@name` returns the value of the `name` attribute _of the parent element_.
 * `state[@terminal]` returns child `state` elements that have a `terminal` attribute.
 * `state[not(@terminal)]` returns child `state` elements that _do not_ have a `terminal` attribute.
