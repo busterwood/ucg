@@ -10,25 +10,23 @@
       <do>send execution orders to EMS</do>
     </steps>
     
-    <state name="initial">
-      <event on="enter market" next="live" run="normal flow"/>
-      <event on="cancel" next="cancelled"/>
+    <state name="initial" base-state="default">
+      <event on="start trading" next="live" run="normal flow"/>
     </state>
 
     <!-- reached via the exception event -->
-    <state name="compliance failed">
+    <state name="compliance failed" base-state="default">
       <event on="order cancelled" next="live" run="normal flow"/>
     </state>
     
     <!-- reached via the exception event -->
-    <state name="locate stock">
+    <state name="locate stock" base-state="default">
       <event on="stock located" next="live" run="normal flow"/>
       <event on="order cancelled" next="live" run="normal flow"/>
-      <event on="end of day" next="trading day ended"/>
     </state>
     
     <!-- reached via the exception event -->
-    <state name="execution order creation failure">
+    <state name="execution order creation failure" base-state="default">
       <event on="order cancelled" next="live" run="normal flow"/>
       <event on="retry" next="live" run="normal flow"/>
       <event on="end of day" next="trading day ended">
@@ -36,7 +34,7 @@
       </event>
     </state>
     
-    <state name="live">
+    <state name="live" base-state="default">
       <event on="end of day" next="trading day ended">
         <do>withdraw from EMS</do>
         <do>cancel position reservation</do>
@@ -48,27 +46,30 @@
         <do>withdraw from EMS</do>
         <do>cancel position reservation</do>        
       </event>
-      <event on="fully booked" next="complete"/>
     </state>
 
-    <state name="not trading">
+    <state name="not trading" base-state="default">
       <event on="start trading" next="live">
         <do>send execution orders to EMS</do>
       </event>
       <event on="cancel" next="cancelled">
         <do>cancel position reservation</do>
       </event>
-      <event on="fully booked" next="complete"/>
+     <event on="end of day" next="trading day ended">
+        <do>cancel position reservation</do>
+      </event>      
     </state>
 
-    <state name="trading day ended">
-      <event on="start of day" next="live" run="normal flow"/>
-      <event on="fully booked" next="complete"/>
+    <state name="trading day ended" base-state="default">
+      <event on="start trading" next="live" run="normal flow"/>
+    </state>
+
+    <!-- base (super) state -->
+    <state name="default">
       <event on="cancel" next="cancelled"/>
-    </state>
-
-    <state name="default" default="true">
-      <event on="archvie">
+      <event on="end of day" next="trading day ended"/>
+      <event on="fully booked" next="complete"/>
+      <event on="archive">
         <do>archive</do>
       </event>
       <event on="exception">
@@ -84,51 +85,57 @@
 
   
   <script name="broker orders" transaction="true">
-    <state name="booking">
-      <event on="new broker order" next="booking requested">
-        <do>save broker order</do>
+    <!-- steps common to multiple states and events -->
+    <steps run="allocate and book">
         <do>fairly allocate</do>
         <do>check details</do> 
         <do>request booking</do>
+    </steps>
+
+    <state name="booking" base-state="default">
+      <event on="new broker order" next="booking requested" run="allocate and book">
+        <do>save broker order</do>
       </event>
     </state>
     
-    <state name="fair allocation failed">
-      <event on="retry" next="booking requested">
-        <do>fairly allocate</do>
-        <do>check details</do> 
-        <do>request booking</do>
-      </event>
+    <state name="fair allocation failed" base-state="default">
+      <event on="retry" next="booking requested" run="allocate and book"/>
       <event on="cancel" next="cancelled"/>
     </state>
     
-    <state name="booking requested">
+    <state name="booking requested" base-state="default">
       <event on="accepted"/>
       <event on="complete" next="complete"/>
       <event on="failed" next="failed"/>      
     </state>
     
-    <state name="complete">
+    <state name="complete" base-state="default">
       <event on="cancel" next="cancelling">
         <do>request booking cancellation</do>
       </event>
     </state>
     
-    <state name="failed">
+    <state name="failed" base-state="default">
       <event on="cancel" next="cancelled"/>
       <event on="retry" next="booking requested">
         <do>request booking</do>
       </event>
     </state>
     
-    <state name="cancelling">
-      <event on="booking cancelled" next="cancelled">
-      </event>
+    <state name="cancelling" base-state="default">
     </state>
-    
+ 
+    <state name="amending" base-state="default">
+    </state>
+ 
     <state name="cancelled" terminal="true"/>
     
-    <state name="default" default="true">
+    <!-- base (super) state -->
+    <state name="default">
+      <event on="amend" next="booking requested" run="allocate and book">
+        <do>save amendment</do>
+      </event>
+      <event on="booking cancelled" next="cancelled"/>
       <event on="archvie">
         <do>archive</do>
       </event>
@@ -136,5 +143,6 @@
         <do>try to recover</do>
       </event>
     </state>
+  
   </script>
 </oms>

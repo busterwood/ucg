@@ -5,10 +5,9 @@ using System.Diagnostics;
 using System.Transactions;
 .endif
 
-
 namespace $(../@cs-namespace)
 {
-	/// <summary>State machine implementation of $(@name)</summary>
+	/// <summary>Hierarchical State Machine implementation of $(@name)</summary>
 	/// <remarks>GENERATED CODE - any change to this code will be lost when the code is regenerated.</remarks>
 	public abstract class $(@name:p)StateMachine	
 	{
@@ -51,9 +50,13 @@ namespace $(../@cs-namespace)
 			bool handled;
 			switch (Current) 
 			{
-.foreach state[not(@terminal) and not(@default)]
+.foreach state[not(@terminal)]
 				case State.$(@name:p):
 					handled = $(@name:p)State(evt);
+.  if string(@base-state)
+					if (!handled)
+						handled = $(@base-state:p)State(evt);
+.  endif
 					break;
 .endfor				
 				default:
@@ -63,11 +66,7 @@ namespace $(../@cs-namespace)
 						InvalidState();
 					return;
 			}
-.foreach state[@default]
-			if (!handled) 
-				handled = $(@name:p)State(evt);
-			
-.endfor
+
 			if (!handled) 
 				InvalidEvent(evt); 
 		}
