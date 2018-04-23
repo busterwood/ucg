@@ -110,11 +110,20 @@ Turns _template_ mode on or off, for example:
 
 ### output
 
-The `output` keyword changes the file that the script to writes to.  If the file exists then it is __overwritten__.
+The `output` keyword changes the file that the script to writes to.   The path name must be supplied inside double quotes and expressions can be included as part of the script file name/path.  If the file exists then it is __overwritten__. 
 
 For example, the following sets the output file to be the value of the `name` attribute of the current model element:
 ```
 output "$(@name).cs"
+```
+
+### include
+
+The `include` keyword runs another script file, passing the current model element to the script.  The path name must be supplied inside double quotes and expressions can be included as part of the script file name/path.
+
+For example, the following runs a script called `cs-class.cs`:
+```
+include "cs-class.cs"
 ```
 
 ### foreach/endfor
