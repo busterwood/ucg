@@ -31,8 +31,11 @@ namespace BusterWood.UniCodeGen
 
                 XDocument model = XDocument.Load(modelPath);
                 var root = model.Root;
+                root.Add(new XAttribute("model-path", modelPath));
+                root.Add(new XAttribute("script-path", scriptPath));
+                root.Add(new XAttribute("datetime-utc", DateTime.UtcNow.ToString("u")));
                 MergeArgsAsAttributes(args, root); // extra arguments AFTER the model file are added as attributes to the root element
-                Scripts.Run(scriptPath, model.Root, ctx);
+                Scripts.Run(scriptPath, root, ctx);
                 return 0;
             }
             catch (Exception ex)

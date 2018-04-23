@@ -46,6 +46,11 @@ Models are freeform XML, there is no "special" tags,  but we recommend using:
 * _attributes_ for properties with at most one value
 * _elements_ for lists of things
 
+The following attributes are automatically added to the root element of the model:
+* `model-path` the file name/path of the model file supplied to `ucg` on the command line
+* `script-path` the file name/path of the script file supplied to `ucg` on the command line
+* `datetime-utc` the date and time of that `ucg` was run
+
 ## Templates
 
 When a script is in _template_ mode then input scripts are written to the output.  All expressions in the for `$(...)` expanded (see below) before the line is output.
