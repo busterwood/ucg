@@ -85,8 +85,8 @@ namespace BusterWood.UniCodeGen
             if (EchoLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EchoLine(line, number);
 
-            if (InsertXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new InsertXmlLine(line, number);
+            if (OuputXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new OuputXmlLine(line, number);
 
             if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
@@ -563,17 +563,17 @@ namespace BusterWood.UniCodeGen
     }
 
     /// <summary>
-    /// .insertxml [xpath]
+    /// .outputxml [xpath]
     /// 
-    /// insert the model source XML, or the XML returned by the optional xpath expression
+    /// outputs the model source XML, or the XML returned by the optional xpath expression
     /// </summary>
-    class InsertXmlLine : ScriptLine
+    class OuputXmlLine : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
-        const string keywordNoDot = "insertxml";
+        const string keywordNoDot = "outputxml";
         string xpath;
 
-        public InsertXmlLine(string line, int number) : base(line, number)
+        public OuputXmlLine(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
             xpath = line.Substring(idx + keywordNoDot.Length).Trim();

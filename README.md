@@ -173,9 +173,9 @@ foreach entity
 endfor
 ```
 
-### insertxml
+### outputxml
 
-The `insertxml` keyword writes some elements of the model XML to the output.
+The `outputxml` keyword writes some elements of the model XML to the output.
 * if no paramter is supplied then the current model element is written.
 * if an xpath expression is suppplied then elements matching that expression are written to the output.
 
@@ -184,7 +184,7 @@ For example:
 /* 
 WARNING: This file is generated for the following model:
 
-.insertxml
+.outputxml
 
 */
 ```
