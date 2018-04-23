@@ -1,5 +1,6 @@
 ﻿.template off
 foreach script
+echo hello world
 	output "$(@name:p)StateMachine.cs"
 	include "cs-passive-sm.ucg"
 endfor

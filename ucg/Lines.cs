@@ -82,6 +82,9 @@ namespace BusterWood.UniCodeGen
             if (CommentLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new CommentLine(line, number);
 
+            if (EchoLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new EchoLine(line, number);
+
             if (InsertXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new InsertXmlLine(line, number);
 
@@ -141,7 +144,10 @@ namespace BusterWood.UniCodeGen
                     break;
                 var ch = (char)cur;
                 if (ch == '$' && r.Peek() == '(')
+                {
+                    r.Read(); // consume the opening bracket that we peeked
                     sb.Append(RecursivelyExpand(r, model, ctx));
+                }
                 else
                     sb.Append(ch);
             }
@@ -152,7 +158,6 @@ namespace BusterWood.UniCodeGen
         private static string RecursivelyExpand(StringReader r, XElement model, Context ctx)
         {
             var expression = new StringBuilder();
-            r.Read(); // consume the opening bracket that we peeked
             int openBrackets = 1;
             while (openBrackets > 0)
             {
@@ -162,6 +167,7 @@ namespace BusterWood.UniCodeGen
                 var ch = (char)cur;
                 if (ch == '$' && r.Peek() == '(')
                 {
+                    r.Read(); // consume the opening bracket that we peeked
                     expression.Append(RecursivelyExpand(r, model, ctx));
                 }
                 else if (ch == '(')
@@ -199,6 +205,7 @@ namespace BusterWood.UniCodeGen
             string found;
             if (idx > 0)
             {
+                // evaluate: left ?? right
                 var left = variable.Substring(0, idx);
                 var right = variable.Substring(idx + "??".Length);
                 found = XPathAttrValue(model, left);
@@ -345,14 +352,9 @@ namespace BusterWood.UniCodeGen
             if (Body == null)
                 throw new ScriptException("Empty body of " + Keyword);
             var expanded = ExpandVars(_path, model, ctx);
+
             // using XPATH 1.0 but we want to support "distinct-values()" XPATH 2.0 function
-            bool distinct = false;
-            if (expanded.StartsWith("distinct-values("))
-            {
-                expanded = expanded.Substring("distinct-values(".Length);
-                expanded = expanded.Substring(0, expanded.Length - 1); // last closing bracket
-                distinct = true;
-            }
+            bool distinct = DistinctValues(ref expanded);
             var childern = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
             if (distinct)
                 childern = childern.Distinct(new TextAndFirstAttributeEquality()).ToList();
@@ -366,6 +368,17 @@ namespace BusterWood.UniCodeGen
                     l.Execute(child, ctx);
                 }
             }
+        }
+
+        private static bool DistinctValues(ref string expanded)
+        {
+            if (expanded.StartsWith("distinct-values("))
+            {
+                expanded = expanded.Substring("distinct-values(".Length);
+                expanded = expanded.Substring(0, expanded.Length - 1); // last closing bracket
+                return true;
+            }
+            return false;
         }
     }
 
@@ -521,21 +534,63 @@ namespace BusterWood.UniCodeGen
     }
 
     /// <summary>
-    /// .insertxml
+    /// .echo message
     /// 
-    /// insert the model source XML
+    /// Writes to a message to StdErr
     /// </summary>
-    class InsertXmlLine : ScriptLine
+    class EchoLine : ScriptLine
     {
-        public const string Keyword = ".insertxml";
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "echo";
+        string rest;
 
-        public InsertXmlLine(string line, int number) : base(line, number)
+        public EchoLine(string line, int number) : base(line, number)
         {
+            var idx = line.IndexOf(keywordNoDot, 0);
+            rest = line.Substring(idx + keywordNoDot.Length).Trim();
         }
 
         public override void Execute(XElement model, Context ctx)
         {
-            ctx.Output.WriteLine(model);
+            if (string.IsNullOrEmpty(rest))
+                Std.Info("");
+            else
+            {
+                var expanded = ExpandVars(rest, model, ctx);
+                Std.Info(expanded);
+            }
+        }
+    }
+
+    /// <summary>
+    /// .insertxml [xpath]
+    /// 
+    /// insert the model source XML, or the XML returned by the optional xpath expression
+    /// </summary>
+    class InsertXmlLine : ScriptLine
+    {
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "insertxml";
+        string xpath;
+
+        public InsertXmlLine(string line, int number) : base(line, number)
+        {
+            var idx = line.IndexOf(keywordNoDot, 0);
+            xpath = line.Substring(idx + keywordNoDot.Length).Trim();
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            if (string.IsNullOrEmpty(xpath))
+                ctx.Output.WriteLine(model);
+            else
+            {
+                var expanded = ExpandVars(xpath, model, ctx);
+                foreach (var ele in ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>())
+                {
+                    ctx.Output.WriteLine(ele);
+                }
+            }
         }
     }
     

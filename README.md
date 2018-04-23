@@ -172,7 +172,9 @@ endfor
 
 ### insertxml
 
-The `insertxml` keyword wirtes the current model element to the output, including all child elements.
+The `insertxml` keyword writes some elements of the model XML to the output.
+* if no paramter is supplied then the current model element is written.
+* if an xpath expression is suppplied then elements matching that expression are written to the output.
 
 For example:
 ```
@@ -184,6 +186,14 @@ WARNING: This file is generated for the following model:
 */
 ```
 
+### echo
+
+The `echo` keyword writes some text to StdErr.  Any expression in the text are expanded before writing to StdErr.
+
+For example:
+```
+.echo hello world!
+```
 ## Notes
 
 XPATH 1.0 expressions are supported with the addition on the `distinct-values()` function.  
