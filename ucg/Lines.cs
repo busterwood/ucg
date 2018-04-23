@@ -79,7 +79,7 @@ namespace BusterWood.UniCodeGen
             if (EndIfLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new EndIfLine(line, number);
 
-            if (CommentLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+            if (firstWord.StartsWith(CommentLine.Keyword, OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(line))
                 return new CommentLine(line, number);
 
             if (EchoLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
@@ -87,6 +87,12 @@ namespace BusterWood.UniCodeGen
 
             if (OuputXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new OuputXmlLine(line, number);
+
+            if (LoadXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new LoadXmlLine(line, number);
+
+            if (MergeXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new MergeXmlLine(line, number);
 
             if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
@@ -256,6 +262,7 @@ namespace BusterWood.UniCodeGen
             return text.Substring(start + 1, end - start - 1);
         }
     }
+
     /// <summary>
     /// .//
     /// 
@@ -604,7 +611,7 @@ namespace BusterWood.UniCodeGen
         public const string Keyword = "." + keywordNoDot;
         const string keywordNoDot = "loadxml";
         string filePath;
-        string xpathExpression;
+        string xpath;
 
         public LoadXmlLine(string line, int number) : base(line, number)
         {
@@ -612,17 +619,63 @@ namespace BusterWood.UniCodeGen
             var rest = line.Substring(idx + keywordNoDot.Length).Trim();
             filePath = Quoted(rest);
             int xpathIdx = rest.IndexOf(filePath) + filePath.Length + 1;
-            xpathExpression = rest.Substring(xpathIdx).Trim();
+            xpath = rest.Substring(xpathIdx).Trim();
         }
 
         public override void Execute(XElement model, Context ctx)
         {
             var doc = XDocument.Load(filePath);
-            var expanded = ExpandVars(xpathExpression, doc.Root, ctx);
-            foreach(var ele in ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>())
+            var expanded = ExpandVars(xpath, doc.Root, ctx);
+            foreach (var ele in ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>())
             {
                 model.Add(ele); // automatic deep clone
-            }            
+            }
+        }
+    }    
+    
+    /// <summary>
+    /// .mergexml xpath-expression
+    /// 
+    /// Updates or adds the attributes and child elements of the element matching the supplied XPATH expression
+    /// </summary>
+    class MergeXmlLine : ScriptLine
+    {
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "mergexml";
+        string xpath;
+
+        public MergeXmlLine(string line, int number) : base(line, number)
+        {
+            var idx = line.IndexOf(keywordNoDot, 0);
+            xpath = line.Substring(idx + keywordNoDot.Length).Trim();
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            var expanded = ExpandVars(xpath, model, ctx);
+            var found = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
+            if (found.Count == 0)
+                return;
+            if (found.Count > 1)
+                throw new ScriptException($"Expression returned more than one element on line {Number}");
+            var ele = found[0];
+            foreach (var a in ele.Attributes())
+            {
+                MergeAttribute(model, a);
+            }
+            foreach (var n in ele.Nodes())
+            {
+                model.Add(n); // elements and text nodes
+            }
+        }
+
+        private void MergeAttribute(XElement dest, XAttribute a)
+        {
+            var e = dest.Attribute(a.Name);
+            if (e != null)
+                e.Value = a.Value;
+            else
+                dest.Add(a);
         }
     }
 

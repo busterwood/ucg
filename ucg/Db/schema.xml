@@ -1,32 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <entities cs-namespace="BusterWood.Testing">
+  <type typename="name" type="string" db-type="VarChar" db-size="50" nulls="not null"/>
+  <type typename="ticker" type="string" db-type="VarChar" db-size="10" nulls="not null"/>
+  <type typename="tinyid" type="byte" db-type="TinyInt"/>
+
   <entity name="User">
     <field name="User Id" nulls="not null" type="int" pk="true"/>
     <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
     <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
   </entity>
-  
+
   <entity name="Fund">
     <field name="Fund Id" nulls="not null" type="int" pk="true"/>
-    <field  name="Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
+    <field  name="Name" typename="name"/>
   </entity>
-  
+
   <entity name="Book">
     <field name="Book Id" nulls="not null" type="int" pk="true"/>
     <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
+    <field name="Name" typename="name"/>
   </entity>
-  
+
   <entity name="Strategy">
     <field name="Strategy Id" nulls="not null" type="int" pk="true"/>
-    <field  name="Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
+    <field  name="Name" typename="name"/>
   </entity>
-  
+
   <entity name="Security">
     <field name="Security Id" nulls="not null" type="int" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
-    <field name="BB Ticker" nulls="not null" type="string" db-type="VarChar" db-size="10" cs-size=",10"/>
-    <field name="Security Class Id" nulls="not null" type="byte" db-type="TinyInt" fk="Security Class"/>  
+    <field name="Name" typename="name"/>
+    <field name="BB Ticker" typename="ticker"/>
+    <field name="Security Class Id" nulls="not null" typename="tinyid" fk="Security Class"/>
   </entity>
 
   <entity name="Investment">
@@ -35,18 +39,18 @@
     <field name="Decision Date" nulls="not null" type="DateTime"/>
     <field name="Inputter" nulls="not null" type="int" fk="User" fk-field="User Id"/>
   </entity>
-  
+
   <entity name="Order">
     <field name="Order Id" nulls="not null" type="int" pk="true"/>
     <field name="Investment Id" nulls="not null" type="int" fk="Investment" fk-rel="owner"/>
     <field name="Security Id" nulls="not null" type="int" fk="Security"/>
-    <field name="Limit Price" nulls="null" type="decimal"/>  
-    <field name="Order Price Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Order Price Type"/>  
-    <field name="Investment Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Investment Type"/>  
-    <field name="Market Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Market Type"/>  
-    <field name="Currency Code" nulls="not null" type="string" db-type="char" db-size="3" fk="Currency"/>  
+    <field name="Limit Price" nulls="null" type="decimal"/>
+    <field name="Order Price Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Order Price Type"/>
+    <field name="Investment Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Investment Type"/>
+    <field name="Market Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Market Type"/>
+    <field name="Currency Code" nulls="not null" type="string" db-type="char" db-size="3" fk="Currency"/>
   </entity>
-  
+
   <entity name="Order Line">
     <field name="Order Line Id" nulls="not null" type="int" pk="true"/>
     <field name="Order Id" nulls="not null" type="int" fk="Order" fk-rel="owner"/>
@@ -59,7 +63,7 @@
   <entity name="Currency">
     <field name="Currency Code" nulls="not null" type="string" db-type="char" db-size="3" pk="true"/>
     <field name="Currency Id" nulls="not null" type="short" db-type="SmallInt" uk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="30"/>
+    <field name="Name" typename="name"/>
     <static>
       <data CurrencyCode="AUD" CurrencyId="36" Name="Australian dollar"/>
       <data CurrencyCode="CAD" CurrencyId="124" Name="Canadian dollar"/>
@@ -80,8 +84,8 @@
   </entity>
 
   <entity name="Broker Capacity">
-    <field name="Capacity Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Capacity Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data CapacityId="1" Name="Agent"/>
       <data CapacityId="2" Name="Principle"/>
@@ -89,8 +93,8 @@
   </entity>
 
   <entity name="Commission Type">
-    <field name="Commission Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Commission Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data CommissionTypeId="1" Name="Per share"/>
       <data CommissionTypeId="2" Name="Basis points"/>
@@ -100,8 +104,8 @@
   </entity>
 
   <entity name="Fill Status">
-    <field name="Fill Status Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Fill Status Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data FillStatusId="1" Name="Cancelled"/>
       <data FillStatusId="1" Name="Done for day"/>
@@ -120,16 +124,17 @@
   </entity>
 
   <entity name="Execution Medium">
-    <field name="Execution Medium Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Execution Medium Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data ExecutionMediumId="1" Name="Electronic"/>
       <data ExecutionMediumId="1" Name="Paper"/>
-    </static>  </entity>
+    </static>
+  </entity>
 
   <entity name="Order Price Type">
-    <field name="Order Price Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Order Price Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data OrderPriceTypeId="1" Name="Market"/>
       <data OrderPriceTypeId="1" Name="Limit"/>
@@ -137,8 +142,8 @@
   </entity>
 
   <entity name="Fill Booking Type">
-    <field name="Fill Booking Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Fill Booking Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data FillBookingTypeId="1" Name="Average price"/>
       <data FillBookingTypeId="1" Name="By Price"/>
@@ -146,8 +151,8 @@
   </entity>
 
   <entity name="Instrument Class">
-    <field name="Instrument Class Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Instrument Class Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data InstrumentClassId="1" Name="Vanilla"/>
       <data InstrumentClassId="1" Name="CFD"/>
@@ -156,8 +161,8 @@
   </entity>
 
   <entity name="Market Type">
-    <field name="Market Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Market Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data MarketTypeId="1" Name="Normal"/>
       <data MarketTypeId="1" Name="IPO"/>
@@ -166,8 +171,8 @@
   </entity>
 
   <entity name="Investment Type">
-    <field name="Investment Type Id" nulls="not null" type="byte" db-type="TinyInt" pk="true"/>
-    <field name="Name" nulls="not null" type="string" db-type="VarChar" db-size="20"/>
+    <field name="Investment Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Name" typename="name"/>
     <static>
       <data InvestmentTypeId="1" Name="Open"/>
       <data InvestmentTypeId="2" Name="Close"/>

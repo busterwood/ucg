@@ -173,6 +173,15 @@ foreach entity
 endfor
 ```
 
+### mergexml
+
+The `mergexml` statement merges the attributes and child elements of another element specified via an XPATH expression.
+
+For example, the following merges the `type` element with a `name` attribute that matches the current model elements `type` attribute:
+```
+mergexml /type[@name='$(@type)']
+```
+
 ### outputxml
 
 The `outputxml` keyword writes some elements of the model XML to the output.

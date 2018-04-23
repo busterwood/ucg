@@ -2,7 +2,7 @@
   "profiles": {
     "ucg": {
       "commandName": "Project",
-      "commandLineArgs": "--script gen-csharp-process.ucg oms-process.xml --cs-namespace BusterWood.A123",
+      "commandLineArgs": "--script gen-csharp-db.ucg schema.xml",
       "workingDirectory": "C:\\dev\\ucg\\ucg\\bin\\Debug\\netcoreapp2.0\\Db"
     }
   }
