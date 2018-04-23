@@ -1,6 +1,14 @@
 ﻿.template off
+// merge common steps script
 foreach script
-echo hello world
+	foreach state
+		foreach event
+			merge ../../steps[@ref='$(@ref)']
+		endfor
+	endfor
+endfor
+
+foreach script
 	output "$(@name:p)StateMachine.cs"
 	include "cs-passive-sm.ucg"
 endfor

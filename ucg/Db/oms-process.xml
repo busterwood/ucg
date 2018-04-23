@@ -2,57 +2,34 @@
 <oms cs-namespace="BusterWood.OpenOms">
   
   <script name="investments" transaction="true">
+    <steps ref="normal flow">
+      <do>check restrictions</do>
+      <do>reserve position</do>
+      <do>create execution orders</do>
+      <do>send execution orders to EMS</do>
+    </steps>
+    
     <state name="initial">
-      <event on="enter market" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
+      <event on="enter market" next="live" ref="normal flow"/>
       <event on="cancel" next="cancelled"/>
     </state>
 
     <!-- reached via the exception event -->
     <state name="compliance failed">
-      <event on="order cancelled" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
+      <event on="order cancelled" next="live" ref="normal flow"/>
     </state>
     
     <!-- reached via the exception event -->
     <state name="locate stock">
-      <event on="stock located" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
-      <event on="order cancelled" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
+      <event on="stock located" next="live" ref="normal flow"/>
+      <event on="order cancelled" next="live" ref="normal flow"/>
       <event on="end of day" next="trading day ended"/>
     </state>
     
     <!-- reached via the exception event -->
     <state name="execution order creation failure">
-      <event on="order cancelled" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
-      <event on="retry" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
+      <event on="order cancelled" next="live" ref="normal flow"/>
+      <event on="retry" next="live" ref="normal flow"/>
       <event on="end of day" next="trading day ended">
         <do>cancel position reservation</do>
       </event>
@@ -84,12 +61,7 @@
     </state>
 
     <state name="trading day ended">
-      <event on="start of day" next="live">
-        <do>check restrictions</do>        
-        <do>reserve position</do>        
-        <do>create execution orders</do>
-        <do>send execution orders to EMS</do>
-      </event>
+      <event on="start of day" next="live" ref="normal flow"/>
       <event on="fully booked" next="complete"/>
       <event on="cancel" next="cancelled"/>
     </state>
