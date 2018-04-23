@@ -22,6 +22,11 @@ dotnet ucg --script my-script.ucg my-model.xml
 
 The script is then interpreted and output is sent to `StdOut` which can be changed via the `output` keyword (see below).
 
+Any additional arguments _after the model file name_ are added as attributes to the root model element, for example:
+```
+dotnet ucg --script my-script.ucg my-model.xml --cs-namespace BusterWood.Samples
+```
+
 ## Models
 
 Models are XML files that you define.  An example would be a a list of entities (tables) that you wish to generate code for:

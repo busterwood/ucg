@@ -27,8 +27,11 @@ namespace BusterWood.UniCodeGen
                     Std.Error("Expected model file name/path to be supplied");
                     return 2;
                 }
+                args.RemoveAt(0);
 
                 XDocument model = XDocument.Load(modelPath);
+                var root = model.Root;
+                MergeArgsAsAttributes(args, root); // extra arguments AFTER the model file are added as attributes to the root element
                 Scripts.Run(scriptPath, model.Root, ctx);
                 return 0;
             }
@@ -36,6 +39,27 @@ namespace BusterWood.UniCodeGen
             {
                 Std.Error(ex.ToString());
                 return 9;
+            }
+        }
+
+        private static void MergeArgsAsAttributes(List<string> args, XElement root)
+        {
+            while (args.Count > 0)
+            {
+                if (args[0].StartsWith("--"))
+                {
+                    if (args.Count == 1)
+                        throw new ArgumentException($"Expected a value to follow command line argument '{args[0]}'");
+                    string name = args[0].TrimStart('-');
+                    string value = args[1];
+                    var existing = root.Attribute(name);
+                    if (existing != null)
+                        existing.Value = value;
+                    else
+                        root.Add(new XAttribute(name, value));
+                    args.RemoveAt(1);
+                }
+                args.RemoveAt(0);
             }
         }
 
