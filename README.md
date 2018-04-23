@@ -163,7 +163,7 @@ endif
 
 ### load
 
-The `load` statement adds child elements to current model from an XML file where the elements matche an XPATH expression.
+The `load` statement adds child elements to current model from an XML file where the elements matches an XPATH expression.
 
 For example, the following loads `entity` elements where the name attribute has a value of `order` from the `schema.xml` file:
 ```
@@ -176,8 +176,9 @@ endfor
 ### merge
 
 The `merge` statement merges the attributes and child nodes (elements, text, etc) of another element specified via an XPATH expression.
+The `merge` statement is used for de-normalizing model data, for example merging a domain type definitions with the field of an entity (table).
 
-For example, the following merges the `type` element with a `typename` attribute that matches the current model elements `typename` attribute:
+For example, the following merges the `type` element with a `typename` attribute that matches the `typename` attribute of current model element:
 ```
 merge //type[@typename='$(@typename)']
 ```
