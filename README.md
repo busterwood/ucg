@@ -161,30 +161,30 @@ if string(@fk-rel)
 endif
 ```
 
-### loadxml
+### load
 
-The `loadxml` statement adds child elements to current model from an XML file where the elements matche an XPATH expression.
+The `load` statement adds child elements to current model from an XML file where the elements matche an XPATH expression.
 
 For example, the following loads `entity` elements where the name attribute has a value of `order` from the `schema.xml` file:
 ```
-loadxml "schema.xml" entity[name='order']
+load "schema.xml" entity[name='order']
 foreach entity
 	...
 endfor
 ```
 
-### mergexml
+### merge
 
-The `mergexml` statement merges the attributes and child nodes (elements, text, etc) of another element specified via an XPATH expression.
+The `merge` statement merges the attributes and child nodes (elements, text, etc) of another element specified via an XPATH expression.
 
 For example, the following merges the `type` element with a `typename` attribute that matches the current model elements `typename` attribute:
 ```
-mergexml //type[@typename='$(@typename)']
+merge //type[@typename='$(@typename)']
 ```
 
-### outputxml
+### outputmodel
 
-The `outputxml` keyword writes some elements of the model XML to the output.
+The `outputmodel` keyword writes some elements of the model XML to the output.
 * if no paramter is supplied then the current model element is written.
 * if an xpath expression is suppplied then elements matching that expression are written to the output.
 
@@ -193,7 +193,7 @@ For example:
 /* 
 WARNING: This file is generated for the following model:
 
-.outputxml
+.outputmodel
 
 */
 ```

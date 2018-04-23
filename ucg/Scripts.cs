@@ -49,51 +49,51 @@ namespace BusterWood.UniCodeGen
             while (lines.MoveNext() && !end(lines.Current))
             {
                 body.Add(lines.Current);
-                if (lines.Current is ForEachLine fe)
+                if (lines.Current is ForEach fe)
                     ParseForEachBody(fe, lines);
-                else if (lines.Current is IfLine il)
+                else if (lines.Current is If il)
                     ParseIfBody(il, lines);
-                else if (lines.Current is ForFilesLine ff)
+                else if (lines.Current is ForFiles ff)
                     ParseForFilesBody(ff, lines);
             }
             return body;
         }
 
-        private static void ParseForEachBody(ForEachLine fe, IEnumerator<Line> lines)
+        private static void ParseForEachBody(ForEach fe, IEnumerator<Line> lines)
         {
-            Func<Line, bool> end = line => line is EndForLine;
+            Func<Line, bool> end = line => line is EndFor;
             var body = ParseRecursive(lines, end);
             if (end(lines.Current))
                 fe.Body = body;
             else
-                throw new ScriptException($"{ForEachLine.Keyword} on line {fe.Number} without matching {EndForLine.Keyword}");
+                throw new ScriptException($"{ForEach.Keyword} on line {fe.Number} without matching {EndFor.Keyword}");
         }
 
-        private static void ParseForFilesBody(ForFilesLine ff, IEnumerator<Line> lines)
+        private static void ParseForFilesBody(ForFiles ff, IEnumerator<Line> lines)
         {
-            Func<Line, bool> end = line => line is EndFilesLine;
+            Func<Line, bool> end = line => line is EndFiles;
             var body = ParseRecursive(lines, end);
             if (end(lines.Current))
                 ff.Body = body;
             else
-                throw new ScriptException($"{ForFilesLine.Keyword} on line {ff.Number} without matching {ForFilesLine.Keyword}");
+                throw new ScriptException($"{ForFiles.Keyword} on line {ff.Number} without matching {ForFiles.Keyword}");
         }
 
-        private static void ParseIfBody(IfLine il, IEnumerator<Line> lines)
+        private static void ParseIfBody(If il, IEnumerator<Line> lines)
         {
-            il.True = ParseRecursive(lines, line => line is EndIfLine || line is ElseLine);
+            il.True = ParseRecursive(lines, line => line is EndIf || line is Else);
 
-            if (lines.Current is EndIfLine)
+            if (lines.Current is EndIf)
             {
                 // if endif
                 il.False = new List<Line>();
             }
-            else if (lines.Current is ElseLine)
+            else if (lines.Current is Else)
             {
                 // if else endif
-                il.False = ParseRecursive(lines, line => line is EndIfLine);
-                if (!(lines.Current is EndIfLine))
-                    throw new ScriptException($"{IfLine.Keyword} on line {il.Number} without matching {EndIfLine.Keyword}");
+                il.False = ParseRecursive(lines, line => line is EndIf);
+                if (!(lines.Current is EndIf))
+                    throw new ScriptException($"{If.Keyword} on line {il.Number} without matching {EndIf.Keyword}");
             }
         }
 

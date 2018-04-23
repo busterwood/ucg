@@ -2,7 +2,7 @@
 // merge domain types with fields so each field has full type attributes
 foreach entity
 	foreach field
-		mergexml //type[@typename='$(@typename)']
+		merge //type[@typename='$(@typename)']
 	endfor
 endfor
 

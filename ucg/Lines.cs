@@ -58,45 +58,45 @@ namespace BusterWood.UniCodeGen
         {
             var firstWord = "." + FirstWord(line);
 
-            if (OutputLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new OutputLine(line, number);
+            if (Output.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Output(line, number);
 
-            if (IncludeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new IncludeLine(line, number);
+            if (Include.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Include(line, number);
 
-            if (ForEachLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new ForEachLine(line, number);
+            if (ForEach.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new ForEach(line, number);
 
-            if (EndForLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new EndForLine(line, number);
+            if (EndFor.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new EndFor(line, number);
 
-            if (IfLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new IfLine(line, number);
+            if (If.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new If(line, number);
 
-            if (ElseLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new ElseLine(line, number);
+            if (Else.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Else(line, number);
 
-            if (EndIfLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new EndIfLine(line, number);
+            if (EndIf.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new EndIf(line, number);
 
-            if (firstWord.StartsWith(CommentLine.Keyword, OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(line))
-                return new CommentLine(line, number);
+            if (firstWord.StartsWith(Comment.Keyword, OrdinalIgnoreCase) || string.IsNullOrWhiteSpace(line))
+                return new Comment(line, number);
 
-            if (EchoLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new EchoLine(line, number);
+            if (Echo.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Echo(line, number);
 
-            if (OuputXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new OuputXmlLine(line, number);
+            if (OutputModel.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new OutputModel(line, number);
 
-            if (LoadXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new LoadXmlLine(line, number);
+            if (Load.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Load(line, number);
 
-            if (MergeXmlLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
-                return new MergeXmlLine(line, number);
+            if (Merge.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Merge(line, number);
 
-            if (TemplateModeLine.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+            if (Template.Keyword.Equals(firstWord, OrdinalIgnoreCase))
             {
-                var tm = new TemplateModeLine(line, number);
+                var tm = new Template(line, number);
                 _context.TemplateMode = tm.On; // changes how lines parse
                 return tm;
             }
@@ -268,11 +268,11 @@ namespace BusterWood.UniCodeGen
     /// 
     /// ignore the rest of this line
     /// </summary>
-    class CommentLine : ScriptLine
+    class Comment : ScriptLine
     {
         public const string Keyword = ".//";
 
-        public CommentLine(string text, int number) : base(text, number)
+        public Comment(string text, int number) : base(text, number)
         {
         }
 
@@ -286,12 +286,12 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Set the output file
     /// </summary>
-    class OutputLine : ScriptLine
+    class Output : ScriptLine
     {
         public const string Keyword = ".output";
         readonly string _quoted;
 
-        public OutputLine(string line, int number) : base(line, number)
+        public Output(string line, int number) : base(line, number)
         {
             _quoted = Quoted(line);
             if (_quoted == null)
@@ -314,12 +314,12 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Include another script for this model
     /// </summary>
-    class IncludeLine : ScriptLine
+    class Include : ScriptLine
     {
         public const string Keyword = ".include";
         readonly string _quoted;
 
-        public IncludeLine(string line, int number) : base(line, number)
+        public Include(string line, int number) : base(line, number)
         {
             _quoted = Quoted(line);
             if (_quoted == null)
@@ -338,7 +338,7 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Repeat part of the script for each child element of the model
     /// </summary>
-    class ForEachLine : ScriptLine
+    class ForEach : ScriptLine
     {
         public const string Keyword = ".foreach";
 
@@ -346,7 +346,7 @@ namespace BusterWood.UniCodeGen
 
         public List<Line> Body;
 
-        public ForEachLine(string line, int number) : base(line, number)
+        public ForEach(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf("foreach", 0);
             _path = line.Substring(idx + "foreach".Length).Trim();
@@ -389,12 +389,12 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>end of <see cref="ForEachLine"/></summary>
-    class EndForLine : ScriptLine
+    /// <summary>end of <see cref="ForEach"/></summary>
+    class EndFor : ScriptLine
     {
         public const string Keyword = ".endfor";
 
-        public EndForLine(string line, int number) : base(line, number)
+        public EndFor(string line, int number) : base(line, number)
         {
         }
 
@@ -408,7 +408,7 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Repeat part of the script for each file found.  Each file has 4 attributes:  path, name (excluding extension), extension, folder
     /// </summary>
-    class ForFilesLine : ScriptLine
+    class ForFiles : ScriptLine
     {
         public const string Keyword = "." + keyword;
         const string keyword = "forfiles";
@@ -417,7 +417,7 @@ namespace BusterWood.UniCodeGen
 
         public List<Line> Body;
 
-        public ForFilesLine(string line, int number) : base(line, number)
+        public ForFiles(string line, int number) : base(line, number)
         {
             _path = Quoted(line);
             if (_path == null)
@@ -451,12 +451,12 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>end of <see cref="ForFilesLine"/></summary>
-    class EndFilesLine : ScriptLine
+    /// <summary>end of <see cref="ForFiles"/></summary>
+    class EndFiles : ScriptLine
     {
         public const string Keyword = ".endfiles";
 
-        public EndFilesLine(string line, int number) : base(line, number)
+        public EndFiles(string line, int number) : base(line, number)
         {
         }
 
@@ -470,7 +470,7 @@ namespace BusterWood.UniCodeGen
     /// 
     /// evaluates the xpath expression to see if it return either a non-empty string or a single element
     /// </summary>
-    class IfLine : ScriptLine
+    class If : ScriptLine
     {
         public const string Keyword = ".if";
 
@@ -479,7 +479,7 @@ namespace BusterWood.UniCodeGen
         public List<Line> True;
         public List<Line> False;
 
-        public IfLine(string line, int number) : base(line, number)
+        public If(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf("if", 0);
             _path = line.Substring(idx + "if".Length).Trim();
@@ -512,12 +512,12 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>Else part of a <see cref="IfLine"/></summary>
-    class ElseLine : ScriptLine
+    /// <summary>Else part of a <see cref="If"/></summary>
+    class Else : ScriptLine
     {
         public const string Keyword = ".else";
 
-        public ElseLine(string line, int number) : base(line, number)
+        public Else(string line, int number) : base(line, number)
         {
         }
 
@@ -526,12 +526,12 @@ namespace BusterWood.UniCodeGen
         }
     }
 
-    /// <summary>end of <see cref="IfLine"/></summary>
-    class EndIfLine : ScriptLine
+    /// <summary>end of <see cref="If"/></summary>
+    class EndIf : ScriptLine
     {
         public const string Keyword = ".endif";
 
-        public EndIfLine(string line, int number) : base(line, number)
+        public EndIf(string line, int number) : base(line, number)
         {
         }
 
@@ -545,13 +545,13 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Writes to a message to StdErr
     /// </summary>
-    class EchoLine : ScriptLine
+    class Echo : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
         const string keywordNoDot = "echo";
         string rest;
 
-        public EchoLine(string line, int number) : base(line, number)
+        public Echo(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
             rest = line.Substring(idx + keywordNoDot.Length).Trim();
@@ -570,17 +570,17 @@ namespace BusterWood.UniCodeGen
     }
 
     /// <summary>
-    /// .outputxml [xpath]
+    /// .outputmodel [xpath]
     /// 
     /// outputs the model source XML, or the XML returned by the optional xpath expression
     /// </summary>
-    class OuputXmlLine : ScriptLine
+    class OutputModel : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
-        const string keywordNoDot = "outputxml";
+        const string keywordNoDot = "outputmodel";
         string xpath;
 
-        public OuputXmlLine(string line, int number) : base(line, number)
+        public OutputModel(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
             xpath = line.Substring(idx + keywordNoDot.Length).Trim();
@@ -602,18 +602,18 @@ namespace BusterWood.UniCodeGen
     }
     
     /// <summary>
-    /// .loadxml "filepath" xpath-expression
+    /// .load "filepath" xpath-expression
     /// 
     /// Adds the selected elements from the file to the current model element
     /// </summary>
-    class LoadXmlLine : ScriptLine
+    class Load : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
-        const string keywordNoDot = "loadxml";
+        const string keywordNoDot = "load";
         string filePath;
         string xpath;
 
-        public LoadXmlLine(string line, int number) : base(line, number)
+        public Load(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
             var rest = line.Substring(idx + keywordNoDot.Length).Trim();
@@ -634,17 +634,17 @@ namespace BusterWood.UniCodeGen
     }    
     
     /// <summary>
-    /// .mergexml xpath-expression
+    /// .merge xpath-expression
     /// 
     /// Updates or adds the attributes and child elements of the element matching the supplied XPATH expression
     /// </summary>
-    class MergeXmlLine : ScriptLine
+    class Merge : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
-        const string keywordNoDot = "mergexml";
+        const string keywordNoDot = "merge";
         string xpath;
 
-        public MergeXmlLine(string line, int number) : base(line, number)
+        public Merge(string line, int number) : base(line, number)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
             xpath = line.Substring(idx + keywordNoDot.Length).Trim();
@@ -684,12 +684,12 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Turns on or off <see cref="Context.TemplateMode"/>
     /// </summary>
-    class TemplateModeLine : ScriptLine
+    class Template : ScriptLine
     {
         public const string Keyword = ".template";
         public readonly bool On;
 
-        public TemplateModeLine(string line, int number) : base(line, number)
+        public Template(string line, int number) : base(line, number)
         {
             var bits = line.TrimStart('.').Split(' ', StringSplitOptions.RemoveEmptyEntries);
             if (bits.Length != 2)
