@@ -175,11 +175,11 @@ endfor
 
 ### mergexml
 
-The `mergexml` statement merges the attributes and child elements of another element specified via an XPATH expression.
+The `mergexml` statement merges the attributes and child nodes (elements, text, etc) of another element specified via an XPATH expression.
 
-For example, the following merges the `type` element with a `name` attribute that matches the current model elements `type` attribute:
+For example, the following merges the `type` element with a `typename` attribute that matches the current model elements `typename` attribute:
 ```
-mergexml /type[@name='$(@type)']
+mergexml //type[@typename='$(@typename)']
 ```
 
 ### outputxml
