@@ -193,7 +193,11 @@ The `merge` statement is used for de-normalizing model data, for example merging
 
 For example, the following merges the `type` element with a `typename` attribute that matches the `typename` attribute of current model element:
 ```
-merge //type[@typename='$(@typename)']
+foreach entity
+	foreach field
+		merge //type[@typename='$(@typename)']
+	endfor
+endfor
 ```
 
 ### writemodel
