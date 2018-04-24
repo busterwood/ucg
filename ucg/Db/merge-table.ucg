@@ -1,36 +1,36 @@
 ﻿.template on
-IF OBJECT_ID('dbo.$(@name:sql)_MergeTable') IS NULL
-	EXEC('CREATE PROC dbo.$(@name:sql)_MergeTable AS RETURN 1')
+IF OBJECT_ID('dbo.$(@name:u_)_MergeTable') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:u_)_MergeTable AS RETURN 1')
 GO
 
-ALTER PROC dbo.$(@name:sql)_MergeTable
-	@items dbo.$(@name:sql)_TABLE_TYPE 
+ALTER PROC dbo.$(@name:u_)_MergeTable
+	@items dbo.$(@name:u_)_TABLE_TYPE 
 AS
-MERGE dbo.$(@name:sql) as trg
+MERGE dbo.$(@name:u_) as trg
 USING @items as src
 ON 
 .foreach field[@pk]
-	src.[$(@name:sql)] = trg.[$(@name:sql)]$(" AND":~)
+	src.[$(@name:u_)] = trg.[$(@name:u_)]$(" AND":~)
 .endfor
 WHEN MATCHED THEN
 	UPDATE SET
 .foreach field[not(@pk)]
-		[$(@name:sql)] = src.[$(@name:sql)]$(",":~)
+		[$(@name:u_)] = src.[$(@name:u_)]$(",":~)
 .endfor
 WHEN NOT MATCHED BY TARGET THEN
 	INSERT (
 .foreach field
-		[$(@name:sql)]$(",":~)
+		[$(@name:u_)]$(",":~)
 .endfor
 	) VALUES (
 .foreach field
-		src.[$(@name:sql)]$(",":~)
+		src.[$(@name:u_)]$(",":~)
 .endfor
 	)
 OUTPUT
 	src.SEQ,
 .foreach field
-	inserted.[$(@name:sql)]$(",":~)
+	inserted.[$(@name:u_)]$(",":~)
 .endfor
 ;
 GO

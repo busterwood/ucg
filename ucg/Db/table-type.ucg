@@ -1,10 +1,10 @@
 ﻿.template on
-IF TYPE_ID('dbo.$(@name:sql)_TABLE_TYPE') IS NULL
-	CREATE TYPE dbo.[$(@name:sql)_TABLE_TYPE] AS TABLE 
+IF TYPE_ID('dbo.$(@name:u_)_TABLE_TYPE') IS NULL
+	CREATE TYPE dbo.[$(@name:u_)_TABLE_TYPE] AS TABLE 
 	(
 		[SEQ] int,
 .foreach field
-		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size:b) $(@nulls:u)$(",":~)
+		[$(@name:u_)] $(@db-type??@type:u_)$(@db-size:b) $(@nulls:u)$(",":~)
 .endfor
 	)
 GO

@@ -1,23 +1,23 @@
 ﻿.template on
-IF OBJECT_ID('dbo.$(@name:sql)', 'U') IS NULL
-	CREATE TABLE dbo.[$(@name:sql)] 
+IF OBJECT_ID('dbo.$(@name:u_)', 'U') IS NULL
+	CREATE TABLE dbo.[$(@name:u_)] 
 	(
 .foreach field
-		[$(@name:sql)] $(@db-type??@type:sql)$(@db-size:b) $(@nulls:u),
+		[$(@name:u_)] $(@db-type??@type:u_)$(@db-size:b) $(@nulls:u),
 .endfor
 .foreach field[@fk]
-		CONSTRAINT FK_$(../@name:sql)_$(@name:sql) FOREIGN KEY ($(@name:sql)) REFERENCES dbo.[$(@fk:sql)] ($(@fk-field??@name:sql)),
+		CONSTRAINT FK_$(../@name:u_)_$(@name:u_) FOREIGN KEY ($(@name:u_)) REFERENCES dbo.[$(@fk:u_)] ($(@fk-field??@name:u_)),
 .endfor
-		CONSTRAINT PK_$(../@name:sql) PRIMARY KEY CLUSTERED (
+		CONSTRAINT PK_$(../@name:u_) PRIMARY KEY CLUSTERED (
 .foreach field[@pk]
-			$(@name:sql)$(",":~)
+			$(@name:u_)$(",":~)
 .endfor	
 		)
 	)
 GO
 
 .foreach field[@fk]
-IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='IX_$(../@name:sql)_$(@name:sql)' AND object_id = OBJECT_ID('dbo.[$(../@name:sql)]'))
-	CREATE INDEX IX_$(../@name:sql)_$(@name:sql) ON dbo.[$(../@name:sql)] ($(@name:sql))
+IF NOT EXISTS (SELECT * FROM sys.indexes WHERE name='IX_$(../@name:u_)_$(@name:u_)' AND object_id = OBJECT_ID('dbo.[$(../@name:u_)]'))
+	CREATE INDEX IX_$(../@name:u_)_$(@name:u_) ON dbo.[$(../@name:u_)] ($(@name:u_))
 GO
 .endfor

@@ -11,10 +11,10 @@ namespace $(../@cs-namespace)
 	{
 		readonly SqlTableType $(@name:p)TableType = new SqlTableType
 		(
-			"$(@name:sql)_TABLE_TYPE",
+			"$(@name:u_)_TABLE_TYPE",
 			new SqlMetaData("SEQ", SqlDbType.Int),
 .foreach field
-			new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@db-size:,)$(",":~)
+			new SqlMetaData("$(@name:u_)", SqlDbType.$(@db-type??@type)$(@db-size:,)$(",":~)
 .endfor
 		);
 
@@ -30,7 +30,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				return cnn.QueryProc("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
+				return cnn.QueryProc("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
 			}
 		}
 
@@ -38,7 +38,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				return await cnn.QueryProcAsync("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).SingleOrDefaultAsync<$(../@name:p)>();
+				return await cnn.QueryProcAsync("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).SingleOrDefaultAsync<$(../@name:p)>();
 			}
 		}
 .endfor
@@ -48,7 +48,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				return cnn.QueryProc("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToList<$(../@name:p)>();
+				return cnn.QueryProc("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).ToList<$(../@name:p)>();
 			}
 		}
 
@@ -56,7 +56,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				return await cnn.QueryProcAsync("dbo.$(../@name:sql)_SelectBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) }).ToListAsync<$(../@name:p)>();
+				return await cnn.QueryProcAsync("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).ToListAsync<$(../@name:p)>();
 			}
 		}
 .endfor
@@ -68,10 +68,10 @@ namespace $(../@cs-namespace)
 				var args = new 
 				{
 .foreach field
-					$(@name:sql) = $(@name:c)$(",":~)
+					$(@name:u_) = $(@name:c)$(",":~)
 .endfor
 				};
-				return cnn.QueryProc("dbo.$(@name:sql)_Merge", args).Single<$(@name:p)>();
+				return cnn.QueryProc("dbo.$(@name:u_)_Merge", args).Single<$(@name:p)>();
 			}
 		}
 
@@ -82,10 +82,10 @@ namespace $(../@cs-namespace)
 				var args = new 
 				{
 .foreach field
-					$(@name:sql) = $(@name:c)$(",":~)
+					$(@name:u_) = $(@name:c)$(",":~)
 .endfor
 				};
-				return await cnn.QueryProcAsync("dbo.$(@name:sql)_Merge", args).SingleAsync<$(@name:p)>();
+				return await cnn.QueryProcAsync("dbo.$(@name:u_)_Merge", args).SingleAsync<$(@name:p)>();
 			}
 		}
 
@@ -94,7 +94,7 @@ namespace $(../@cs-namespace)
 			using (var cnn = _connectionFactory()) 
 			{
 				var items = values.ToSqlTable($(@name:p)TableType, (rec, _, i) => rec.SetInt32(0, i));
-				var results = cnn.QueryProc("dbo.$(@name:sql)_MergeTable", new { items }).ToList<$(@name:p)WithSeq>();
+				var results = cnn.QueryProc("dbo.$(@name:u_)_MergeTable", new { items }).ToList<$(@name:p)WithSeq>();
 				results.Sort((l, r) => l.Seq.CompareTo(r.Seq));
 				return results.ToList<$(@name:p)>();
 			}
@@ -105,7 +105,7 @@ namespace $(../@cs-namespace)
 			using (var cnn = _connectionFactory()) 
 			{
 				var items = values.ToSqlTable($(@name:p)TableType, (rec, _, i) => rec.SetInt32(0, i));
-				var results = await cnn.QueryProcAsync("dbo.$(@name:sql)_MergeTable", new { items }).ToListAsync<$(@name:p)WithSeq>();
+				var results = await cnn.QueryProcAsync("dbo.$(@name:u_)_MergeTable", new { items }).ToListAsync<$(@name:p)WithSeq>();
 				results.Sort((l, r) => l.Seq.CompareTo(r.Seq));
 				return results.ToList<$(@name:p)>();
 			}
@@ -122,7 +122,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				cnn.ExecuteProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
+				cnn.ExecuteProc("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
 		}
 
@@ -130,7 +130,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				await cnn.ExecuteProcAsync("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
+				await cnn.ExecuteProcAsync("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
 		}
 .endfor
@@ -140,7 +140,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				cnn.ExecuteProc("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
+				cnn.ExecuteProc("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
 		}
 
@@ -148,7 +148,7 @@ namespace $(../@cs-namespace)
 		{
 			using (var cnn = _connectionFactory()) 
 			{
-				await cnn.ExecuteProcAsync("dbo.$(../@name:sql)_DeleteBy_$(@name:sql)", new { $(@name:sql) = $(@name:c) });
+				await cnn.ExecuteProcAsync("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
 		}
 .endfor

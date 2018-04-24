@@ -20,46 +20,46 @@ namespace BusterWood.UniCodeGen
         /// </summary>
         public static string ApplyFormatModifier(string value, string modifier, bool last=false)
         {
-            bool Remove(char toRemove, ref string text)
+            var result = value;
+            foreach (var ch in modifier)
             {
-                int idx = text.IndexOf(toRemove);
-                if (idx >= 0)
+                switch (char.ToLower(ch))
                 {
-                    text = text.Remove(idx, 1);
-                    return true;
+                    case 'u': // UPPER CASE
+                        result = result.ToUpper();
+                        break;
+                    case 'l': // lower case
+                        result = result.ToLower();
+                        break;
+                    case 't': // Title Case
+                        result = TitleCase(result);
+                        break;
+                    case 'p': // PascalCase
+                        result = PascalCase(result);
+                        break;
+                    case 'c': // camelCase
+                        result = CamelCase(result);
+                        break;
+                    case '_': // underscore_separated
+                        result = string.Join('_', result.Split(' ', StringSplitOptions.RemoveEmptyEntries));
+                        break;
+                    case 'b':
+                        if (!string.IsNullOrEmpty(result))
+                            result = "(" + result + ")";
+                        break;
+                    case ',':
+                        if (!string.IsNullOrEmpty(result))
+                            result = "," + result;
+                        break;
+                    case '~':
+                        if (last)
+                            result = "";
+                        break;
+                    default:
+                        break;// ignore others
                 }
-                return false;
             }
-
-            // tilde means return empty string when last
-            if (Remove('~', ref modifier) && last)
-                return ""; 
-
-            // comma means prefix a comma when not empty
-            if (Remove(',', ref modifier) && !string.IsNullOrEmpty(value))
-                value = "," + value;
-
-            // b means add brackets when not empty
-            if (Remove('b', ref modifier) && !string.IsNullOrEmpty(value))
-                value = "(" + value + ")";
-
-            switch (modifier.ToLower())
-            {
-                case "u": // UPPER CASE
-                    return value.ToUpper();
-                case "l": // lower case
-                    return value.ToLower();
-                case "t": // Title Case
-                    return TitleCase(value);
-                case "p": // PascalCase
-                    return PascalCase(value);
-                case "c": // camelCase
-                    return CamelCase(value);
-                case "sql": // SQL_CASE
-                    return SqlCase(value);
-                default:
-                    return value;
-            }
+            return result;
         }
 
         public static string TitleCase(string value)

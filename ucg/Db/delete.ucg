@@ -1,16 +1,16 @@
 ﻿.template on
-IF OBJECT_ID('dbo.$(@name:sql)_DELETE') IS NULL
-	EXEC('CREATE PROC dbo.$(@name:sql)_DELETE AS RETURN 1')
+IF OBJECT_ID('dbo.$(@name:u_)_DELETE') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:u_)_DELETE AS RETURN 1')
 GO
 
-ALTER PROC dbo.$(@name:sql)_DELETE
+ALTER PROC dbo.$(@name:u_)_DELETE
 .foreach field[@pk]
-	@$(@name:sql) $(@db-type??@type)$(",":~)
+	@$(@name:u_) $(@db-type??@type)$(",":~)
 .endfor
 AS
-DELETE FROM dbo.$(@name:sql)
+DELETE FROM dbo.$(@name:u_)
 WHERE 
 .foreach field[@pk]
-	[$(@name:sql)] = @$(@name:sql)$(" AND":~)
+	[$(@name:u_)] = @$(@name:u_)$(" AND":~)
 .endfor
 GO

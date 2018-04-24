@@ -1,20 +1,20 @@
 ﻿.template on
-IF OBJECT_ID('dbo.$(@name:sql)_Select') IS NULL
-	EXEC('CREATE PROC dbo.$(@name:sql)_Select AS RETURN 1')
+IF OBJECT_ID('dbo.$(@name:u_)_Select') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:u_)_Select AS RETURN 1')
 GO
 
-ALTER PROC dbo.$(@name:sql)_Select
+ALTER PROC dbo.$(@name:u_)_Select
 .foreach field[@pk]
-	@$(@name:sql) $(@db-type??@type)$(",":~)
+	@$(@name:u_) $(@db-type??@type)$(",":~)
 .endfor
 AS
 SELECT 
 .foreach field
-	[$(@name:sql)]$(",":~)
+	[$(@name:u_)]$(",":~)
 .endfor
-FROM dbo.$(@name:sql)
+FROM dbo.$(@name:u_)
 WHERE 
 .foreach field[@pk]
-	[$(@name:sql)] = @$(@name:sql)$(" AND":~)
+	[$(@name:u_)] = @$(@name:u_)$(" AND":~)
 .endfor
 GO

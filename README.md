@@ -78,22 +78,22 @@ Expressions can be either:
 * an XPATH expression on the current model, e.g. `$(@name)` to get the value of the name attribute.
 * double quoted text, typically used with the `:b`, `:,` and `:~` modifiers (see below), for example `$(" AND":~)`
 
-The value returned by an expression can be used as-is, for modified via one of the following format specifications:
+The value returned by an expression can be used as-is, for modified via the following format specifications:
 * `:u` for `UPPER CASE`, e.g. `$(@name:u)`
 * `:l` for `lower case`, e.g. `$(@name:l)`
 * `:t` for `Title Case`, e.g. `$(@name:t)`
 * `:p` for `PascalCase`, e.g. `$(@name:p)`
 * `:c` for `camelCase`, e.g. `$(@name:c)`
-* `:sql` for `SQL_CASE`, e.g. `$(@name:sql)`
+* `:_` for `underscore_separated`, e.g. `$(@name:_)`
 * `:b` for `(surround with brackets)` empty string when empty, otherwise add brackets round the text
 * `:,` for `,prefixed with comma` empty string when empty, otherwise the value with a comma added at the beginning
 * `:~` means don't output the value for the last item in a `foreach` or `forfiles` loop.
 
-The `b`, `,` and `~` modifiers can be combined with other modifiers, for example `$(@db-size:b,)`
+Multiple modifiers can be specified and _are applied in order_, for example `$(@db-size:b,)` adds brackets then prefixes with a comma.
 
 Expressions can contain `??` which is interpreted as the left hand side, if that has value, otherwise the right hand side.  For example:
 ```
-new SqlMetaData("$(@name:sql)", SqlDbType.$(@db-type??@type)$(@db-size:b,))$(",":~)
+new SqlMetaData("$(@name:u_)", SqlDbType.$(@db-type??@type)$(@db-size:b,))$(",":~)
 ```
 
 ## Script language
