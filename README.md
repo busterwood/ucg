@@ -198,6 +198,7 @@ foreach entity
 		inherit //type[@typename='$(@typename)']
 	endfor
 endfor
+```
 
 ### merge
 
