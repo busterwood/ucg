@@ -110,6 +110,19 @@ namespace $(../@cs-namespace)
 		}
 .endfor		
 
+		public void SetState(State newState)
+		{
+.	if string(../../@transaction)
+			using (var txn = new TransactionScope())
+			{
+				DoChangeState(newState);
+				txn.Complete();
+			}				
+.	else
+			DoChangeState(newState);
+.	endif
+		}
+
 		protected void DoChangeState(State newState)
 		{
 			if (Current == newState) return;
