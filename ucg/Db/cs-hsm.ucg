@@ -11,7 +11,7 @@ using System.Transactions;
 */
 #endregion
 .foreach state
-.  inherit ../state[@name='$(@base-state)']
+.  inherit ../superstate[@name='$(@base-state)']
 .  foreach event
 .    merge ../../steps[@run='$(@run)']
 .  endfor

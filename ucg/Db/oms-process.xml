@@ -10,23 +10,20 @@
       <do>send execution orders to EMS</do>
     </steps>
     
-    <state name="initial" base-state="default">
+    <state name="initial" base-state="default" doc="starting state">
       <event on="start trading" next="live" run="normal flow"/>
     </state>
 
-    <!-- reached via the exception event -->
-    <state name="compliance failed" base-state="default">
+    <state name="compliance failed" base-state="default" doc="reached via the exception event">
       <event on="order cancelled" next="live" run="normal flow"/>
     </state>
     
-    <!-- reached via the exception event -->
-    <state name="locate stock" base-state="default">
+    <state name="locate stock" base-state="default" doc="reached via the exception event">
       <event on="stock located" next="live" run="normal flow"/>
       <event on="order cancelled" next="live" run="normal flow"/>
     </state>
     
-    <!-- reached via the exception event -->
-    <state name="execution order creation failure" base-state="default">
+    <state name="execution order creation failure" base-state="default" doc="reached via the exception event">
       <event on="order cancelled" next="live" run="normal flow"/>
       <event on="retry" next="live" run="normal flow"/>
       <event on="end of day" next="trading day ended">
@@ -34,7 +31,7 @@
       </event>
     </state>
     
-    <state name="live" base-state="default">
+    <state name="live" base-state="default" doc="execution order(s) are live in the EMS">
       <event on="end of day" next="trading day ended">
         <do>withdraw from EMS</do>
         <do>cancel position reservation</do>
@@ -48,7 +45,7 @@
       </event>
     </state>
 
-    <state name="not trading" base-state="default">
+    <state name="not trading" base-state="default" doc="execution orders have been withdrawn from the EMS">
       <event on="start trading" next="live">
         <do>send execution orders to EMS</do>
       </event>
@@ -60,12 +57,11 @@
       </event>      
     </state>
 
-    <state name="trading day ended" base-state="default">
+    <state name="trading day ended" base-state="default" doc="some time after the exchange closes">
       <event on="start trading" next="live" run="normal flow"/>
     </state>
 
-    <!-- base (super) state -->
-    <state name="default" default="true">
+    <superstate name="default" doc="base (super) state">
       <event on="cancel" next="cancelled"/>
       <event on="end of day" next="trading day ended"/>
       <event on="fully booked" next="complete"/>
@@ -75,7 +71,7 @@
       <event on="exception">
         <do>try to recover</do>
       </event>
-    </state>
+    </superstate>
 
     <state name="complete" terminal="true"/>
 
@@ -92,49 +88,11 @@
         <do>request booking</do>
     </steps>
 
-    <state name="booking" base-state="default">
-      <event on="new broker order" next="booking requested" run="allocate and book">
-        <do>save broker order</do>
-      </event>
-    </state>
-    
-    <state name="fair allocation failed" base-state="default">
-      <event on="retry" next="booking requested" run="allocate and book"/>
-      <event on="cancel" next="cancelled"/>
-    </state>
-    
-    <state name="booking requested" base-state="default">
-      <event on="accepted"/>
-      <event on="complete" next="complete"/>
-      <event on="failed" next="failed"/>      
-    </state>
-    
-    <state name="complete" base-state="default">
-      <event on="cancel" next="cancelling">
-        <do>request booking cancellation</do>
-      </event>
-    </state>
-    
-    <state name="failed" base-state="default">
-      <event on="cancel" next="cancelled"/>
-      <event on="retry" next="booking requested">
-        <do>request booking</do>
-      </event>
-    </state>
-    
-    <state name="cancelling" base-state="default">
-    </state>
- 
-    <state name="amending" base-state="default">
-    </state>
- 
-    <state name="cancelled" terminal="true"/>
-    
-    <!-- base (super) state -->
-    <state name="default">
+    <superstate name="amendable">
       <event on="amend" next="booking requested" run="allocate and book">
         <do>save amendment</do>
       </event>
+      <event on="cancel" next="cancelled"/>
       <event on="booking cancelled" next="cancelled"/>
       <event on="archive">
         <do>archive</do>
@@ -142,7 +100,52 @@
       <event on="exception">
         <do>try to recover</do>
       </event>
+    </superstate>
+
+    <superstate name="not amendable">
+      <event on="booking cancelled" next="cancelled"/>
+      <event on="archive">
+        <do>archive</do>
+      </event>
+      <event on="exception">
+        <do>try to recover</do>
+      </event>
+    </superstate>
+    
+    <state name="booking" base-state="not amendable">
+      <event on="new broker order" next="booking requested" run="allocate and book">
+        <do>save broker order</do>
+      </event>
     </state>
-  
+    
+    <state name="fair allocation failed" base-state="amendable">
+      <event on="retry" next="booking requested" run="allocate and book"/>
+    </state>
+    
+    <state name="booking requested" base-state="not amendable">
+      <event on="accepted"/>
+      <event on="complete" next="complete">
+        <do>successfully booked</do>
+      </event>
+      <event on="failed" next="failed"/>      
+    </state>
+    
+    <state name="complete" base-state="amendable">
+      <event on="cancel" next="cancelling">
+        <do>request booking cancellation</do>
+      </event>
+    </state>
+    
+    <state name="failed" base-state="amendable">
+      <event on="retry" next="booking requested">
+        <do>request booking</do>
+      </event>
+    </state>
+    
+    <state name="cancelling" base-state="not amendable">
+    </state> 
+ 
+    <state name="cancelled" terminal="true"/>
+
   </script>
 </oms>
