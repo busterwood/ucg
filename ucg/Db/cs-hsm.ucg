@@ -5,6 +5,18 @@ using System.Diagnostics;
 using System.Transactions;
 .endif
 
+#region Original model
+/*
+.writemodel
+*/
+#endregion
+.foreach state
+.  inherit ../state[@name='$(@base-state)']
+.  foreach event
+.    merge ../../steps[@run='$(@run)']
+.  endfor
+.endfor
+
 namespace $(../@cs-namespace)
 {
 	/// <summary>Hierarchical State Machine implementation of $(@name)</summary>
@@ -47,16 +59,11 @@ namespace $(../@cs-namespace)
 
 		public void HandleEvent(Event evt)
 		{
-			bool handled;
 			switch (Current) 
 			{
-.foreach state[not(@terminal)]
+.foreach state[not(@terminal) and not(@name='default')]
 				case State.$(@name:p):
-					handled = $(@name:p)State(evt);
-.  if string(@base-state)
-					if (!handled)
-						handled = $(@base-state:p)State(evt);
-.  endif
+					$(@name:p)State(evt);
 					break;
 .endfor				
 				default:
@@ -64,15 +71,12 @@ namespace $(../@cs-namespace)
 						InvalidEvent(evt); 
 					else
 						InvalidState();
-					return;
+					break;
 			}
-
-			if (!handled) 
-				InvalidEvent(evt); 
 		}
-.foreach state[not(@terminal)]
+.foreach state[not(@terminal) and not(@name='default')]
 
-		private bool $(@name:p)State(Event evt)
+		private void $(@name:p)State(Event evt)
 		{
 			switch (evt)
 			{
@@ -97,10 +101,11 @@ namespace $(../@cs-namespace)
 					DoChangeState(State.$(@next:p));
 .		endif
 .	endif
-					return true;
+					break;
 .	endfor
 				default:
-					return false;
+					InvalidEvent(evt); 
+					break;
 			}
 		}
 .endfor		

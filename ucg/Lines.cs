@@ -70,6 +70,8 @@ namespace BusterWood.UniCodeGen
                 return new WriteModel(line, number);
             if (Load.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Load(line, number);
+            if (Inherit.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Inherit(line, number);
             if (Merge.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Merge(line, number);
 
@@ -634,6 +636,7 @@ namespace BusterWood.UniCodeGen
     /// 
     /// Updates or adds the attributes and child elements of the element matching the supplied XPATH expression
     /// </summary>
+    /// <remarks>Different from <see cref="Inherit"/> in that existing attribute values are overwritten and all child and text elements are added</remarks>
     class Merge : ScriptLine
     {
         public const string Keyword = "." + keywordNoDot;
@@ -671,6 +674,54 @@ namespace BusterWood.UniCodeGen
             if (e != null)
                 e.Value = a.Value;
             else
+                dest.Add(a);
+        }
+    }    
+
+    /// <summary>
+    /// .inherit xpath-expression
+    /// 
+    /// Adds missing attributes and child elements from the element matching the supplied XPATH expression.
+    /// </summary>
+    /// <remarks>Different from <see cref="Merge"/> in that only attributes and elements that don't already exist on the model are added</remarks>
+    class Inherit : ScriptLine
+    {
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "inherit";
+        string xpath;
+
+        public Inherit(string line, int number) : base(line, number)
+        {
+            var idx = line.IndexOf(keywordNoDot, 0);
+            xpath = line.Substring(idx + keywordNoDot.Length).Trim();
+        }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            var expanded = ExpandVars(xpath, model, ctx);
+            var found = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
+            if (found.Count == 0)
+                return;
+            if (found.Count > 1)
+                throw new ScriptException($"Expression returned more than one element on line {Number}");
+            var ele = found[0];
+            foreach (var a in ele.Attributes())
+            {
+                AddMissingAttribute(model, a);
+            }
+            var existing = new HashSet<XElement>(new TextAndFirstAttributeEquality());
+            existing.UnionWith(model.Elements());
+            foreach (var e in ele.Elements().Where(e => !existing.Contains(e)))
+            {
+                model.Add(e);
+                existing.Add(e);
+            }
+        }
+
+        private void AddMissingAttribute(XElement dest, XAttribute a)
+        {
+            var e = dest.Attribute(a.Name);
+            if (e == null)
                 dest.Add(a);
         }
     }

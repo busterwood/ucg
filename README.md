@@ -186,9 +186,22 @@ foreach entity
 endfor
 ```
 
+### inherit
+
+The `inherit` statement adds the attributes and child nodes (elements, text, etc) of another element specified via an XPATH expression _only if they do not already exist in the model_.
+The `inherit` statement is used for de-normalizing model data, for example merging a domain type definitions with the field of an entity (table).
+
+For example, the following inherits the `type` element with a `typename` attribute that matches the `typename` attribute of current model element:
+```
+foreach entity
+	foreach field
+		inherit //type[@typename='$(@typename)']
+	endfor
+endfor
+
 ### merge
 
-The `merge` statement merges the attributes and child nodes (elements, text, etc) of another element specified via an XPATH expression.
+The `merge` statement adds and updates attributes and adds child nodes (elements, text, etc) of another element specified via an XPATH expression.
 The `merge` statement is used for de-normalizing model data, for example merging a domain type definitions with the field of an entity (table).
 
 For example, the following merges the `type` element with a `typename` attribute that matches the `typename` attribute of current model element:

@@ -65,7 +65,7 @@
     </state>
 
     <!-- base (super) state -->
-    <state name="default">
+    <state name="default" default="true">
       <event on="cancel" next="cancelled"/>
       <event on="end of day" next="trading day ended"/>
       <event on="fully booked" next="complete"/>
@@ -136,7 +136,7 @@
         <do>save amendment</do>
       </event>
       <event on="booking cancelled" next="cancelled"/>
-      <event on="archvie">
+      <event on="archive">
         <do>archive</do>
       </event>
       <event on="exception">

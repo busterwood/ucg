@@ -1,15 +1,17 @@
 ﻿.template off
 // merge common steps script
-foreach script
-	foreach state
-		foreach event
-			merge ../../steps[@run='$(@run)']
-		endfor
-	endfor
-endfor
+//foreach script
+//	foreach state
+//		inherit ../state[@name='$(@base-state)']
+//		foreach event
+//			merge ../../steps[@run='$(@run)']
+//		endfor
+//	endfor
+//endfor
 
 foreach script
-	//output "$(@name:p)StateMachine.cs"
+	output "$(@name:p)StateMachine.cs"
 	include "cs-hsm.ucg"
+	output "$(@name:p)StateMachineTests.cs"
 	include "cs-hsm-tests.ucg"
 endfor
