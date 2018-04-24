@@ -10,5 +10,6 @@ endfor
 
 foreach script
 	//output "$(@name:p)StateMachine.cs"
-	include "cs-passive-sm.ucg"
+	include "cs-hsm.ucg"
+	include "cs-hsm-tests.ucg"
 endfor

@@ -1,0 +1,65 @@
+﻿.template on
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+.if string(@transaction)
+using System.Transactions;
+.endif
+using BusterWood.Testing;
+using State = $(@name:p)StateMachine.State;
+using Event = $(@name:p)StateMachine.Event;
+using Actions = $(@name:p)StateMachine.Actions;
+
+namespace $(../@cs-namespace)
+{
+	/// <summary>Tests for state machine implementation of $(@name)</summary>
+	/// <remarks>GENERATED CODE - any change to this code will be lost when the code is regenerated.</remarks>
+	public partial class $(@name:p)StateMachineTests
+	{
+		readonly $(../@name:p)StateMachine _sm;
+		partial static void CreateStateMachine();
+
+.foreach state[not(@terminal) and not(@default)]
+
+		public class $(@name:p)StateTests
+		{
+			readonly $(../@name:p)StateMachine _sm;
+			readonly List<Actions> _called = new List<Actions>();
+			int i = 0;
+
+			public $(@name:p)StateTests() 
+			{
+				CreateStateMachine();
+				_sm.AfterAction += RecordAction;
+			}
+
+			private void RecordAction(Event evt, Actions act, TimeStamp elasped)
+			{
+				_called.Add(act);
+			}
+. foreach event
+
+			public void on_$(@on:_)(Test t) 
+			{
+				_sm.SetState(State.$(../@name:p));
+				_sm.HandleEvent(Event.$(@on:p));
+				if (_sm.Current != State.$(@next??../@name:p))
+					t.Error($"Expected state to be {State.$(@next??../@name:p)} but was {_sm.Current}");
+
+.  foreach do
+				AssertAction(t, i++, Actions.$(text():p));
+.  endfor
+			}
+. endfor
+
+			private void AssertAction(Test t, int idx, Actions expected) 
+			{
+				if (_called.Count >= idx)
+					t.Error($"Action {expected} was not called");
+				else if (_called[idx] != expected)
+					t.Error($"Expected action {expected} at index {idx} but was {_called[idx]}");
+			}
+		}
+.endfor
+	}
+}
