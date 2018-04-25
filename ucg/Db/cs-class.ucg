@@ -12,5 +12,8 @@ namespace $(../@cs-namespace)
 .foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
 		public List<$(../@name:p)> $(../@name:p)s { get; set; }
 .endfor
+.foreach field[@typename='name'][1]
+		public override string ToString() => $(@name:p);
+.endfor
 	}
 }

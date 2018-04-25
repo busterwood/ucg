@@ -14,7 +14,7 @@ namespace $(../@cs-namespace)
 			"$(@name:u_)_TABLE_TYPE",
 			new SqlMetaData("SEQ", SqlDbType.Int),
 .foreach field
-			new SqlMetaData("$(@name:u_)", SqlDbType.$(@db-type??@type)$(@db-size:,)$(",":~)
+			new SqlMetaData("$(@name:u_)", SqlDbType.$(@db-type??@type)$(@db-size:,))$(",":~)
 .endfor
 		);
 

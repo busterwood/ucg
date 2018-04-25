@@ -1,0 +1,46 @@
+﻿.template on
+using System;
+using System.Collections.Generic;
+
+namespace $(../@cs-namespace)
+{
+	public class $(@name:p)
+	{
+.foreach field
+		public $(@type) $(@name:p) { get; private set; }
+.endfor
+.foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
+		public List<$(../@name:p)> $(../@name:p)s { get; private set; } = new List<$(../@name:p)>();
+.endfor
+.foreach field[@typename='name'][1]
+		public override string ToString() => $(@name:p);
+.endfor
+
+		public class Builder 
+		{
+			readonly $(@name:p) obj;
+			
+			public Builder() 
+			{
+				obj = new $(@name:p)();
+			}
+
+			public Builder($(@name:p) other) 
+			{
+				if (other == null)
+					throw new ArgumentNullException();
+				obj = other.MemberwiseClone();
+			}
+
+			public $(@name:p) Build() => obj;
+.foreach field
+
+			public Builder $(@name:p)($(@type) $(@name:c)) 
+			{
+				obj.$(@name:p) = $(@name:c);
+				return this;
+			}
+.endfor
+		}
+	}
+}

@@ -151,11 +151,11 @@
   </entity>
 
   <entity name="Execution Medium">
-    <field name="Execution Medium Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Execution Medium Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data ExecutionMediumId="1" Name="Electronic"/>
-      <data ExecutionMediumId="1" Name="Paper"/>
+      <data ExecutionMediumCode="ELC" Name="Electronic"/>
+      <data ExecutionMediumCode="PAP" Name="Paper"/>
     </static>
   </entity>
   

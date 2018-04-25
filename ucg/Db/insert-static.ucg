@@ -1,0 +1,11 @@
+﻿.template on
+-- insert static data for $(@name)
+INSERT INTO dbo.$(@name:u_) (
+.foreach field
+	$(@name:u_)$(",":~)
+.endfor
+) VALUES (
+.foreach static
+	
+.endfor
+)
