@@ -2,12 +2,14 @@
 <entities cs-namespace="BusterWood.Testing">
   <type typename="name" type="string" db-type="VarChar" db-size="50" nulls="not null"/>
   <type typename="ticker" type="string" db-type="VarChar" db-size="10" nulls="not null"/>
+  <type typename="short code" type="string" db-type="Char" db-size="3" nulls="not null"/>
+  <type typename="single letter" type="char" db-type="Char" db-size="1" nulls="not null"/>
   <type typename="tinyid" type="byte" db-type="TinyInt"/>
 
   <entity name="User">
     <field name="User Id" nulls="not null" type="int" pk="true"/>
-    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
-    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="50"/>
+    <field name="Full Name" nulls="not null" type="string" db-type="VarChar" db-size="100"/>
+    <field name="Email" nulls="not null" type="string" db-type="VarChar" db-size="320"/>
   </entity>
 
   <entity name="Fund">
@@ -26,29 +28,52 @@
     <field  name="Name" typename="name"/>
   </entity>
 
-  <entity name="Security">
-    <field name="Security Id" nulls="not null" type="int" pk="true"/>
-    <field name="Name" typename="name"/>
-    <field name="BB Ticker" typename="ticker"/>
-    <field name="Security Class Id" nulls="not null" typename="tinyid" fk="Security Class"/>
-  </entity>
-
   <entity name="Investment">
     <field name="Investment Id" nulls="not null" type="int" pk="true"/>
     <field name="Decision Maker" nulls="not null" type="int" fk="User" fk-field="User Id"/>
     <field name="Decision Date" nulls="not null" type="DateTime"/>
     <field name="Inputter" nulls="not null" type="int" fk="User" fk-field="User Id"/>
+    <field name="Investment Type Code" typename="short code" fk="Investment Type"/>
+    <field name="Trading Venue Id" nulls="not null" type="int" fk="Trading Venue"/>
   </entity>
 
+  <entity name="Investment Type">
+    <field name="Investment Type Code" typename="short code" pk="true"/>
+    <field name="Name" typename="name"/>
+    <static>
+      <data InvestmentTypeCode="PT" Name="Program Trade"/>
+      <data InvestmentTypeCode="SNL" Name="Single"/>
+    </static>
+  </entity>
+
+  <entity name="Trading Venue">
+    <field name="Trading Venue Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" typename="name"/>
+    <field name="Country Code" nulls="null" typename="short code" fk="Country"/>
+    <field name="Is Listed" nulls="not null" type="bool" db-type="bit"/>
+    <field name="Trading Venue Type Code" typename="short code" fk="Trading Venue Type"/>
+  </entity>
+
+  <entity name="Trading Venue Type">
+    <field name="Trading Venue Type Code" typename="short code" pk="true"/>
+    <field name="Name" typename="name"/>
+    <static>
+      <data TradingValueTypeCode="REG" Name="Registered"/>
+      <data TradingValueTypeCode="SUB" Name="Subsiduary"/>
+      <data TradingValueTypeCode="CMP" Name="Composite"/>
+      <data TradingValueTypeCode="SWP" Name="Swaps"/>
+    </static>
+  </entity>
+  
   <entity name="Order">
     <field name="Order Id" nulls="not null" type="int" pk="true"/>
     <field name="Investment Id" nulls="not null" type="int" fk="Investment" fk-rel="owner"/>
-    <field name="Security Id" nulls="not null" type="int" fk="Security"/>
+    <field name="Ticker" typename="ticker" doc="Not a FK to Instrument so we can trade things that have not been setup in the system"/>
     <field name="Limit Price" nulls="null" type="decimal"/>
-    <field name="Order Price Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Order Price Type"/>
-    <field name="Investment Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Investment Type"/>
-    <field name="Market Type Id" nulls="not null" type="byte" db-type="tinyint" fk="Market Type"/>
-    <field name="Currency Code" nulls="not null" type="string" db-type="char" db-size="3" fk="Currency"/>
+    <field name="Order Class Code" typename="short code" fk="Order Class"/>
+    <field name="Open Close" typename="short code" fk="Investment Type"/>
+    <field name="Market Type Code" typename="short code" fk="Market Type"/>
+    <field name="Currency Code" typename="short code" fk="Currency"/>
   </entity>
 
   <entity name="Order Line">
@@ -61,7 +86,7 @@
   </entity>
 
   <entity name="Currency">
-    <field name="Currency Code" nulls="not null" type="string" db-type="char" db-size="3" pk="true"/>
+    <field name="Currency Code" typename="short code" pk="true"/>
     <field name="Currency Id" nulls="not null" type="short" db-type="SmallInt" uk="true"/>
     <field name="Name" typename="name"/>
     <static>
@@ -84,42 +109,44 @@
   </entity>
 
   <entity name="Broker Capacity">
-    <field name="Capacity Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Broker Capacity Code" nulls="not null" typename="tinyid" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data CapacityId="1" Name="Agent"/>
-      <data CapacityId="2" Name="Principle"/>
+      <data BrokerCapacityCode="AGT" Name="Agent"/>
+      <data BrokerCapacityCode="PRI" Name="Principle"/>
     </static>
   </entity>
 
   <entity name="Commission Type">
-    <field name="Commission Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Commission Type Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data CommissionTypeId="1" Name="Per share"/>
-      <data CommissionTypeId="2" Name="Basis points"/>
-      <data CommissionTypeId="3" Name="Percentage"/>
-      <data CommissionTypeId="4" Name="Fixed"/>
+      <data CommissionTypeCode="PSH" Name="Per share"/>
+      <data CommissionTypeCode="BPS" Name="Basis points"/>
+      <data CommissionTypeCode="PCT" Name="Percentage"/>
+      <data CommissionTypeCode="FIX" Name="Fixed"/>
     </static>
   </entity>
 
   <entity name="Fill Status">
-    <field name="Fill Status Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Fill Status Id" typename="single letter" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data FillStatusId="1" Name="Cancelled"/>
-      <data FillStatusId="1" Name="Done for day"/>
-      <data FillStatusId="1" Name="Expired"/>
-      <data FillStatusId="1" Name="Filled"/>
-      <data FillStatusId="1" Name="New"/>
-      <data FillStatusId="1" Name="Partially filled"/>
-      <data FillStatusId="1" Name="Pending cancel"/>
-      <data FillStatusId="1" Name="Pending replace"/>
-      <data FillStatusId="1" Name="Rejected"/>
-      <data FillStatusId="1" Name="Replaced"/>
-      <data FillStatusId="1" Name="Restated"/>
-      <data FillStatusId="1" Name="Stopped"/>
-      <data FillStatusId="1" Name="Suspended"/>
+      <data FillStatusId="0" Name="New"/>
+      <data FillStatusId="1" Name="Partial fill"/>
+      <data FillStatusId="2" Name="Fill"/>
+      <data FillStatusId="3" Name="Done for day"/>
+      <data FillStatusId="4" Name="Cancelled"/>
+      <data FillStatusId="5" Name="Replace"/>
+      <data FillStatusId="6" Name="Pending cancel"/>
+      <data FillStatusId="7" Name="Stopped"/>
+      <data FillStatusId="8" Name="Rejected"/>
+      <data FillStatusId="9" Name="Suspended"/>
+      <data FillStatusId="A" Name="Pending New"/>
+      <data FillStatusId="B" Name="Calculated"/>
+      <data FillStatusId="C" Name="Expired"/>
+      <data FillStatusId="D" Name="Restated"/>
+      <data FillStatusId="E" Name="Pending replace"/>
     </static>
   </entity>
 
@@ -131,13 +158,13 @@
       <data ExecutionMediumId="1" Name="Paper"/>
     </static>
   </entity>
-
-  <entity name="Order Price Type">
-    <field name="Order Price Type Id" nulls="not null" typename="tinyid" pk="true"/>
+  
+  <entity name="Order Class">
+    <field name="Order Class Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data OrderPriceTypeId="1" Name="Market"/>
-      <data OrderPriceTypeId="1" Name="Limit"/>
+      <data OrderClassCode="MKT" Name="Market"/>
+      <data OrderClassCode="LIM" Name="Limit"/>
     </static>
   </entity>
 
@@ -150,32 +177,294 @@
     </static>
   </entity>
 
-  <entity name="Instrument Class">
-    <field name="Instrument Class Id" nulls="not null" typename="tinyid" pk="true"/>
+  <entity name="Instrument">
+    <field name="Instrument Id" nulls="not null" type="int" pk="true"/>
+    <field name="Name" typename="name"/>
+    <field name="Ticker" typename="ticker"/>
+    <field name="Instrument Type Id" nulls="not null" typename="tinyid" fk="Instrument Type"/>
+  </entity>
+
+  <entity name="Instrument Type">
+    <field name="Instrument Type Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data InstrumentClassId="1" Name="Vanilla"/>
-      <data InstrumentClassId="1" Name="CFD"/>
-      <data InstrumentClassId="1" Name="TRS"/>
+      <data InstrumentTypeCode="VAN" Name="Vanilla"/>
+      <data InstrumentTypeCode="CFD" Name="Contract For Difference"/>
+      <data InstrumentTypeCode="TRS" Name="Total Return Swap"/>
     </static>
   </entity>
 
   <entity name="Market Type">
-    <field name="Market Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Market Type Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data MarketTypeId="1" Name="Normal"/>
-      <data MarketTypeId="1" Name="IPO"/>
-      <data MarketTypeId="1" Name="Secondary Issue"/>
+      <data MarketTypeCode="NOR" Name="Normal"/>
+      <data MarketTypeCode="IPO" Name="Initial Public Offering"/>
+      <data MarketTypeCode="SEC" Name="Secondary Issue"/>
     </static>
   </entity>
 
   <entity name="Investment Type">
-    <field name="Investment Type Id" nulls="not null" typename="tinyid" pk="true"/>
+    <field name="Investment Type Code" typename="single letter" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data InvestmentTypeId="1" Name="Open"/>
-      <data InvestmentTypeId="2" Name="Close"/>
+      <data InvestmentTypeCode="O" Name="Open"/>
+      <data InvestmentTypeCode="C" Name="Close"/>
+    </static>
+  </entity>
+
+  <entity name="Country">
+    <field name="Country Code" typename="short code" pk="true"/>
+    <field name="Country Id" nulls="not null" type="short" db-type="SmallInt" uk="true"/>
+    <field name="Name" typename="name"/>
+    <static>
+      <data CountryCode="AFG" CountryId="4" CountryName="Afghanistan"/>
+      <data CountryCode="ALA" CountryId="248" CountryName="Aland Islands"/>
+      <data CountryCode="ALB" CountryId="8" CountryName="Albania"/>
+      <data CountryCode="DZA" CountryId="12" CountryName="Algeria"/>
+      <data CountryCode="ASM" CountryId="16" CountryName="American Samoa"/>
+      <data CountryCode="AND" CountryId="20" CountryName="Andorra"/>
+      <data CountryCode="AGO" CountryId="24" CountryName="Angola"/>
+      <data CountryCode="AIA" CountryId="660" CountryName="Anguilla"/>
+      <data CountryCode="ATA" CountryId="10" CountryName="Antarctica"/>
+      <data CountryCode="ATG" CountryId="28" CountryName="Antigua and Barbuda"/>
+      <data CountryCode="ARG" CountryId="32" CountryName="Argentina"/>
+      <data CountryCode="ARM" CountryId="51" CountryName="Armenia"/>
+      <data CountryCode="ABW" CountryId="533" CountryName="Aruba"/>
+      <data CountryCode="AUS" CountryId="36" CountryName="Australia"/>
+      <data CountryCode="AUT" CountryId="40" CountryName="Austria"/>
+      <data CountryCode="AZE" CountryId="31" CountryName="Azerbaijan"/>
+      <data CountryCode="BHS" CountryId="44" CountryName="Bahamas"/>
+      <data CountryCode="BHR" CountryId="48" CountryName="Bahrain"/>
+      <data CountryCode="BGD" CountryId="50" CountryName="Bangladesh"/>
+      <data CountryCode="BRB" CountryId="52" CountryName="Barbados"/>
+      <data CountryCode="BLR" CountryId="112" CountryName="Belarus"/>
+      <data CountryCode="BEL" CountryId="56" CountryName="Belgium"/>
+      <data CountryCode="BLZ" CountryId="84" CountryName="Belize"/>
+      <data CountryCode="BEN" CountryId="204" CountryName="Benin"/>
+      <data CountryCode="BMU" CountryId="60" CountryName="Bermuda"/>
+      <data CountryCode="BTN" CountryId="64" CountryName="Bhutan"/>
+      <data CountryCode="BOL" CountryId="68" CountryName="Bolivia"/>
+      <data CountryCode="BIH" CountryId="70" CountryName="Bosnia and Herzegovina"/>
+      <data CountryCode="BWA" CountryId="72" CountryName="Botswana"/>
+      <data CountryCode="BVT" CountryId="74" CountryName="Bouvet Island"/>
+      <data CountryCode="BRA" CountryId="76" CountryName="Brazil"/>
+      <data CountryCode="VGB" CountryId="92" CountryName="British Virgin Islands"/>
+      <data CountryCode="IOT" CountryId="86" CountryName="British Indian Ocean Territory"/>
+      <data CountryCode="BRN" CountryId="96" CountryName="Brunei Darussalam"/>
+      <data CountryCode="BGR" CountryId="100" CountryName="Bulgaria"/>
+      <data CountryCode="BFA" CountryId="854" CountryName="Burkina Faso"/>
+      <data CountryCode="BDI" CountryId="108" CountryName="Burundi"/>
+      <data CountryCode="KHM" CountryId="116" CountryName="Cambodia"/>
+      <data CountryCode="CMR" CountryId="120" CountryName="Cameroon"/>
+      <data CountryCode="CAN" CountryId="124" CountryName="Canada"/>
+      <data CountryCode="CPV" CountryId="132" CountryName="Cape Verde"/>
+      <data CountryCode="CYM" CountryId="136" CountryName="Cayman Islands"/>
+      <data CountryCode="CAF" CountryId="140" CountryName="Central African Republic"/>
+      <data CountryCode="TCD" CountryId="148" CountryName="Chad"/>
+      <data CountryCode="CHL" CountryId="152" CountryName="Chile"/>
+      <data CountryCode="CHN" CountryId="156" CountryName="China"/>
+      <data CountryCode="HKG" CountryId="344" CountryName="Hong Kong, SAR China"/>
+      <data CountryCode="MAC" CountryId="446" CountryName="Macao, SAR China"/>
+      <data CountryCode="CXR" CountryId="162" CountryName="Christmas Island"/>
+      <data CountryCode="CCK" CountryId="166" CountryName="Cocos (Keeling) Islands"/>
+      <data CountryCode="COL" CountryId="170" CountryName="Colombia"/>
+      <data CountryCode="COM" CountryId="174" CountryName="Comoros"/>
+      <data CountryCode="COG" CountryId="178" CountryName="Congo (Brazzaville)"/>
+      <data CountryCode="COD" CountryId="180" CountryName="Congo, (Kinshasa)"/>
+      <data CountryCode="COK" CountryId="184" CountryName="Cook Islands"/>
+      <data CountryCode="CRI" CountryId="188" CountryName="Costa Rica"/>
+      <data CountryCode="CIV" CountryId="384" CountryName="Côte d'Ivoire"/>
+      <data CountryCode="HRV" CountryId="191" CountryName="Croatia"/>
+      <data CountryCode="CUB" CountryId="192" CountryName="Cuba"/>
+      <data CountryCode="CYP" CountryId="196" CountryName="Cyprus"/>
+      <data CountryCode="CZE" CountryId="203" CountryName="Czech Republic"/>
+      <data CountryCode="DNK" CountryId="208" CountryName="Denmark"/>
+      <data CountryCode="DJI" CountryId="262" CountryName="Djibouti"/>
+      <data CountryCode="DMA" CountryId="212" CountryName="Dominica"/>
+      <data CountryCode="DOM" CountryId="214" CountryName="Dominican Republic"/>
+      <data CountryCode="ECU" CountryId="218" CountryName="Ecuador"/>
+      <data CountryCode="EGY" CountryId="818" CountryName="Egypt"/>
+      <data CountryCode="SLV" CountryId="222" CountryName="El Salvador"/>
+      <data CountryCode="GNQ" CountryId="226" CountryName="Equatorial Guinea"/>
+      <data CountryCode="ERI" CountryId="232" CountryName="Eritrea"/>
+      <data CountryCode="EST" CountryId="233" CountryName="Estonia"/>
+      <data CountryCode="ETH" CountryId="231" CountryName="Ethiopia"/>
+      <data CountryCode="FLK" CountryId="238" CountryName="Falkland Islands (Malvinas)"/>
+      <data CountryCode="FRO" CountryId="234" CountryName="Faroe Islands"/>
+      <data CountryCode="FJI" CountryId="242" CountryName="Fiji"/>
+      <data CountryCode="FIN" CountryId="246" CountryName="Finland"/>
+      <data CountryCode="FRA" CountryId="250" CountryName="France"/>
+      <data CountryCode="GUF" CountryId="254" CountryName="French Guiana"/>
+      <data CountryCode="PYF" CountryId="258" CountryName="French Polynesia"/>
+      <data CountryCode="ATF" CountryId="260" CountryName="French Southern Territories"/>
+      <data CountryCode="GAB" CountryId="266" CountryName="Gabon"/>
+      <data CountryCode="GMB" CountryId="270" CountryName="Gambia"/>
+      <data CountryCode="GEO" CountryId="268" CountryName="Georgia"/>
+      <data CountryCode="DEU" CountryId="276" CountryName="Germany"/>
+      <data CountryCode="GHA" CountryId="288" CountryName="Ghana"/>
+      <data CountryCode="GIB" CountryId="292" CountryName="Gibraltar"/>
+      <data CountryCode="GRC" CountryId="300" CountryName="Greece"/>
+      <data CountryCode="GRL" CountryId="304" CountryName="Greenland"/>
+      <data CountryCode="GRD" CountryId="308" CountryName="Grenada"/>
+      <data CountryCode="GLP" CountryId="312" CountryName="Guadeloupe"/>
+      <data CountryCode="GUM" CountryId="316" CountryName="Guam"/>
+      <data CountryCode="GTM" CountryId="320" CountryName="Guatemala"/>
+      <data CountryCode="GGY" CountryId="831" CountryName="Guernsey"/>
+      <data CountryCode="GIN" CountryId="324" CountryName="Guinea"/>
+      <data CountryCode="GNB" CountryId="624" CountryName="Guinea-Bissau"/>
+      <data CountryCode="GUY" CountryId="328" CountryName="Guyana"/>
+      <data CountryCode="HTI" CountryId="332" CountryName="Haiti"/>
+      <data CountryCode="HMD" CountryId="334" CountryName="Heard and Mcdonald Islands"/>
+      <data CountryCode="VAT" CountryId="336" CountryName="Holy See (Vatican City State)"/>
+      <data CountryCode="HND" CountryId="340" CountryName="Honduras"/>
+      <data CountryCode="HUN" CountryId="348" CountryName="Hungary"/>
+      <data CountryCode="ISL" CountryId="352" CountryName="Iceland"/>
+      <data CountryCode="IND" CountryId="356" CountryName="India"/>
+      <data CountryCode="IDN" CountryId="360" CountryName="Indonesia"/>
+      <data CountryCode="IRN" CountryId="364" CountryName="Iran, Islamic Republic of"/>
+      <data CountryCode="IRQ" CountryId="368" CountryName="Iraq"/>
+      <data CountryCode="IRL" CountryId="372" CountryName="Ireland"/>
+      <data CountryCode="IMN" CountryId="833" CountryName="Isle of Man"/>
+      <data CountryCode="ISR" CountryId="376" CountryName="Israel"/>
+      <data CountryCode="ITA" CountryId="380" CountryName="Italy"/>
+      <data CountryCode="JAM" CountryId="388" CountryName="Jamaica"/>
+      <data CountryCode="JPN" CountryId="392" CountryName="Japan"/>
+      <data CountryCode="JEY" CountryId="832" CountryName="Jersey"/>
+      <data CountryCode="JOR" CountryId="400" CountryName="Jordan"/>
+      <data CountryCode="KAZ" CountryId="398" CountryName="Kazakhstan"/>
+      <data CountryCode="KEN" CountryId="404" CountryName="Kenya"/>
+      <data CountryCode="KIR" CountryId="296" CountryName="Kiribati"/>
+      <data CountryCode="PRK" CountryId="408" CountryName="Korea (North)"/>
+      <data CountryCode="KOR" CountryId="410" CountryName="Korea (South)"/>
+      <data CountryCode="KWT" CountryId="414" CountryName="Kuwait"/>
+      <data CountryCode="KGZ" CountryId="417" CountryName="Kyrgyzstan"/>
+      <data CountryCode="LAO" CountryId="418" CountryName="Lao PDR"/>
+      <data CountryCode="LVA" CountryId="428" CountryName="Latvia"/>
+      <data CountryCode="LBN" CountryId="422" CountryName="Lebanon"/>
+      <data CountryCode="LSO" CountryId="426" CountryName="Lesotho"/>
+      <data CountryCode="LBR" CountryId="430" CountryName="Liberia"/>
+      <data CountryCode="LBY" CountryId="434" CountryName="Libya"/>
+      <data CountryCode="LIE" CountryId="438" CountryName="Liechtenstein"/>
+      <data CountryCode="LTU" CountryId="440" CountryName="Lithuania"/>
+      <data CountryCode="LUX" CountryId="442" CountryName="Luxembourg"/>
+      <data CountryCode="MKD" CountryId="807" CountryName="Macedonia, Republic of"/>
+      <data CountryCode="MDG" CountryId="450" CountryName="Madagascar"/>
+      <data CountryCode="MWI" CountryId="454" CountryName="Malawi"/>
+      <data CountryCode="MYS" CountryId="458" CountryName="Malaysia"/>
+      <data CountryCode="MDV" CountryId="462" CountryName="Maldives"/>
+      <data CountryCode="MLI" CountryId="466" CountryName="Mali"/>
+      <data CountryCode="MLT" CountryId="470" CountryName="Malta"/>
+      <data CountryCode="MHL" CountryId="584" CountryName="Marshall Islands"/>
+      <data CountryCode="MTQ" CountryId="474" CountryName="Martinique"/>
+      <data CountryCode="MRT" CountryId="478" CountryName="Mauritania"/>
+      <data CountryCode="MUS" CountryId="480" CountryName="Mauritius"/>
+      <data CountryCode="MYT" CountryId="175" CountryName="Mayotte"/>
+      <data CountryCode="MEX" CountryId="484" CountryName="Mexico"/>
+      <data CountryCode="FSM" CountryId="583" CountryName="Micronesia, Federated States of"/>
+      <data CountryCode="MDA" CountryId="498" CountryName="Moldova"/>
+      <data CountryCode="MCO" CountryId="492" CountryName="Monaco"/>
+      <data CountryCode="MNG" CountryId="496" CountryName="Mongolia"/>
+      <data CountryCode="MNE" CountryId="499" CountryName="Montenegro"/>
+      <data CountryCode="MSR" CountryId="500" CountryName="Montserrat"/>
+      <data CountryCode="MAR" CountryId="504" CountryName="Morocco"/>
+      <data CountryCode="MOZ" CountryId="508" CountryName="Mozambique"/>
+      <data CountryCode="MMR" CountryId="104" CountryName="Myanmar"/>
+      <data CountryCode="NAM" CountryId="516" CountryName="Namibia"/>
+      <data CountryCode="NRU" CountryId="520" CountryName="Nauru"/>
+      <data CountryCode="NPL" CountryId="524" CountryName="Nepal"/>
+      <data CountryCode="NLD" CountryId="528" CountryName="Netherlands"/>
+      <data CountryCode="ANT" CountryId="530" CountryName="Netherlands Antilles"/>
+      <data CountryCode="NCL" CountryId="540" CountryName="New Caledonia"/>
+      <data CountryCode="NZL" CountryId="554" CountryName="New Zealand"/>
+      <data CountryCode="NIC" CountryId="558" CountryName="Nicaragua"/>
+      <data CountryCode="NER" CountryId="562" CountryName="Niger"/>
+      <data CountryCode="NGA" CountryId="566" CountryName="Nigeria"/>
+      <data CountryCode="NIU" CountryId="570" CountryName="Niue"/>
+      <data CountryCode="NFK" CountryId="574" CountryName="Norfolk Island"/>
+      <data CountryCode="MNP" CountryId="580" CountryName="Northern Mariana Islands"/>
+      <data CountryCode="NOR" CountryId="578" CountryName="Norway"/>
+      <data CountryCode="OMN" CountryId="512" CountryName="Oman"/>
+      <data CountryCode="PAK" CountryId="586" CountryName="Pakistan"/>
+      <data CountryCode="PLW" CountryId="585" CountryName="Palau"/>
+      <data CountryCode="PSE" CountryId="275" CountryName="Palestinian Territory"/>
+      <data CountryCode="PAN" CountryId="591" CountryName="Panama"/>
+      <data CountryCode="PNG" CountryId="598" CountryName="Papua New Guinea"/>
+      <data CountryCode="PRY" CountryId="600" CountryName="Paraguay"/>
+      <data CountryCode="PER" CountryId="604" CountryName="Peru"/>
+      <data CountryCode="PHL" CountryId="608" CountryName="Philippines"/>
+      <data CountryCode="PCN" CountryId="612" CountryName="Pitcairn"/>
+      <data CountryCode="POL" CountryId="616" CountryName="Poland"/>
+      <data CountryCode="PRT" CountryId="620" CountryName="Portugal"/>
+      <data CountryCode="PRI" CountryId="630" CountryName="Puerto Rico"/>
+      <data CountryCode="QAT" CountryId="634" CountryName="Qatar"/>
+      <data CountryCode="REU" CountryId="638" CountryName="Réunion"/>
+      <data CountryCode="ROU" CountryId="642" CountryName="Romania"/>
+      <data CountryCode="RUS" CountryId="643" CountryName="Russian Federation"/>
+      <data CountryCode="RWA" CountryId="646" CountryName="Rwanda"/>
+      <data CountryCode="BLM" CountryId="652" CountryName="Saint-Barthélemy"/>
+      <data CountryCode="SHN" CountryId="654" CountryName="Saint Helena"/>
+      <data CountryCode="KNA" CountryId="659" CountryName="Saint Kitts and Nevis"/>
+      <data CountryCode="LCA" CountryId="662" CountryName="Saint Lucia"/>
+      <data CountryCode="MAF" CountryId="663" CountryName="Saint-Martin (French part)"/>
+      <data CountryCode="SPM" CountryId="666" CountryName="Saint Pierre and Miquelon"/>
+      <data CountryCode="VCT" CountryId="670" CountryName="Saint Vincent and Grenadines"/>
+      <data CountryCode="WSM" CountryId="882" CountryName="Samoa"/>
+      <data CountryCode="SMR" CountryId="674" CountryName="San Marino"/>
+      <data CountryCode="STP" CountryId="678" CountryName="Sao Tome and Principe"/>
+      <data CountryCode="SAU" CountryId="682" CountryName="Saudi Arabia"/>
+      <data CountryCode="SEN" CountryId="686" CountryName="Senegal"/>
+      <data CountryCode="SRB" CountryId="688" CountryName="Serbia"/>
+      <data CountryCode="SYC" CountryId="690" CountryName="Seychelles"/>
+      <data CountryCode="SLE" CountryId="694" CountryName="Sierra Leone"/>
+      <data CountryCode="SGP" CountryId="702" CountryName="Singapore"/>
+      <data CountryCode="SVK" CountryId="703" CountryName="Slovakia"/>
+      <data CountryCode="SVN" CountryId="705" CountryName="Slovenia"/>
+      <data CountryCode="SLB" CountryId="90" CountryName="Solomon Islands"/>
+      <data CountryCode="SOM" CountryId="706" CountryName="Somalia"/>
+      <data CountryCode="ZAF" CountryId="710" CountryName="South Africa"/>
+      <data CountryCode="SGS" CountryId="239" CountryName="South Georgia and the South Sandwich Islands"/>
+      <data CountryCode="SSD" CountryId="728" CountryName="South Sudan"/>
+      <data CountryCode="ESP" CountryId="724" CountryName="Spain"/>
+      <data CountryCode="LKA" CountryId="144" CountryName="Sri Lanka"/>
+      <data CountryCode="SDN" CountryId="736" CountryName="Sudan"/>
+      <data CountryCode="SUR" CountryId="740" CountryName="Suriname"/>
+      <data CountryCode="SJM" CountryId="744" CountryName="Svalbard and Jan Mayen Islands"/>
+      <data CountryCode="SWZ" CountryId="748" CountryName="Swaziland"/>
+      <data CountryCode="SWE" CountryId="752" CountryName="Sweden"/>
+      <data CountryCode="CHE" CountryId="756" CountryName="Switzerland"/>
+      <data CountryCode="SYR" CountryId="760" CountryName="Syrian Arab Republic (Syria)"/>
+      <data CountryCode="TWN" CountryId="158" CountryName="Taiwan, Republic of China"/>
+      <data CountryCode="TJK" CountryId="762" CountryName="Tajikistan"/>
+      <data CountryCode="TZA" CountryId="834" CountryName="Tanzania, United Republic of"/>
+      <data CountryCode="THA" CountryId="764" CountryName="Thailand"/>
+      <data CountryCode="TLS" CountryId="626" CountryName="Timor-Leste"/>
+      <data CountryCode="TGO" CountryId="768" CountryName="Togo"/>
+      <data CountryCode="TKL" CountryId="772" CountryName="Tokelau"/>
+      <data CountryCode="TON" CountryId="776" CountryName="Tonga"/>
+      <data CountryCode="TTO" CountryId="780" CountryName="Trinidad and Tobago"/>
+      <data CountryCode="TUN" CountryId="788" CountryName="Tunisia"/>
+      <data CountryCode="TUR" CountryId="792" CountryName="Turkey"/>
+      <data CountryCode="TKM" CountryId="795" CountryName="Turkmenistan"/>
+      <data CountryCode="TCA" CountryId="796" CountryName="Turks and Caicos Islands"/>
+      <data CountryCode="TUV" CountryId="798" CountryName="Tuvalu"/>
+      <data CountryCode="UGA" CountryId="800" CountryName="Uganda"/>
+      <data CountryCode="UKR" CountryId="804" CountryName="Ukraine"/>
+      <data CountryCode="ARE" CountryId="784" CountryName="United Arab Emirates"/>
+      <data CountryCode="GBR" CountryId="826" CountryName="United Kingdom"/>
+      <data CountryCode="USA" CountryId="840" CountryName="United States of America"/>
+      <data CountryCode="UMI" CountryId="581" CountryName="US Minor Outlying Islands"/>
+      <data CountryCode="URY" CountryId="858" CountryName="Uruguay"/>
+      <data CountryCode="UZB" CountryId="860" CountryName="Uzbekistan"/>
+      <data CountryCode="VUT" CountryId="548" CountryName="Vanuatu"/>
+      <data CountryCode="VEN" CountryId="862" CountryName="Venezuela (Bolivarian Republic)"/>
+      <data CountryCode="VNM" CountryId="704" CountryName="Viet Nam"/>
+      <data CountryCode="VIR" CountryId="850" CountryName="Virgin Islands, US"/>
+      <data CountryCode="WLF" CountryId="876" CountryName="Wallis and Futuna Islands"/>
+      <data CountryCode="ESH" CountryId="732" CountryName="Western Sahara"/>
+      <data CountryCode="YEM" CountryId="887" CountryName="Yemen"/>
+      <data CountryCode="ZMB" CountryId="894" CountryName="Zambia"/>
+      <data CountryCode="ZWE" CountryId="716" CountryName="Zimbabwe"/>
     </static>
   </entity>
 
