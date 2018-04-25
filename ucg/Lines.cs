@@ -504,7 +504,7 @@ namespace BusterWood.UniCodeGen
             if (selected is string s)
                 return !string.IsNullOrEmpty(s);
             else if (selected is IEnumerable e)
-                return e.OfType<XElement>().SingleOrDefault() != null;
+                return e.OfType<XElement>().FirstOrDefault() != null;
             else
                 throw new ScriptException($"{Keyword} expression value is not a string or IEnumerable on line {Number}: '{Text}'");
         }

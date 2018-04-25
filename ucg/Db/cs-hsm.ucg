@@ -21,7 +21,7 @@ namespace $(../@cs-namespace)
 {
 	/// <summary>Hierarchical State Machine implementation of $(@name)</summary>
 	/// <remarks>GENERATED CODE - any change to this code will be lost when the code is regenerated.</remarks>
-	public abstract class $(@name:p)StateMachine	
+	public partial class $(@name:p)StateMachine	
 	{
 	    private readonly Stopwatch clock = new Stopwatch();
 
@@ -45,11 +45,8 @@ namespace $(../@cs-namespace)
 			}
 		}
 		
-		/// <summary>Raised after entering a new state. Passed the "new" state.</summary>
-		public event Action<State> EnterState;
-		
-		/// <summary>Raised after just before changing the current state. Passed the "old" state.</summary>
-		public event Action<State> ExitState;
+		/// <summary>Raised after the state has been changed changing the current state. Passed the "old" state and "new" state.</summary>
+		public event Action<State, State> StageChanged;
 
 		/// <summary>Raised before performing an action in response to an event</summary>
 		public event Action<Event, Actions> BeforeAction;
@@ -76,8 +73,15 @@ namespace $(../@cs-namespace)
 		}
 .foreach state[not(@terminal) and not(@name='default')]
 
+.  if string(@doc)
+		/// <summary>$(@doc)</summary>
+.  endif
 		private void $(@name:p)State(Event evt)
 		{
+.  if catch
+			try
+			{
+.  endif
 			switch (evt)
 			{
 .	foreach event
@@ -107,6 +111,29 @@ namespace $(../@cs-namespace)
 					InvalidEvent(evt); 
 					break;
 			}
+.  if catch
+			}
+.  endif
+.  foreach catch
+			catch ($(@on:p) ex) 
+			{
+.    if string(../../@transaction)
+				using (var txn = new TransactionScope())
+				{
+					SetException(ex);
+.		if string(@next)
+					DoChangeState(State.$(@next:p));
+.		endif		
+					txn.Complete();
+				}			
+.    else
+				SetException(ex);
+.		if string(@next)
+				DoChangeState(State.$(@next:p));
+.		endif				
+.    endif
+			}
+.  endfor
 		}
 .endfor		
 
@@ -126,14 +153,19 @@ namespace $(../@cs-namespace)
 		protected void DoChangeState(State newState)
 		{
 			if (Current == newState) return;
-			OnExit(Current);
-			ChangeState(newState);
-			OnEnter(Current);
+			var oldState = Current;
+			Current = newState;
+			StateChanged(oldState, newState);
 		}
 
-		internal virtual void ChangeState(State newState)
+		internal virtual void OnStateChanged(State oldState, State newState)
 		{
-			Current = newState;
+			StageChanged?.Invoke(oldState, newState);
+		}
+
+		internal virtual void SetException(Exception ex)
+		{
+			Exception = ex;
 		}
 
 		internal virtual void InvalidState() 
@@ -141,18 +173,11 @@ namespace $(../@cs-namespace)
 			throw new InvalidOperationException($"Invalid state {Current}");
 		}
 
-		internal abstract void InvalidEvent(Event evt);
-		
-		protected virtual void OnEnter(State st) 
+		internal virtual void InvalidEvent(Event evt) 
 		{
-			EnterState?.Invoke(st);
+			throw new InvalidOperationException($"Invalid event {evt} for state {Current}");
 		}
 		
-		protected virtual void OnExit(State st) 
-		{
-			ExitState?.Invoke(st);
-		}
-
 		protected virtual void OnBefore(Event evt, Actions act)
 		{
 			BeforeAction?.Invoke(evt, act);
@@ -172,7 +197,7 @@ namespace $(../@cs-namespace)
 			OnAfter(evt, Actions.$(text():p), clock.Elapsed);
 		}
 
-		internal abstract void $(text():p)();
+		partial void $(text():p)();
 .endfor
 
 		public enum State : byte
@@ -196,4 +221,10 @@ namespace $(../@cs-namespace)
 .endfor
 		}
 	}
+.foreach distinct-values(//catch)
+	
+	public partial class $(@on:p) : Exception
+	{
+	}
+.endfor
 }

@@ -71,6 +71,9 @@
       <event on="exception">
         <do>try to recover</do>
       </event>
+      <catch on="stock locate exception" next="locate stock"/>
+      <catch on="restriction exception" next="compliance failed"/>
+      <catch on="position limit exception" next="compliance failed"/>
     </superstate>
 
     <state name="complete" terminal="true"/>
