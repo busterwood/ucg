@@ -58,10 +58,10 @@
     <field name="Trading Venue Type Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>
-      <data TradingValueTypeCode="REG" Name="Registered"/>
-      <data TradingValueTypeCode="SUB" Name="Subsiduary"/>
-      <data TradingValueTypeCode="CMP" Name="Composite"/>
-      <data TradingValueTypeCode="SWP" Name="Swaps"/>
+      <data TradingVenueTypeCode="REG" Name="Registered"/>
+      <data TradingVenueTypeCode="SUB" Name="Subsiduary"/>
+      <data TradingVenueTypeCode="CMP" Name="Composite"/>
+      <data TradingVenueTypeCode="SWP" Name="Swaps"/>
     </static>
   </entity>
   
@@ -216,7 +216,7 @@
   <entity name="Country">
     <field name="Country Code" typename="short code" pk="true"/>
     <field name="Country Id" nulls="not null" type="short" db-type="SmallInt" uk="true"/>
-    <field name="Name" typename="name"/>
+    <field name="CountryName" typename="name"/>
     <static>
       <data CountryCode="AFG" CountryId="4" CountryName="Afghanistan"/>
       <data CountryCode="ALA" CountryId="248" CountryName="Aland Islands"/>

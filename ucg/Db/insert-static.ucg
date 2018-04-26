@@ -1,11 +1,25 @@
 ﻿.template on
 -- insert static data for $(@name)
-INSERT INTO dbo.$(@name:u_) (
+-- TODO: change to a merge statement for ease of deployment
+INSERT INTO dbo.$(@name:u_) 
+(
 .foreach field
 	$(@name:u_)$(",":~)
 .endfor
-) VALUES (
-.foreach static
-	
+) 
+VALUES
+.foreach static/data
+(
+.  transform ../../field/@name
+.  foreach ./*
+.    inherit attributes ../../../field[@name='$(@name)']
+.    merge //type[@typename='$(@typename)']
+.    if @type = 'string'
+	"$(text())"$(",":~)
+.    else
+	$(text())$(",":~)
+.    endif
+.  endfor
+)$(",":~)
 .endfor
-)
+GO

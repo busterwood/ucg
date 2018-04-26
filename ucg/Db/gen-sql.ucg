@@ -6,9 +6,11 @@ foreach entity
 	include "merge.ucg"
 	include "merge-table.ucg"
 	include "select.ucg"
-	include "insert-static.ucg"
 	foreach field[@fk-rel]
 		include "select-fk.ucg"
 		include "delete-fk.ucg"
 	endfor
+	if static
+		include "insert-static.ucg"
+	endif
 endfor

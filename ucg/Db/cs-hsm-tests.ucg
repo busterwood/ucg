@@ -36,6 +36,8 @@ namespace $(../@cs-namespace)
 				t.Error($"Expected action {expected} at index {actionIdx} but was {_called[actionIdx]}");
 			actionIdx++;
 		}
+.//TODO: we need to test invalid events for states
+.//TODO: test catches
 .foreach state[not(@terminal) and not(@name='default')]
 . foreach event
 

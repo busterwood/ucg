@@ -74,6 +74,8 @@ namespace BusterWood.UniCodeGen
                 return new Inherit(line, number);
             if (Merge.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new Merge(line, number);
+            if (Transform.Keyword.Equals(firstWord, OrdinalIgnoreCase))
+                return new Transform(line, number);
 
             if (ForEach.Keyword.Equals(firstWord, OrdinalIgnoreCase))
                 return new ForEach(line, number);
@@ -490,7 +492,6 @@ namespace BusterWood.UniCodeGen
             if (True == null)
                 throw new ScriptException("Empty body of " + Keyword);
             bool result = Evaluate(model, ctx);
-            ctx.IsLast = false;
             foreach (var l in result ? True : False)
             {
                 l.Execute(model, ctx);
@@ -501,7 +502,9 @@ namespace BusterWood.UniCodeGen
         {
             var expanded = ExpandVars(_path, model, ctx);
             var selected = model.XPathEvaluate(expanded);
-            if (selected is string s)
+            if (selected is bool b)
+                return b;
+            else if (selected is string s)
                 return !string.IsNullOrEmpty(s);
             else if (selected is IEnumerable e)
                 return e.OfType<XElement>().FirstOrDefault() != null;
@@ -629,24 +632,23 @@ namespace BusterWood.UniCodeGen
                 model.Add(ele); // automatic deep clone
             }
         }
-    }    
-    
-    /// <summary>
-    /// .merge xpath-expression
-    /// 
-    /// Updates or adds the attributes and child elements of the element matching the supplied XPATH expression
-    /// </summary>
-    /// <remarks>Different from <see cref="Inherit"/> in that existing attribute values are overwritten and all child and text elements are added</remarks>
-    class Merge : ScriptLine
-    {
-        public const string Keyword = "." + keywordNoDot;
-        const string keywordNoDot = "merge";
-        string xpath;
+    }
 
-        public Merge(string line, int number) : base(line, number)
+    abstract class MergeInheritBase : ScriptLine
+    {
+        protected string xpath;
+        protected bool attributesOnly;
+
+        public MergeInheritBase(string line, int number) : base(line, number)
+        {
+        }
+
+        protected void Initialise(string keywordNoDot, string line)
         {
             var idx = line.IndexOf(keywordNoDot, 0);
-            xpath = line.Substring(idx + keywordNoDot.Length).Trim();
+            var rest = line.Substring(idx + keywordNoDot.Length).Trim();
+            attributesOnly = rest.StartsWith("attributes ", OrdinalIgnoreCase);
+            xpath = attributesOnly ? rest.Substring("attributes ".Length).TrimStart() : rest;
         }
 
         public override void Execute(XElement model, Context ctx)
@@ -657,26 +659,54 @@ namespace BusterWood.UniCodeGen
                 return;
             if (found.Count > 1)
                 throw new ScriptException($"Expression returned more than one element on line {Number}");
-            var ele = found[0];
+
+            AddAttributes(model, ctx, found[0]);
+
+            if (!attributesOnly)
+                AddElements(model, ctx, found[0]);
+        }
+
+        protected abstract void AddAttributes(XElement model, Context ctx, XElement xElement);
+
+        protected abstract void AddElements(XElement model, Context ctx, XElement xElement);
+    }
+
+    /// <summary>
+    /// .merge xpath-expression
+    /// 
+    /// Updates or adds the attributes and child elements of the element matching the supplied XPATH expression
+    /// </summary>
+    /// <remarks>Different from <see cref="Inherit"/> in that existing attribute values are overwritten and all child and text elements are added</remarks>
+    class Merge : MergeInheritBase
+    {
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "merge";
+
+        public Merge(string line, int number) : base(line, number)
+        {
+            Initialise(keywordNoDot, line);
+        }
+
+        protected override void AddAttributes(XElement model, Context ctx, XElement ele)
+        {
             foreach (var a in ele.Attributes())
             {
-                MergeAttribute(model, a);
+                var e = model.Attribute(a.Name);
+                if (e != null)
+                    e.Value = a.Value;
+                else
+                    model.Add(a);
             }
+        }
+
+        protected override void AddElements(XElement model, Context ctx, XElement ele)
+        {
             foreach (var n in ele.Nodes())
             {
                 model.Add(n); // elements and text nodes
             }
         }
-
-        private void MergeAttribute(XElement dest, XAttribute a)
-        {
-            var e = dest.Attribute(a.Name);
-            if (e != null)
-                e.Value = a.Value;
-            else
-                dest.Add(a);
-        }
-    }    
+    }
 
     /// <summary>
     /// .inherit xpath-expression
@@ -684,31 +714,28 @@ namespace BusterWood.UniCodeGen
     /// Adds missing attributes and child elements from the element matching the supplied XPATH expression.
     /// </summary>
     /// <remarks>Different from <see cref="Merge"/> in that only attributes and elements that don't already exist on the model are added</remarks>
-    class Inherit : ScriptLine
+    class Inherit : MergeInheritBase
     {
         public const string Keyword = "." + keywordNoDot;
         const string keywordNoDot = "inherit";
-        string xpath;
 
         public Inherit(string line, int number) : base(line, number)
         {
-            var idx = line.IndexOf(keywordNoDot, 0);
-            xpath = line.Substring(idx + keywordNoDot.Length).Trim();
+            Initialise(keywordNoDot, line);
         }
 
-        public override void Execute(XElement model, Context ctx)
+        protected override void AddAttributes(XElement model, Context ctx, XElement ele)
         {
-            var expanded = ExpandVars(xpath, model, ctx);
-            var found = ((IEnumerable)model.XPathEvaluate(expanded)).OfType<XElement>().ToList();
-            if (found.Count == 0)
-                return;
-            if (found.Count > 1)
-                throw new ScriptException($"Expression returned more than one element on line {Number}");
-            var ele = found[0];
             foreach (var a in ele.Attributes())
             {
-                AddMissingAttribute(model, a);
+                var e = model.Attribute(a.Name);
+                if (e == null)
+                    model.Add(a);
             }
+        }
+
+        protected override void AddElements(XElement model, Context ctx, XElement ele)
+        {
             var existing = new HashSet<XElement>(new TextAndFirstAttributeEquality());
             existing.UnionWith(model.Elements());
             foreach (var e in ele.Elements().Where(e => !existing.Contains(e)))
@@ -717,13 +744,42 @@ namespace BusterWood.UniCodeGen
                 existing.Add(e);
             }
         }
+    }
 
-        private void AddMissingAttribute(XElement dest, XAttribute a)
+    /// <summary>
+    /// .transform xpath-expression
+    /// 
+    /// Transforms attributes of the current model element into child elements.  The attributes transformed are determined by matching attribute names to the supplied XPATH expression.
+    /// </summary>
+    /// <remarks>The XPATH expression must return strings</remarks>
+    class Transform : ScriptLine
+    {
+        public const string Keyword = "." + keywordNoDot;
+        const string keywordNoDot = "transform";
+        string xpath;
+
+        public Transform(string line, int number) : base(line, number)
         {
-            var e = dest.Attribute(a.Name);
-            if (e == null)
-                dest.Add(a);
+            var idx = line.IndexOf(keywordNoDot, 0);
+            xpath = line.Substring(idx + keywordNoDot.Length).Trim();
         }
+
+        public override void Execute(XElement model, Context ctx)
+        {
+            var expanded = ExpandVars(xpath, model, ctx);
+            var found = (IEnumerable)model.XPathEvaluate(expanded);
+            foreach (var an in found.OfType<XAttribute>())
+            {
+                var nameNoSpaces = an.Value.Replace(" ", "");
+                var attr = model.Attribute(nameNoSpaces);
+                if (attr == null)
+                    throw new ScriptException($"Cannot find an attribute called '{nameNoSpaces}' in {model} on line {Number}");
+                var e = new XElement(attr.Name, attr.Value, new XAttribute("name", an.Value));
+                model.Add(e);
+                attr.Remove(); // remove attribute from model
+            }
+        }
+
     }
 
     /// <summary>

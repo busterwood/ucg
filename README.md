@@ -200,6 +200,11 @@ foreach entity
 endfor
 ```
 
+You can inherit just the attributes of the selected element by adding the `attributes` keyword before the xpath expression, for example:
+```
+	inherit attributes //type[@typename='$(@typename)']
+```
+
 ### merge
 
 The `merge` statement adds and updates attributes and adds child nodes (elements, text, etc) of another element specified via an XPATH expression.
@@ -213,6 +218,47 @@ foreach entity
 	endfor
 endfor
 ```
+
+You can merge just the attributes of the selected element by adding the `attributes` keyword before the xpath expression, for example:
+```
+	merge attributes //type[@typename='$(@typename)']
+```
+
+### transform
+
+The `transform` statement changes attributes of the current model element to child elements.  Only attributes with names that matches an XPATH expression are transformed.
+This statement is used to allow code to be generated from a list of attributes _as XPATH does not allow iterating over attributes_.
+For example, given this model:
+```
+  <entity name="Currency">
+    <field name="Currency Code" typename="short code" pk="true"/>
+    <field name="Currency Id" nulls="not null" type="short" db-type="SmallInt" uk="true"/>
+    <field name="Name" typename="name"/>
+    <static>	
+		<data CurrencyCode="GBP" CurrencyName="Pound Stirling"/>
+	</static>
+  </entity>
+```
+When this script is run:
+```
+foreach static/data
+	transform ../../field/@name
+endfor
+```
+Then the model is transformed into:
+```
+  <entity name="Currency">
+    <field name="Currency Code" typename="short code" pk="true"/>
+    <field name="Name" typename="name"/>
+    <static>	
+		<data CurrencyCode="GBP" Name="Pound Stirling">
+			<CurrencyCode name="Currency Code">GBP</CurrencyCode>
+			<Name name="Name">Pound Stirling</Name>
+		</data>
+	</static>
+  </entity>
+  ```
+NOTE that the transform is applied without spaces, e.g. the attribute `CurrencyCode` is found for the value of `name="Currency Code"` in the above example.
 
 ### writemodel
 
