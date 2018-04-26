@@ -162,6 +162,7 @@ endfiles
 ### if/else/endif
 
 A `if` block conditional runs the code in the block if the XPATH expression:
+* evalutes to true
 * evaluates to a non-empty string
 * evalutes to a single element
 
