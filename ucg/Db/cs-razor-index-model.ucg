@@ -15,10 +15,17 @@ namespace $(../@cs-namespace).$(@name:p)Pages
 		}
 
 		public List<$(@name:p)> $(@name:p)s { get; set; }
+.foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
+		public List<$(../@name:p)> $(../@name:p)s { get; set; }
+.endfor
 
 		public void OnGet()
         {
-            $(@name:p)s = $(@name:c)Repository.SelectAll();
+            var temp = $(@name:c)Repository.SelectAll();
+			$(@name:p)s = temp;
+.foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
+			$(../@name:p)s = temp.$(../@name:p)s;
+.endfor
         }
 	}
 }

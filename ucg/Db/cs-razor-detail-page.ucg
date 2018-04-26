@@ -16,3 +16,7 @@
 
 .endfor
 </dl>
+
+.foreach //entity/field[@fk='$(@name)' and @fk-rel='owner']
+@await Html.PartialAsync("../$(../@name:p)/Index", Model.$(../@name:p)s)
+.endfor
