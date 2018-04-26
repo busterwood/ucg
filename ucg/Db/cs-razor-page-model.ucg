@@ -1,0 +1,25 @@
+﻿.template on
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+
+namespace $(../@cs-namespace)
+{
+	public class $(@name:p)Model : PageModel
+	{
+		readonly $(@name:p)Repository $(@name:c)Repository;
+
+		public $(@name:p)Model($(@name:p)Repository $(@name:c)Repository)
+		{
+			this.$(@name:c)Repository = $(@name:c)Repository;
+		}
+
+		// the model
+		public List<$(@name:p)> $(@name:p)s { get; set; }
+
+		public void OnGet()
+        {
+            $(@name:p)s = $(@name:c)Repository.SelectAll();
+        }
+	}
+}

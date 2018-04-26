@@ -1,0 +1,22 @@
+﻿.template on
+@page
+@model $(@name:p)Model
+<table>
+	<thead>
+		<tr>
+.foreach field
+		<th>$(@name)</th>
+.endfor
+		</tr>	
+	</thead>
+	<tbody>
+@foreach(var item in Model.$(@name:p)s)
+{
+		<tr>
+.foreach field
+			<td>@item.$(@name:p)</td>
+.endfor
+		</tr>
+}
+	</tbody>
+</table>

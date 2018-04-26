@@ -18,17 +18,35 @@ namespace $(../@cs-namespace)
 .endfor
 		);
 
-		readonly Func<DbConnection> _connectionFactory;
+		readonly IDbConnectionFactory _connectionFactory;
 
-		public $(@name:p)Repository(Func<DbConnection> connectionFactory) 
+		public $(@name:p)Repository(IDbConnectionFactory connectionFactory) 
 		{
+			if (connectionFactory == null)
+				throw new ArgumentNullException();
 			_connectionFactory = connectionFactory;
+		}
+
+		public List<$(../@name:p)> SelectAll()
+		{
+			using (var cnn = _connectionFactory.Create()) 
+			{
+				return cnn.QueryProc("dbo.$(@name:u_)_SelectAll").ToList<$(@name:p)>();
+			}
+		}
+		
+		public Task<List<$(../@name:p)>> SelectAllAsync()
+		{
+			using (var cnn = _connectionFactory.Create()) 
+			{
+				return cnn.QueryProcAsync("dbo.$(@name:u_)_SelectAll").ToListAsync<$(@name:p)>();
+			}
 		}
 .foreach field[@pk]
 
 		public $(../@name:p) SelectBy$(@name:p)($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				return cnn.QueryProc("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).SingleOrDefault<$(../@name:p)>();
 			}
@@ -36,7 +54,7 @@ namespace $(../@cs-namespace)
 
 		public async Task<$(../@name:p)> SelectBy$(@name:p)Async($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				return await cnn.QueryProcAsync("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).SingleOrDefaultAsync<$(../@name:p)>();
 			}
@@ -46,7 +64,7 @@ namespace $(../@cs-namespace)
 
 		public List<$(../@name:p)> SelectBy$(@name:p)($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				return cnn.QueryProc("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).ToList<$(../@name:p)>();
 			}
@@ -54,7 +72,7 @@ namespace $(../@cs-namespace)
 
 		public async Task<List<$(../@name:p)>> SelectBy$(@name:p)Async($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				return await cnn.QueryProcAsync("dbo.$(../@name:u_)_SelectBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) }).ToListAsync<$(../@name:p)>();
 			}
@@ -63,7 +81,7 @@ namespace $(../@cs-namespace)
 
 		public $(@name:p) Save($(@name:p) item)
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				var args = new 
 				{
@@ -77,7 +95,7 @@ namespace $(../@cs-namespace)
 
 		public async Task<$(@name:p)> SaveAsync($(@name:p) item)
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				var args = new 
 				{
@@ -91,7 +109,7 @@ namespace $(../@cs-namespace)
 
 		public List<$(@name:p)> Save(IEnumerable<$(@name:p)> values)
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				var items = values.ToSqlTable($(@name:p)TableType, (rec, _, i) => rec.SetInt32(0, i));
 				var results = cnn.QueryProc("dbo.$(@name:u_)_MergeTable", new { items }).ToList<$(@name:p)WithSeq>();
@@ -102,7 +120,7 @@ namespace $(../@cs-namespace)
 
 		public async Task<List<$(@name:p)>> SaveAsync(IEnumerable<$(@name:p)> values)
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				var items = values.ToSqlTable($(@name:p)TableType, (rec, _, i) => rec.SetInt32(0, i));
 				var results = await cnn.QueryProcAsync("dbo.$(@name:u_)_MergeTable", new { items }).ToListAsync<$(@name:p)WithSeq>();
@@ -120,7 +138,7 @@ namespace $(../@cs-namespace)
 
 		public void DeleteBy$(@name:p)($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				cnn.ExecuteProc("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
@@ -128,7 +146,7 @@ namespace $(../@cs-namespace)
 
 		public async Task DeleteBy$(@name:p)Async($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				await cnn.ExecuteProcAsync("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
@@ -138,7 +156,7 @@ namespace $(../@cs-namespace)
 
 		public void DeleteBy$(@name:p)($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				cnn.ExecuteProc("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}
@@ -146,7 +164,7 @@ namespace $(../@cs-namespace)
 
 		public async Task DeleteBy$(@name:p)Async($(@type) $(@name:c))
 		{
-			using (var cnn = _connectionFactory()) 
+			using (var cnn = _connectionFactory.Create()) 
 			{
 				await cnn.ExecuteProcAsync("dbo.$(../@name:u_)_DeleteBy_$(@name:u_)", new { $(@name:u_) = $(@name:c) });
 			}

@@ -13,11 +13,15 @@ VALUES
 .  transform ../../field/@name
 .  foreach ./*
 .    inherit attributes ../../../field[@name='$(@name)']
-.    merge //type[@typename='$(@typename)']
+.    inherit attributes //type[@typename='$(@typename)']
 .    if @type = 'string'
 	"$(text())"$(",":~)
 .    else
+.      if @type = 'char'
+	"$(text())"$(",":~)
+.      else
 	$(text())$(",":~)
+.      endif
 .    endif
 .  endfor
 )$(",":~)

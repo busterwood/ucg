@@ -1,0 +1,13 @@
+﻿.template on
+IF OBJECT_ID('dbo.$(@name:u_)_SelectAll') IS NULL
+	EXEC('CREATE PROC dbo.$(@name:u_)_SelectAll AS RETURN 1')
+GO
+
+ALTER PROC dbo.$(@name:u_)_SelectAll
+AS
+SELECT 
+.foreach field
+	[$(@name:u_)]$(",":~)
+.endfor
+FROM dbo.$(@name:u_)
+GO

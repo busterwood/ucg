@@ -301,11 +301,19 @@ namespace BusterWood.UniCodeGen
         public override void Execute(XElement model, Context ctx)
         {
             var newFilename = ExpandVars(_quoted, model, ctx);
+            EnsureFolderExists(newFilename);
             Std.Info($"Output is '{newFilename}'");
             var old = ctx.Output;
             ctx.Output = new StreamWriter(newFilename, append: false);
             old.Flush();
             old.Close();
+        }
+
+        private static void EnsureFolderExists(string newFilename)
+        {
+            var folder = Path.GetDirectoryName(newFilename);
+            if (!string.IsNullOrEmpty(folder) && !Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
         }
     }
 
