@@ -235,8 +235,8 @@ For example, given this model:
     <field name="Currency Id" nulls="not null" type="short" db-type="SmallInt" uk="true"/>
     <field name="Name" typename="name"/>
     <static>	
-		<data CurrencyCode="GBP" CurrencyName="Pound Stirling"/>
-	</static>
+      <data CurrencyCode="GBP" CurrencyName="Pound Stirling"/>
+    </static>
   </entity>
 ```
 When this script is run:
@@ -251,11 +251,11 @@ Then the model is transformed into:
     <field name="Currency Code" typename="short code" pk="true"/>
     <field name="Name" typename="name"/>
     <static>	
-		<data CurrencyCode="GBP" Name="Pound Stirling">
-			<CurrencyCode name="Currency Code">GBP</CurrencyCode>
-			<Name name="Name">Pound Stirling</Name>
-		</data>
-	</static>
+      <data>
+        <CurrencyCode name="Currency Code">GBP</CurrencyCode>
+        <Name name="Name">Pound Stirling</Name>
+      </data>
+    </static>
   </entity>
   ```
 NOTE that the transform is applied without spaces, e.g. the attribute `CurrencyCode` is found for the value of `name="Currency Code"` in the above example.
