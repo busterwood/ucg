@@ -1,6 +1,6 @@
 ﻿.template on
 @page
-@model $(@name:p)Model
+@model $(../@cs-namespace).$(@name:p)Pages.IndexModel
 <table>
 	<thead>
 		<tr>

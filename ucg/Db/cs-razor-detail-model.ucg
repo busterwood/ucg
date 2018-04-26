@@ -1,0 +1,35 @@
+﻿.template on
+using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc.RazorPages;
+
+namespace $(../@cs-namespace).$(@name:p)Pages
+{
+	public class DetailModel : PageModel
+	{
+		readonly $(@name:p)Repository $(@name:c)Repository;
+
+		public DetailModel($(@name:p)Repository $(@name:c)Repository)
+		{
+			this.$(@name:c)Repository = $(@name:c)Repository;
+		}
+
+.foreach field[@pk]
+		public $(@type) $(@name:p) { get; set; }
+.endfor
+		public $(@name:p) $(@name:p) { get; set; }
+
+		public void OnGet(
+.foreach field[@pk]
+			$(@type) $(@name:c)
+.endfor
+		)
+        {
+            $(@name:p) = $(@name:c)Repository.Select(
+.foreach field[@pk]
+				$(@name:c)
+.endfor
+			);
+        }
+	}
+}

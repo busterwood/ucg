@@ -14,8 +14,14 @@ foreach entity
 	include "cs-repository.ucg"
 
 	output "Pages/$(@name:p)/Index.cshtml"	
-	include "cs-razor-page-cshtml.ucg"
+	include "cs-razor-index-page.ucg"
 
 	output "Pages/$(@name:p)/Index.cshtml.cs"	
-	include "cs-razor-page-model.ucg"
+	include "cs-razor-index-model.ucg"
+
+	output "Pages/$(@name:p)/Detail.cshtml"	
+	include "cs-razor-detail-page.ucg"
+
+	output "Pages/$(@name:p)/Detail.cshtml.cs"	
+	include "cs-razor-detail-model.ucg"
 endfor

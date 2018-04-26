@@ -3,18 +3,17 @@ using System;
 using System.Collections.Generic;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace $(../@cs-namespace)
+namespace $(../@cs-namespace).$(@name:p)Pages
 {
-	public class $(@name:p)Model : PageModel
+	public class IndexModel : PageModel
 	{
 		readonly $(@name:p)Repository $(@name:c)Repository;
 
-		public $(@name:p)Model($(@name:p)Repository $(@name:c)Repository)
+		public IndexModel($(@name:p)Repository $(@name:c)Repository)
 		{
 			this.$(@name:c)Repository = $(@name:c)Repository;
 		}
 
-		// the model
 		public List<$(@name:p)> $(@name:p)s { get; set; }
 
 		public void OnGet()

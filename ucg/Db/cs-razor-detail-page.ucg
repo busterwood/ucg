@@ -1,0 +1,12 @@
+﻿.template on
+.foreach field[@pk]
+@page "id:{$(@type)}"
+.endfor
+@model $(../@cs-namespace).$(@name:p)Pages.DetailModel
+<dl>
+.foreach field
+	<dt>$(@name)</dt>
+	<dd>@Model.$(../@name:p).$(@name:p)</dd>
+
+.endfor
+</dl>

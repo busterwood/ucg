@@ -20,10 +20,16 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Update="Db\cs-razor-page-cshtml.ucg">
+    <None Update="Db\cs-razor-detail-page.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="Db\cs-razor-page-model.ucg">
+    <None Update="Db\cs-razor-detail-model.ucg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Db\cs-razor-index-page.ucg">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="Db\cs-razor-index-model.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="Db\cs-class-immutable.ucg">
