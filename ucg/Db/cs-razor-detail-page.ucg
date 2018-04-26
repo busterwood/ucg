@@ -3,10 +3,16 @@
 @page "id:{$(@type)}"
 .endfor
 @model $(../@cs-namespace).$(@name:p)Pages.DetailModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 <dl>
 .foreach field
 	<dt>$(@name)</dt>
+.  if string(@fk)
+	<dd> <a asp-page="../$(@fk:p)/Detail" asp-route-id="@Model.$(../@name:p).$(@name:p)">@Model.$(../@name:p).$(@name:p)</a> </dd>
+.  else
 	<dd>@Model.$(../@name:p).$(@name:p)</dd>
+.  endif
 
 .endfor
 </dl>

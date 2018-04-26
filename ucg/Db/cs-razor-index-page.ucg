@@ -1,11 +1,13 @@
 ﻿.template on
 @page
 @model $(../@cs-namespace).$(@name:p)Pages.IndexModel
+@addTagHelper *, Microsoft.AspNetCore.Mvc.TagHelpers
+
 <table>
 	<thead>
 		<tr>
 .foreach field
-		<th>$(@name)</th>
+			<th>$(@name)</th>
 .endfor
 		</tr>	
 	</thead>
@@ -14,7 +16,11 @@
 {
 		<tr>
 .foreach field
+.  if string(@fk)
+			<td> <a asp-page="../$(@fk:p)/Detail" asp-route-id="@item.$(@name:p)">@item.$(@name:p)</a> </td>
+.  else
 			<td>@item.$(@name:p)</td>
+.  endif
 .endfor
 		</tr>
 }
