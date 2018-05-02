@@ -56,6 +56,9 @@
     <None Update="Db\oms-process.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="Db\ui.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="Db\select -all.ucg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

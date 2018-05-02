@@ -1,0 +1,45 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<restrictions schema="restrict">
+  <priority>
+    <entity name="Book"/>
+    <entity name="Security"/>
+    <entity name="PositionType"/>
+  </priority>
+  <priority>
+    <entity name="Book"/>
+    <entity name="Exchange"/>
+    <entity name="PositionType"/>
+  </priority>  
+  <priority>
+    <entity name="Fund"/>
+    <entity name="Security"/>
+    <entity name="PositionType"/>
+  </priority>
+  <priority>
+    <entity name="Fund"/>
+    <entity name="Exchange"/>
+    <entity name="PositionType"/>
+  </priority>
+  <priority>
+    <entity name="Book"/>
+    <entity name="Security"/>
+  </priority>
+  <priority>
+    <entity name="Book"/>
+    <entity name="Exchange"/>
+  </priority>
+  <priority>
+    <entity name="Fund"/>
+    <entity name="Security"/>
+  </priority>
+  <priority>
+    <entity name="Fund"/>
+    <entity name="Exchange"/>
+  </priority>
+  <priority>
+    <entity name="Security"/>
+  </priority>
+  <priority>
+    <entity name="Exchange"/>
+  </priority>  
+</restrictions>

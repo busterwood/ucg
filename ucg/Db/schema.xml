@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<entities cs-namespace="BusterWood.Testing">
+<entities cs-namespace="BusterWood.Testing" schema="dbo">
   <type typename="name" type="string" db-type="VarChar" db-size="50" nulls="not null"/>
   <type typename="ticker" type="string" db-type="VarChar" db-size="10" nulls="not null"/>
   <type typename="short code" type="string" db-type="Char" db-size="3" nulls="not null"/>
@@ -82,6 +82,7 @@
     <field name="Fund Id" nulls="not null" type="int" fk="Fund"/>
     <field name="Book Id" nulls="not null" type="int" fk="Book"/>
     <field name="Strategy Id" nulls="not null" type="int" fk="Strategy"/>
+    <field name="Position Type Code" typename="single letter" fk="Position Type"/>
     <field name="Quantity" nulls="not null" type="int"/>
   </entity>
 
@@ -210,6 +211,15 @@
     <static>
       <data InvestmentTypeCode="O" Name="Open"/>
       <data InvestmentTypeCode="C" Name="Close"/>
+    </static>
+  </entity>
+
+  <entity name="Position Type">
+    <field name="Position Type Code" typename="single letter" pk="true"/>
+    <field name="Name" typename="name"/>
+    <static>
+      <data PositionTypeCode="L" Name="Long"/>
+      <data PositionTypeCode="S" Name="Short"/>
     </static>
   </entity>
 
@@ -468,4 +478,18 @@
     </static>
   </entity>
 
+  <!-- TODO do we need time zones? -->
+  
+  <entity name="Instrument Type Rules" doc="what type of instrument to trade for a combination of exchange, fund, long/short">
+    <field name="Trading Venue Id" nulls="null" type="int"/>
+    <field name="Fund Id" nulls="null" type="int"/>
+    <field name="Position Type Code" nulls="null" typename="single letter"/>
+    <field name="Instrument Type Code" nulls="not null" typename="short code"/>
+  </entity>
+  
+  <!-- trading restrictions -->
+  <!-- things that can be restricted: country, trading venue, security, legal entity, position type. Can be restricted for fund or book -->
+  <!-- white lists or black lists or both? -->
+  <!-- we also need reasons, e.g. sanctions (hard), pre-trade compliance needed (soft) -->
 </entities>
+
